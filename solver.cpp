@@ -56,7 +56,6 @@ void solver::update(std::string input)
         return;
 
     readMineMap(input);
-    // printMap();
 
     getEasyNoBombs();
 
@@ -65,6 +64,9 @@ void solver::update(std::string input)
 
     runBruteForce();
     getEasyNoBombs();
+
+    // std::string a;
+    // std::cin >> a;
 
     if (bombsInStack())
         return;
@@ -212,6 +214,8 @@ void solver::DFSHelper(solverNode* curr, int group, std::vector<solverNode*> set
 
     for (solverNode* n : curr->adjNodes)
     {
+        if (curr->discovered && n->discovered)
+            continue;
         if (n->visited)
             continue;
 
@@ -244,7 +248,7 @@ void solver::DFSGrouping(std::vector<solverNode*> set)
         DFSHelper(curr, group, set);
         group++;
     }
-    std::cout << "Groups: " << group << std::endl;
+    // std::cout << "Groups: " << group << std::endl;
 }
 
 void solver::runBruteForce()
@@ -288,11 +292,12 @@ void solver::runBruteForce()
     }
 
     DFSGrouping(set);
+    // printMap();
 
     for (int i = 0; i < numNodes.size(); i++)
     {
         solverNode* n = numNodes[i];
-        b.addNumbered(n->x + SIZEX*n->y, n->adjBombs-flaggedAmount[i]);
+        b.addNumbered(n->x + SIZEX*n->y, n->group, n->adjBombs-flaggedAmount[i]);
         for (solverNode* a : n->adjNodes)
         {
             if (a->discovered || a->flagged)
@@ -302,7 +307,7 @@ void solver::runBruteForce()
         }
     }
 
-    b.findSafePicks();
+    b.findSafePicks2();
 
     std::vector<int> bombs = b.getBombs();
     std::vector<int> notBombs = b.getNotBombs();
@@ -330,9 +335,6 @@ void solver::runBruteForce()
         // std::cout << "Not bomb at: " << n->x << " " << n->y << std::endl;
         noBombNodes.push(n);
     }
-
-    // std::string a;
-    // std::cin >> a;
 }
 
 void solver::getEasyNoBombs()
@@ -435,9 +437,9 @@ void solver::printMap()
     std::string output = "";
     int currY = 0;
 
-    output += "Flags: "; 
-    output += std::to_string(bombCount);
-    output += '\n';
+    // output += "Flags: "; 
+    // output += std::to_string(bombCount);
+    // output += '\n';
 
     for (solverNode* n : nodes)
     {
@@ -447,13 +449,18 @@ void solver::printMap()
             output += '\n';
         }
 
-        if (n->discovered)
-            output += ' ';
-        else
+        if (n->visited && !n->discovered && !n->flagged)
+            output += '0' + n->group;
+        else if (n->visited && !n->flagged)
+            output += 'A';
+        else if (!n->discovered && !n->flagged)
             output += '#';
+        else
+            output += ' ';
+        output += ' ';
     }
 
-    // print(output);
+    std::cout << output << std::endl;
 }
 
 solver::solver()

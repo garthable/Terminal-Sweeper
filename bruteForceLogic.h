@@ -19,12 +19,15 @@ struct numberedNode
 {
     int iD;
     int number;
+    int currSol;
     std::vector<unknownNode*> unknownNodes;
+    std::vector<std::vector<int>> solutions;
 
     numberedNode(int _iD, int _number)
     {
         iD = _iD;
         number = _number;
+        currSol = 0;
     }
 };
 
@@ -34,8 +37,12 @@ class bruteForce
         numberedNode* searchNumbered(int);
         unknownNode* searchUnknown(int);
 
-        void addNumbered(int, int);
+        void addNumbered(int, int, int);
         void addUnknown(int, int, int);
+
+        void getValidSolutions();
+        bool nextBombSet(int);
+        bool isValidSolution(int);
 
         void findSafePicks();
         void findSafePicks2();
@@ -47,11 +54,12 @@ class bruteForce
         ~bruteForce();
 
     private:
-        std::vector<numberedNode*> numbered;
+        std::vector<std::vector<numberedNode*>> numbered;
         std::vector<std::vector<unknownNode*>> unknowns;
 
         std::vector<int> bombs;
         std::vector<int> notBombs;
+        int currNode;
 };
 
 #endif

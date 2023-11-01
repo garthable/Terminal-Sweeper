@@ -41,14 +41,6 @@ int main()
 
     while (true)
     {
-        #ifdef DEBUG
-        system("clear");
-        std::cout << "c " << s.getClickX() << " " << s.getClickY() << std::endl;
-        std::cout << "iteration: " << iteration << std::endl;
-        std::cout << "guesses: " << s.getGuesses() << std::endl;
-        std::cout << map.printWithSpaces() << std::endl;
-        usleep(50000);
-        #endif
         iteration++;
 
         if (!generated)
@@ -90,6 +82,14 @@ int main()
             return 0;
             #endif
         }
+        #ifdef DEBUG
+        system("clear");
+        std::cout << "c " << s.getClickX() << " " << s.getClickY() << std::endl;
+        std::cout << "iteration: " << iteration << std::endl;
+        std::cout << "guesses: " << s.getGuesses() << std::endl;
+        std::cout << map.printWithSpaces() << std::endl;
+        usleep(50000);
+        #endif
         if (map.won())
         {
             #ifndef DEBUG
