@@ -11,7 +11,9 @@ int main()
     #ifndef DEBUG
     mineMap map = mineMap(0);
     #else
-    mineMap map = mineMap(time(0));
+    int seed = time(0);
+    seed = 1698955864;
+    mineMap map = mineMap(seed);
     #endif
     solver s = solver();
 
@@ -85,6 +87,7 @@ int main()
         #ifdef DEBUG
         system("clear");
         std::cout << "c " << s.getClickX() << " " << s.getClickY() << std::endl;
+        std::cout << "seed " << seed << std::endl;
         std::cout << "iteration: " << iteration << std::endl;
         std::cout << "guesses: " << s.getGuesses() << std::endl;
         std::cout << map.printWithSpaces() << std::endl;

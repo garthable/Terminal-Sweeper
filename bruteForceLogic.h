@@ -40,7 +40,13 @@ class bruteForce
         void addNumbered(int, int, int);
         void addUnknown(int, int, int);
 
-        void getValidSolutions();
+        void getSolutions();
+        void removeSolutions();
+
+        bool validUpperCheck(std::vector<int>, int);
+        bool validBelowCheck(std::vector<int>, numberedNode*, int);
+
+        void getStats();
         bool nextBombSet(int);
         bool isValidSolution(int);
 
@@ -60,6 +66,9 @@ class bruteForce
         std::vector<int> bombs;
         std::vector<int> notBombs;
         int currNode;
+
+        int iteration;
+        unsigned long summation;
 };
 
 #endif

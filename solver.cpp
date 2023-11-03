@@ -71,6 +71,9 @@ void solver::update(std::string input)
     if (bombsInStack())
         return;
 
+    // std::cout << "Couldnt solve without guessing!" << std::endl;
+    // exit(0);
+
     updateWeights();
     chooseNextClick();
 }
@@ -225,7 +228,7 @@ void solver::DFSHelper(solverNode* curr, int group, std::vector<solverNode*> set
             if (n == compare)
                 shouldContinue = false;
 
-        if (shouldContinue)
+        if (shouldContinue || (!(curr->discovered || n->discovered) && !shareNumbered(curr, n, set)))
             continue;
 
         DFSHelper(n, group, set);
@@ -234,7 +237,7 @@ void solver::DFSHelper(solverNode* curr, int group, std::vector<solverNode*> set
 void solver::DFSGrouping(std::vector<solverNode*> set)
 {
     int group = 0;
-    for (solverNode* n : set)
+    for (solverNode* n : nodes)
     {
         n->visited = false;
         n->group = 0;
@@ -249,6 +252,15 @@ void solver::DFSGrouping(std::vector<solverNode*> set)
         group++;
     }
     // std::cout << "Groups: " << group << std::endl;
+}
+bool solver::shareNumbered(solverNode* n1, solverNode* n2, std::vector<solverNode*> set)
+{
+    for (solverNode* a1 : n1->adjNodes)
+        for (solverNode* a2 : n2->adjNodes)
+            for (solverNode* s : set)
+                if (a1->discovered && a1 == a2 && a1 == s)
+                    return true;
+    return false;
 }
 
 void solver::runBruteForce()
@@ -450,11 +462,20 @@ void solver::printMap()
         }
 
         if (n->visited && !n->discovered && !n->flagged)
-            output += '0' + n->group;
+            output += 'a' + n->group;
         else if (n->visited && !n->flagged)
-            output += 'A';
+        {
+            // output += 'A' + n->group;
+            // output += ' ';
+            // continue;
+            int flagged = 0;
+            for (solverNode* a : n->adjNodes)
+                if (a->flagged)
+                    flagged++;
+            output += '0' + n->adjBombs - flagged;
+        }
         else if (!n->discovered && !n->flagged)
-            output += '#';
+            output += '-';
         else
             output += ' ';
         output += ' ';

@@ -36,6 +36,10 @@ struct solverNode
     float sum;
     int elements;
 
+    bool marked;
+    int markedCount;
+    int frequency;
+
     std::vector<solverNode*> adjNodes;
 
     solverNode(int _x, int _y)
@@ -44,12 +48,18 @@ struct solverNode
         nextToFlag = false;
         flagged = false;
         visited = false;
+        marked = false;
         x = _x;
         y = _y;
         adjBombs = 0;
+
         sum = 0;
         elements = 0;
+
         group = 0;
+
+        markedCount = 0;
+        frequency = 0;
     }
 };
 
@@ -73,6 +83,12 @@ class solver
 
         void DFSHelper(solverNode*, int, std::vector<solverNode*>);
         void DFSGrouping(std::vector<solverNode*>);
+        bool shareNumbered(solverNode*, solverNode*, std::vector<solverNode*>);
+
+        void resetValidCombinations();
+        void resetMarked();
+        int getBorderingBombCount();
+        std::vector<std::vector<solverNode*>> findValidCombinations(std::vector<std::vector<solverNode*>>);
 
         bool bombsInStack();
 

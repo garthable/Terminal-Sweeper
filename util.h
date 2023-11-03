@@ -22,6 +22,37 @@ bool compareVects(std::vector<int> vector1, std::vector<int> vector2)
     return true;
 }
 
+bool removeInterectionVects(std::vector<int>& set, std::vector<int>& subset)
+{
+    if (set.size() < subset.size())
+        return false;
+
+    bool isSubset = false;
+    for (int i : subset)
+    {
+        for (int j : set)
+            if (i == j)
+                isSubset = true;
+                
+        if (!isSubset)
+            return false;
+    }
+
+    bool deleted = false;
+    for (int i = 0; i < subset.size(); i++)
+    {
+        for (int j = 0; j < set.size(); j++)
+        {
+            if (set[j] == subset[i])
+            {
+                set.erase(set.begin() + j);
+                deleted = true;
+            }
+        }
+    }
+    return deleted;
+}
+
 /* arr[] ---> Input Array 
 r ---> Size of a combination to be printed 
 index ---> Current index in data[] 
