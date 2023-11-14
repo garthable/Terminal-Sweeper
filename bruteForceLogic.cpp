@@ -119,25 +119,25 @@ void bruteForce::removeSolutions()
                     if (v2.empty())
                         continue;
 
-                    // if (!validUpperCheck(v2, group))
-                    // {
-                    //     for (int i : v2)
-                    //         if (i == 12 + 10*16)
-                    //             std::cout << "upper dELETED" << std::endl;
-                    //     n2->solutions.erase(n2->solutions.begin() + j);
-                    //     upperRemoved++;
-                    //     removed = true;
-                    // }
-                    // if (!validBelowCheck(v2, n2, group))
-                    // {
-                    //     for (int i : v2)
-                    //         if (i == 12 + 10*16)
-                    //             std::cout << "below dELETED" << std::endl;
-                    //     n2->solutions.erase(n2->solutions.begin() + j);
-                    //     belowRemoved++;
-                    //     removed = true;
-                    // }
-                    if (compareVects(v1, v2))
+                    if (!validUpperCheck(v2, group))
+                    {
+                        for (int i : v2)
+                            if (i == 12 + 10*16)
+                                std::cout << "upper dELETED" << std::endl;
+                        n2->solutions.erase(n2->solutions.begin() + j);
+                        upperRemoved++;
+                        removed = true;
+                    }
+                    else if (!validBelowCheck(v2, n2, group))
+                    {
+                        for (int i : v2)
+                            if (i == 12 + 10*16)
+                                std::cout << "below dELETED" << std::endl;
+                        n2->solutions.erase(n2->solutions.begin() + j);
+                        belowRemoved++;
+                        removed = true;
+                    }
+                    else if (compareVects(v1, v2))
                     {
                         for (int i : v2)
                             if (i == 12 + 10*16)
