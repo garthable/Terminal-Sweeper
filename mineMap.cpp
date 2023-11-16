@@ -107,11 +107,11 @@ void mineMap::flag(int x, int y)
         assert(false);
     }
 
-    // if (!flaggedNode->isBomb)
-    // {
-    //     std::cout << "Wrong flag at: " << x << " " << y << std::endl;
-    //     exit(0);
-    // }
+    if (!flaggedNode->isBomb)
+    {
+        std::cout << "Wrong flag at: " << x << " " << y << std::endl;
+        exit(0);
+    }
 
     if (!flaggedNode->isFlagged)
         bombCount--;

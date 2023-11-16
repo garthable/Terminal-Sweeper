@@ -4,7 +4,7 @@
 #ifndef MINEMAP
 #define MINEMAP
 
-#define EXPERT
+#define INTERMEDIATE
 
 #ifdef BEGINNER
     #define SIZEX 9
