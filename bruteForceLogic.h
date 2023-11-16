@@ -53,6 +53,11 @@ class bruteForce
         void findSafePicks();
         void findSafePicks2();
 
+        void getGroupClone(std::vector<numberedNode>&, std::vector<unknownNode>&);
+        void getSolutions2Helper(int, std::vector<numberedNode>);
+        void getSolutions2();
+        void findSafePicks3();
+
         std::vector<int> getBombs();
         std::vector<int> getNotBombs();
 

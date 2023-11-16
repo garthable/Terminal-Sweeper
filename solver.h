@@ -36,10 +36,6 @@ struct solverNode
     float sum;
     int elements;
 
-    bool marked;
-    int markedCount;
-    int frequency;
-
     std::vector<solverNode*> adjNodes;
 
     solverNode(int _x, int _y)
@@ -48,7 +44,6 @@ struct solverNode
         nextToFlag = false;
         flagged = false;
         visited = false;
-        marked = false;
         x = _x;
         y = _y;
         adjBombs = 0;
@@ -57,9 +52,6 @@ struct solverNode
         elements = 0;
 
         group = 0;
-
-        markedCount = 0;
-        frequency = 0;
     }
 };
 

@@ -119,25 +119,25 @@ void bruteForce::removeSolutions()
                     if (v2.empty())
                         continue;
 
-                    // if (!validUpperCheck(v2, group))
-                    // {
-                    //     for (int i : v2)
-                    //         if (i == 12 + 10*16)
-                    //             std::cout << "upper dELETED" << std::endl;
-                    //     n2->solutions.erase(n2->solutions.begin() + j);
-                    //     upperRemoved++;
-                    //     removed = true;
-                    // }
-                    // if (!validBelowCheck(v2, n2, group))
-                    // {
-                    //     for (int i : v2)
-                    //         if (i == 12 + 10*16)
-                    //             std::cout << "below dELETED" << std::endl;
-                    //     n2->solutions.erase(n2->solutions.begin() + j);
-                    //     belowRemoved++;
-                    //     removed = true;
-                    // }
-                    if (compareVects(v1, v2))
+                    if (!validUpperCheck(v2, group))
+                    {
+                        for (int i : v2)
+                            if (i == 12 + 10*16)
+                                std::cout << "upper dELETED" << std::endl;
+                        n2->solutions.erase(n2->solutions.begin() + j);
+                        upperRemoved++;
+                        removed = true;
+                    }
+                    else if (!validBelowCheck(v2, n2, group))
+                    {
+                        for (int i : v2)
+                            if (i == 12 + 10*16)
+                                std::cout << "below dELETED" << std::endl;
+                        n2->solutions.erase(n2->solutions.begin() + j);
+                        belowRemoved++;
+                        removed = true;
+                    }
+                    else if (compareVects(v1, v2))
                     {
                         for (int i : v2)
                             if (i == 12 + 10*16)
@@ -307,155 +307,155 @@ bool bruteForce::isValidSolution(int group)
     return true;
 }
 
-void bruteForce::findSafePicks()
-{
-    std::vector<unsigned long long int> validLongs;
-    int group = 0;
+// void bruteForce::findSafePicks()
+// {
+//     std::vector<unsigned long long int> validLongs;
+//     int group = 0;
 
-    for (std::vector<unknownNode*> unknownsSubset : unknowns)
-    {
+//     for (std::vector<unknownNode*> unknownsSubset : unknowns)
+//     {
 
-    for (unsigned long long int i = 0; i < pow(2, unknownsSubset.size()); i++)
-    {
-        for (int j = 0; j < unknownsSubset.size() && j < 64; j++)
-            if (getBitLong(i, j))
-                unknownsSubset[j]->isBomb = true;
-            else
-                unknownsSubset[j]->isBomb = false;
-        bool valid = true;
-        for (numberedNode* n : numbered[group])
-        {
-            int bombs = 0;
-            for (unknownNode* u : n->unknownNodes)
-                if (u->isBomb)
-                    bombs++;
-            if (n->number != bombs)
-            {
-                valid = false;
-                break;
-            }
-        }
-        if (valid)
-            validLongs.push_back(i);
-    }
-    unsigned long long int bombLong = 0xffffffffffffffff;
-    unsigned long long int notBombLong = 0;
+//     for (unsigned long long int i = 0; i < pow(2, unknownsSubset.size()); i++)
+//     {
+//         for (int j = 0; j < unknownsSubset.size() && j < 64; j++)
+//             if (getBitLong(i, j))
+//                 unknownsSubset[j]->isBomb = true;
+//             else
+//                 unknownsSubset[j]->isBomb = false;
+//         bool valid = true;
+//         for (numberedNode* n : numbered[group])
+//         {
+//             int bombs = 0;
+//             for (unknownNode* u : n->unknownNodes)
+//                 if (u->isBomb)
+//                     bombs++;
+//             if (n->number != bombs)
+//             {
+//                 valid = false;
+//                 break;
+//             }
+//         }
+//         if (valid)
+//             validLongs.push_back(i);
+//     }
+//     unsigned long long int bombLong = 0xffffffffffffffff;
+//     unsigned long long int notBombLong = 0;
 
-    for (unsigned long i : validLongs)
-    {
-        bombLong &= i;
-        notBombLong |= i;
-    }   
-    for (int j = 0; j < unknownsSubset.size(); j++)
-    {
-        if (getBitLong(bombLong, j))
-            bombs.push_back(unknownsSubset[j]->iD);
+//     for (unsigned long i : validLongs)
+//     {
+//         bombLong &= i;
+//         notBombLong |= i;
+//     }   
+//     for (int j = 0; j < unknownsSubset.size(); j++)
+//     {
+//         if (getBitLong(bombLong, j))
+//             bombs.push_back(unknownsSubset[j]->iD);
 
-        if (!getBitLong(notBombLong, j))
-            notBombs.push_back(unknownsSubset[j]->iD);
-    }
-    group++;
-    }
-}
+//         if (!getBitLong(notBombLong, j))
+//             notBombs.push_back(unknownsSubset[j]->iD);
+//     }
+//     group++;
+//     }
+// }
 
-void bruteForce::findSafePicks2()
-{
-    iteration = 0;
-    int amountOfGroups = unknowns.size();
-    getSolutions();
-    removeSolutions();
-    getStats();
-    for (int group = 0; group < amountOfGroups; group++)
-    {
-        for (std::vector<numberedNode*> v : numbered)
-            for (numberedNode* n : v)
-                n->currSol = 0;
-        currNode = 0;
-        std::vector<numberedNode*> numberedSet = numbered[group];
-        std::vector<unknownNode*> unknownSet = unknowns[group];
-        std::vector<std::vector<bool>> bombTables;
+// void bruteForce::findSafePicks2()
+// {
+//     iteration = 0;
+//     int amountOfGroups = unknowns.size();
+//     getSolutions();
+//     removeSolutions();
+//     getStats();
+//     for (int group = 0; group < amountOfGroups; group++)
+//     {
+//         for (std::vector<numberedNode*> v : numbered)
+//             for (numberedNode* n : v)
+//                 n->currSol = 0;
+//         currNode = 0;
+//         std::vector<numberedNode*> numberedSet = numbered[group];
+//         std::vector<unknownNode*> unknownSet = unknowns[group];
+//         std::vector<std::vector<bool>> bombTables;
 
-        while (!nextBombSet(group))
-        {
-            if (!isValidSolution(group))
-                continue;
+//         while (!nextBombSet(group))
+//         {
+//             if (!isValidSolution(group))
+//                 continue;
 
-            bombTables.push_back(std::vector<bool>());
+//             bombTables.push_back(std::vector<bool>());
 
-            for (int i = 0; i < unknownSet.size(); i++)
-                if (unknownSet[i]->isBomb)
-                    bombTables[bombTables.size()-1].push_back(true);
-                else
-                    bombTables[bombTables.size()-1].push_back(false);
-        }
+//             for (int i = 0; i < unknownSet.size(); i++)
+//                 if (unknownSet[i]->isBomb)
+//                     bombTables[bombTables.size()-1].push_back(true);
+//                 else
+//                     bombTables[bombTables.size()-1].push_back(false);
+//         }
 
-        if (bombTables.size() == 0)
-            continue;
+//         if (bombTables.size() == 0)
+//             continue;
 
-        std::vector<bool> bombSet;
-        std::vector<bool> notBombSet;
-        for (int i = 0; i < unknownSet.size(); i++)
-        {
-            bombSet.push_back(true);
-            notBombSet.push_back(false);
-        }
+//         std::vector<bool> bombSet;
+//         std::vector<bool> notBombSet;
+//         for (int i = 0; i < unknownSet.size(); i++)
+//         {
+//             bombSet.push_back(true);
+//             notBombSet.push_back(false);
+//         }
 
-        for (std::vector<bool> bombTable : bombTables)
-            for (int i = 0; i < unknownSet.size(); i++)
-            {
-                bool curr = bombTable[i];
-                bombSet[i] = bombSet[i] & curr;
-                notBombSet[i] = notBombSet[i] | curr;
-            }
+//         for (std::vector<bool> bombTable : bombTables)
+//             for (int i = 0; i < unknownSet.size(); i++)
+//             {
+//                 bool curr = bombTable[i];
+//                 bombSet[i] = bombSet[i] & curr;
+//                 notBombSet[i] = notBombSet[i] | curr;
+//             }
         
-        for (int i = 0; i < unknownSet.size(); i++)
-        {
-            if (bombSet[i])
-                bombs.push_back(unknownSet[i]->iD);
+//         for (int i = 0; i < unknownSet.size(); i++)
+//         {
+//             if (bombSet[i])
+//                 bombs.push_back(unknownSet[i]->iD);
 
-            if (!notBombSet[i])
-                notBombs.push_back(unknownSet[i]->iD);
-        }
+//             if (!notBombSet[i])
+//                 notBombs.push_back(unknownSet[i]->iD);
+//         }
 
-        #ifdef INFO
-        std::cout << "Total Output:" << std::endl;
-        for (std::vector<bool> v : bombTables)
-        {
-            for (bool b : v)
-                std::cout << b << " ";
+//         #ifdef INFO
+//         std::cout << "Total Output:" << std::endl;
+//         for (std::vector<bool> v : bombTables)
+//         {
+//             for (bool b : v)
+//                 std::cout << b << " ";
 
-            std::cout << std::endl;
-        }
-        std::cout << "Bombs:" << std::endl;
-        for (bool b : bombSet)
-            std::cout << b << " ";
-        std::cout << std::endl;
-        for (int i = 0; i < unknownSet.size(); i++)
-            if (bombSet[i])
-                std::cout << unknownSet[i]->iD % 16 << " " << unknownSet[i]->iD / 16 << " / ";
-        std::cout << std::endl;
+//             std::cout << std::endl;
+//         }
+//         std::cout << "Bombs:" << std::endl;
+//         for (bool b : bombSet)
+//             std::cout << b << " ";
+//         std::cout << std::endl;
+//         for (int i = 0; i < unknownSet.size(); i++)
+//             if (bombSet[i])
+//                 std::cout << unknownSet[i]->iD % 16 << " " << unknownSet[i]->iD / 16 << " / ";
+//         std::cout << std::endl;
 
-        std::cout << "Not Bombs:" << std::endl;
-        for (bool b : notBombSet)
-            std::cout << b << " ";
-        std::cout << std::endl;
-        for (int i = 0; i < unknownSet.size(); i++)
-            if (!notBombSet[i])
-                std::cout << unknownSet[i]->iD % 16 << " " << unknownSet[i]->iD / 16 << " / ";
-        std::cout << std::endl;
-        for (int i = 0; i < unknownSet.size(); i++)
-            std::cout << unknownSet[i]->iD % 16 << " " << unknownSet[i]->iD / 16 << " / ";
-        std::cout << std::endl;
-        std::cout << "Group: " << (char)('a' + group) << std::endl;
-        std::string a;
-        std::cin >> a;
-        #endif
-    }
+//         std::cout << "Not Bombs:" << std::endl;
+//         for (bool b : notBombSet)
+//             std::cout << b << " ";
+//         std::cout << std::endl;
+//         for (int i = 0; i < unknownSet.size(); i++)
+//             if (!notBombSet[i])
+//                 std::cout << unknownSet[i]->iD % 16 << " " << unknownSet[i]->iD / 16 << " / ";
+//         std::cout << std::endl;
+//         for (int i = 0; i < unknownSet.size(); i++)
+//             std::cout << unknownSet[i]->iD % 16 << " " << unknownSet[i]->iD / 16 << " / ";
+//         std::cout << std::endl;
+//         std::cout << "Group: " << (char)('a' + group) << std::endl;
+//         std::string a;
+//         std::cin >> a;
+//         #endif
+//     }
 
-    // std::cout << "Iterations: " << iteration << " " << "Expected Iterations: " << summation << std::endl;
-    // std::string a;
-    // std::cin >> a;
-}
+//     // std::cout << "Iterations: " << iteration << " " << "Expected Iterations: " << summation << std::endl;
+//     // std::string a;
+//     // std::cin >> a;
+// }
 
 std::vector<int> bruteForce::getBombs()
 {
