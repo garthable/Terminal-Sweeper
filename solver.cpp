@@ -319,33 +319,23 @@ void solver::runBruteForce()
         }
     }
 
-    b.findSafePicks2();
+    b.findSafePicks();
 
-    std::vector<int> bombs = b.getBombs();
-    std::vector<int> notBombs = b.getNotBombs();
+    // std::string a;
+    // std::cin >> a;
 
-    for (int a : bombs)
+    for (solverNode* n : set)
     {
-        solverNode* n = searchNode(a);
-        if (!n)
+        int iD = n->x + n->y*SIZEX;
+        float a = b.getProbability(iD);
+
+        if (a == 0)
+            noBombNodes.push(n);
+        else if (a == 1)
         {
-            std::cout << "Null Bomb" << std::endl;
-            exit(0);
+            n->flagged = true;
+            flagged.push_back(coord(n->x, n->y));
         }
-        // std::cout << "Bomb at: " << n->x << " " << n->y << std::endl;
-        n->flagged = true;
-        flagged.push_back(coord(n->x, n->y));
-    }
-    for (int a : notBombs)
-    {
-        solverNode* n = searchNode(a);
-        if (!n)
-        {
-            std::cout << "Null Not Bomb" << std::endl;
-            exit(0);
-        }
-        // std::cout << "Not bomb at: " << n->x << " " << n->y << std::endl;
-        noBombNodes.push(n);
     }
 }
 

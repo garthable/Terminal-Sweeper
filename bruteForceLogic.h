@@ -1,12 +1,24 @@
 #include <vector>
 
+
 #ifndef BRUTEFORCE
 #define BRUTEFORCE
 
+struct probData
+{
+    short iD;
+    float probability;
+
+    probData(short i, float p)
+    {
+        iD = i;
+        probability = p;
+    }
+};
+
 struct unknownNode
 {
-    int iD;
-    int freq;
+    short iD;
     bool isBomb;
 
     unknownNode(int _iD)
@@ -17,17 +29,15 @@ struct unknownNode
 
 struct numberedNode
 {
-    int iD;
-    int number;
-    int currSol;
-    std::vector<unknownNode*> unknownNodes;
-    std::vector<std::vector<int>> solutions;
+    short iD;
+    short number;
+    std::vector<int> attached;
+    std::vector<std::vector<int>> combinations;
 
     numberedNode(int _iD, int _number)
     {
         iD = _iD;
         number = _number;
-        currSol = 0;
     }
 };
 
@@ -40,36 +50,25 @@ class bruteForce
         void addNumbered(int, int, int);
         void addUnknown(int, int, int);
 
-        void getSolutions();
-        void removeSolutions();
+        void getCombinations();
 
-        bool validUpperCheck(std::vector<int>, int);
-        bool validBelowCheck(std::vector<int>, numberedNode*, int);
-
-        void getStats();
-        bool nextBombSet(int);
-        bool isValidSolution(int);
+        bool isValidUpper(std::vector<numberedNode>, std::vector<unknownNode>);
+        bool isValid(std::vector<numberedNode>, std::vector<unknownNode>);
+        void getSolutionsHelper(int, std::vector<numberedNode>, std::vector<unknownNode>, std::vector<std::vector<bool>>&);
+        std::vector<std::vector<bool>> getSolutions(int);
 
         void findSafePicks();
-        void findSafePicks2();
 
-        void getGroupClone(std::vector<numberedNode>&, std::vector<unknownNode>&);
-        void getSolutions2Helper(int, std::vector<numberedNode>);
-        void getSolutions2();
-        void findSafePicks3();
-
-        std::vector<int> getBombs();
-        std::vector<int> getNotBombs();
+        float getProbability(int);
 
         bruteForce();
         ~bruteForce();
 
     private:
-        std::vector<std::vector<numberedNode*>> numbered;
-        std::vector<std::vector<unknownNode*>> unknowns;
+        std::vector<std::vector<numberedNode>> numbered;
+        std::vector<std::vector<unknownNode>> unknowns;
 
-        std::vector<int> bombs;
-        std::vector<int> notBombs;
+        std::vector<probData> probabilities;
         int currNode;
 
         int iteration;

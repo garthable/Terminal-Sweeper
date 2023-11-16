@@ -2,7 +2,7 @@
 #include "solver.h"
 #include <iostream>
 
-#define DEBUG
+// #define DEBUG
 
 #define CHANCEOF 8
 
@@ -12,7 +12,7 @@ int main()
     mineMap map = mineMap(0);
     #else
     int seed = time(0);
-    seed = 1698955864;
+    // seed = 1700160490;
     mineMap map = mineMap(seed);
     #endif
     solver s = solver();
