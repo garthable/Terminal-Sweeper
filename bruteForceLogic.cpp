@@ -107,7 +107,7 @@ bool bruteForce::isValid(const std::vector<numberedNode>& numberedList, const st
     return true;
 }
 
-void bruteForce::getSolutionsHelper(int&& index, const std::vector<numberedNode>& numberedList, 
+void bruteForce::getSolutionsHelper(int index, const std::vector<numberedNode>& numberedList, 
                                     std::vector<unknownNode> unknownList, std::vector<std::vector<bool>>& out)
 {       
     if (index == numberedList.size())

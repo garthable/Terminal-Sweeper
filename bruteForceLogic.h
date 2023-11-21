@@ -56,7 +56,7 @@ class bruteForce
 
         bool isValidUpper(const std::vector<numberedNode>&, const std::vector<unknownNode>&);
         bool isValid(const std::vector<numberedNode>&, const std::vector<unknownNode>&);
-        void getSolutionsHelper(int&&, const std::vector<numberedNode>&, std::vector<unknownNode>, std::vector<std::vector<bool>>&);
+        void getSolutionsHelper(int, const std::vector<numberedNode>&, std::vector<unknownNode>, std::vector<std::vector<bool>>&);
         std::vector<std::vector<bool>> getSolutions(int);
 
         std::vector<std::vector<bool>> combineSolutions(std::vector<std::vector<bool>>, std::vector<std::vector<bool>>);
