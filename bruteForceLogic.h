@@ -20,10 +20,12 @@ struct unknownNode
 {
     short iD;
     bool isBomb;
+    bool visited;
 
     unknownNode(int _iD)
     {
         iD = _iD;
+        visited = false;
     }
 };
 
@@ -50,18 +52,20 @@ class bruteForce
         void addNumbered(int, int, int);
         void addUnknown(int, int, int);
 
-        void getCombinations();
+        void sortNumbered(int, std::vector<unknownNode>);
 
-        bool isValidUpper(std::vector<numberedNode>, std::vector<unknownNode>);
-        bool isValid(std::vector<numberedNode>, std::vector<unknownNode>);
-        void getSolutionsHelper(int, std::vector<numberedNode>, std::vector<unknownNode>, std::vector<std::vector<bool>>&);
+        bool isValidUpper(const std::vector<numberedNode>&, const std::vector<unknownNode>&);
+        bool isValid(const std::vector<numberedNode>&, const std::vector<unknownNode>&);
+        void getSolutionsHelper(int&&, const std::vector<numberedNode>&, std::vector<unknownNode>, std::vector<std::vector<bool>>&);
         std::vector<std::vector<bool>> getSolutions(int);
+
+        std::vector<std::vector<bool>> combineSolutions(std::vector<std::vector<bool>>, std::vector<std::vector<bool>>);
 
         void findSafePicks();
 
         float getProbability(int);
 
-        bruteForce();
+        bruteForce(int);
         ~bruteForce();
 
     private:
@@ -69,10 +73,8 @@ class bruteForce
         std::vector<std::vector<unknownNode>> unknowns;
 
         std::vector<probData> probabilities;
-        int currNode;
-
-        int iteration;
-        unsigned long summation;
+        
+        int bombCount;
 };
 
 #endif

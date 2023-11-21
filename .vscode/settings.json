@@ -62,6 +62,8 @@
         "utility": "cpp",
         "vector": "cpp",
         "deque": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "fstream": "cpp",
+        "iomanip": "cpp"
     }
 }

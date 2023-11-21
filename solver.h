@@ -33,8 +33,7 @@ struct solverNode
     int y;
     int adjBombs;
 
-    float sum;
-    int elements;
+    float weight;
 
     std::vector<solverNode*> adjNodes;
 
@@ -48,8 +47,7 @@ struct solverNode
         y = _y;
         adjBombs = 0;
 
-        sum = 0;
-        elements = 0;
+        weight = 0;
 
         group = 0;
     }

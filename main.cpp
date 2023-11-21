@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include "solver.h"
 #include <iostream>
+#include <sys/time.h>
 
 // #define DEBUG
 
@@ -91,7 +92,7 @@ int main()
         std::cout << "iteration: " << iteration << std::endl;
         std::cout << "guesses: " << s.getGuesses() << std::endl;
         std::cout << map.printWithSpaces() << std::endl;
-        usleep(50000);
+        usleep(100000);
         #endif
         if (map.won())
         {

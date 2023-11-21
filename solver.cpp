@@ -65,16 +65,16 @@ void solver::update(std::string input)
     runBruteForce();
     getEasyNoBombs();
 
-    // std::string a;
-    // std::cin >> a;
-
     if (bombsInStack())
         return;
 
-    // std::cout << "Couldnt solve without guessing!" << std::endl;
+    // std::cout << "Guess" << std::endl;
     // exit(0);
 
-    updateWeights();
+    // std::string a;
+    // std::cin >> a;
+
+    // updateWeights();
     chooseNextClick();
 }
 
@@ -82,8 +82,7 @@ void solver::reset()
 {
     for (solverNode* n : nodes)
     {
-        n->elements = 0;
-        n->sum = 0;
+        n->weight = -1;
         n->adjBombs = 0;
         n->group = 0;
         n->flagged = false;
@@ -107,31 +106,23 @@ void solver::chooseNextClick()
     // srand(time(0));
     solverNode* min = nullptr;
     float minWeight = (float)10000;
-    float minReplace = ((float)bombCount/(float)undiscoveredCount) + 0.25F;
+    float minReplace = ((float)bombCount/(float)undiscoveredCount);
 
     for (solverNode* n : nodes)
     {
         if (n->discovered || n->flagged)
             continue;
 
-        float weight = (n->sum/(float)n->elements);
+        float weight = n->weight;
 
-        if (n->elements == 0)
+        if (n->weight == -1)
         {
             weight = minReplace;
             if (n->nextToFlag)
                 weight += 0.05;
         }
-
-        if (weight == 0)
-            weight = minReplace;
         
         if (minWeight > weight)
-        {
-            minWeight = weight;
-            min = n;
-        }
-        else if (minWeight == weight && n->elements < min->elements)
         {
             minWeight = weight;
             min = n;
@@ -139,10 +130,7 @@ void solver::chooseNextClick()
     }
 
     if (!min)
-    {
-        // std::cout << "null min!" << std::endl;
         return;
-    }
 
     amountOfGuesses++;
     clickX = min->x;
@@ -187,9 +175,6 @@ void solver::readMineMap(std::string input)
             std::cout << "null at: " << x << " " << y <<std::endl;
             return;
         }
-
-        n->sum = 0.0F;
-        n->elements = 0;
 
         if (c == '#' || c == '@')
         {
@@ -265,7 +250,7 @@ bool solver::shareNumbered(solverNode* n1, solverNode* n2, std::vector<solverNod
 
 void solver::runBruteForce()
 {
-    bruteForce b;
+    bruteForce b = bruteForce(bombCount);
     
     std::vector<solverNode*> numNodes;
     std::vector<solverNode*> set;
@@ -324,7 +309,7 @@ void solver::runBruteForce()
     // std::string a;
     // std::cin >> a;
 
-    for (solverNode* n : set)
+    for (solverNode* n : nodes)
     {
         int iD = n->x + n->y*SIZEX;
         float a = b.getProbability(iD);
@@ -336,6 +321,8 @@ void solver::runBruteForce()
             n->flagged = true;
             flagged.push_back(coord(n->x, n->y));
         }
+        else
+            n->weight = a;
     }
 }
 
@@ -388,51 +375,51 @@ void solver::getEasyNoBombs()
     while (newFlags != 0);
 }
 
-void solver::updateWeights()
-{
-    for (solverNode* n : nodes)
-    {
-        if ((!n->discovered && !n->flagged)|| n->adjBombs == 0)
-            continue;
+// void solver::updateWeights()
+// {
+//     for (solverNode* n : nodes)
+//     {
+//         if ((!n->discovered && !n->flagged)|| n->adjBombs == 0)
+//             continue;
 
-        int flaggedOptions = 0;
-        int validOptions = 0;
+//         int flaggedOptions = 0;
+//         int validOptions = 0;
 
-        for (solverNode* a : n->adjNodes)
-        {
-            if (a->discovered || a->flagged)
-                continue;
+//         for (solverNode* a : n->adjNodes)
+//         {
+//             if (a->discovered || a->flagged)
+//                 continue;
 
-            if (a->flagged)
-                flaggedOptions++;
-            else
-                validOptions++;
-        }
+//             if (a->flagged)
+//                 flaggedOptions++;
+//             else
+//                 validOptions++;
+//         }
 
-        float prob = (float)(n->adjBombs - flaggedOptions)/(float)validOptions;
-        if (n->flagged)
-            prob = 0;
+//         float prob = (float)(n->adjBombs - flaggedOptions)/(float)validOptions;
+//         if (n->flagged)
+//             prob = 0;
 
-        if (validOptions == 0)
-            prob = 0;
+//         if (validOptions == 0)
+//             prob = 0;
 
-        for (solverNode* a : n->adjNodes)
-        {
-            if (a->discovered || a->flagged)
-                continue;
+//         for (solverNode* a : n->adjNodes)
+//         {
+//             if (a->discovered || a->flagged)
+//                 continue;
             
-            if (n->flagged)
-            {
-                a->nextToFlag = true;
-                continue;
-            }
+//             if (n->flagged)
+//             {
+//                 a->nextToFlag = true;
+//                 continue;
+//             }
 
-            a->sum += prob;
-            if (prob != 0.05F)
-                a->elements++;
-        }
-    }
-}
+//             a->sum += prob;
+//             if (prob != 0.05F)
+//                 a->elements++;
+//         }
+//     }
+// }
 
 void solver::printMap()
 {
