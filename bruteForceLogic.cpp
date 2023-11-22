@@ -59,23 +59,48 @@ void bruteForce::addUnknown(int iD, int group, int parentId)
     numNode->attached.push_back(index);
 }
 
-void bruteForce::sortNumbered(int group, std::vector<unknownNode>)
+void bruteForce::sortNumbered(int group, std::vector<unknownNode> unknownList)
 {
-    //While not all the unknown vectors have been visited
-        //Find numbered with least amount of combinations and set all of its adj nodes to visited.
+    std::vector<numberedNode> clonedNumbered = numbered[group];
+    std::vector<numberedNode> sortedList;
+    
+    for (unknownNode u : unknownList)
+        u.visited = false;
+    
+    while (numbered[group].size() != sortedList.size())
+    {
+        int min = 99999;
+        numberedNode minNode = numberedNode(-1, -1);
 
-    for (int i = 0; i < numbered[group].size(); i++)
-        for (int j = 0; j < numbered[group].size(); j++)
+        for (numberedNode n : clonedNumbered)
         {
-            numberedNode a = numbered[group][i];
-            numberedNode b = numbered[group][j];
-
-            if (a.number < b.number)
+            std::vector<int> childNodes;
+            for (int i : n.attached)
+                if (!unknownList[i].visited)
+                    childNodes.push_back(i);
+            
+            int val = combinationValueHardcoded(childNodes, n.number);
+            if (min > val)
             {
-                numbered[group][i] = b;
-                numbered[group][j] = a;
+                min = val;
+                minNode = n;
             }
         }
+        for (int i = 0; i < clonedNumbered.size(); i++)
+            if (clonedNumbered[i].iD == minNode.iD)
+            {
+                clonedNumbered.erase(clonedNumbered.begin() + i);
+                break;
+            }
+        for (int i : minNode.attached)
+            unknownList[i].visited = true;
+        sortedList.push_back(minNode);
+    }
+
+    for (unknownNode u : unknownList)
+        u.visited = false;
+
+    numbered[group] = sortedList;
 }
 
 bool bruteForce::isValidUpper(const std::vector<numberedNode>& numberedList, const std::vector<unknownNode>& unknownList)
@@ -161,6 +186,7 @@ void bruteForce::getSolutionsHelper(int index, const std::vector<numberedNode>& 
 
 std::vector<std::vector<bool>> bruteForce::getSolutions(int group)
 {
+    sortNumbered(group, unknowns[group]);
     std::vector<std::vector<bool>> solutions;
     for (unknownNode& u : unknowns[group])
     {
@@ -180,9 +206,13 @@ std::vector<bool> combineBoolVectors(std::vector<bool> A, std::vector<bool> B)
     return AB;
 }
 
-std::vector<std::vector<bool>> bruteForce::combineSolutions(std::vector<std::vector<bool>> a, std::vector<std::vector<bool>> b)
+std::vector<std::vector<bool>> combineSolutions(std::vector<std::vector<bool>> a, std::vector<std::vector<bool>> b)
 {
     std::vector<std::vector<bool>> combined;
+    for (std::vector<bool> va : a)
+        for (std::vector<bool> vb : b)
+            combined.push_back(combineBoolVectors(va, vb));
+
     return combined;
 }
 

@@ -59,8 +59,6 @@ class bruteForce
         void getSolutionsHelper(int, const std::vector<numberedNode>&, std::vector<unknownNode>, std::vector<std::vector<bool>>&);
         std::vector<std::vector<bool>> getSolutions(int);
 
-        std::vector<std::vector<bool>> combineSolutions(std::vector<std::vector<bool>>, std::vector<std::vector<bool>>);
-
         void findSafePicks();
 
         float getProbability(int);

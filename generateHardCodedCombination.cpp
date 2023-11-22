@@ -23,26 +23,9 @@ int main()
 
         va += "case " + std::to_string((i-1)+(v.size()-1)*8) + ":" + '\n';
         va += (char)9;
-        va += "subsets = {";
-
-        for (int j = 0; j < results.size(); j++)
-        {
-            std::vector<int> a = results[j];
-            va += "{";
-            for (int k = 0; k < a.size(); k++)
-            {
-                int b = a[k];
-                va += "arr[";
-                va += '0' + b;
-                va += "]";
-                if (k != a.size() - 1)
-                    va += ", ";
-            }
-            va += "}";
-            if (j != results.size() - 1)
-                va += ", ";
-        }
-        va += "};";
+        va += "return ";
+        va += std::to_string(results.size());
+        va += ";";
         va += '\n';
         va += "break;";
         va += '\n';
