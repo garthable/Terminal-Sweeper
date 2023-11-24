@@ -32,35 +32,7 @@ void mineMap::generateBombs(int x, int y)
 {
     reset();
     srand(seed);
-    for (node* n : chunkNodes)
-    {
-        if (abs(n->x - x) < 3 && abs(n->y - y) < 3)
-            continue;
-
-        if (rand() % 100 > CHUNKCHANCE)
-            continue;
-
-        if (n->isBomb || rand() % 100 <= BOMBCHANCE)
-        {
-            n->isBomb = true;
-            bombCount++;
-        }
-
-        if (bombCount == BOMBCOUNT)
-            goto exit;
-        
-        for (node* a : n->adjNodes)
-        {
-            if (a->isBomb || rand() % 100 > BOMBCHANCE)
-                continue;
-
-            a->isBomb = true;
-            bombCount++;
-
-            if (bombCount == BOMBCOUNT)
-                goto exit;
-        }
-    }
+    
     while (bombCount != BOMBCOUNT)
     {
         int randomIndex = rand() % nodes.size();

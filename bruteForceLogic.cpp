@@ -208,6 +208,12 @@ std::vector<bool> combineBoolVectors(std::vector<bool> A, std::vector<bool> B)
 
 std::vector<std::vector<bool>> combineSolutions(std::vector<std::vector<bool>> a, std::vector<std::vector<bool>> b)
 {
+    if (a.size() == 0)
+        return b;
+    else if (b.size() == 0)
+        return a;
+    else if (a.size() == 0 || b.size() == 0)
+        return {{}};
     std::vector<std::vector<bool>> combined;
     for (std::vector<bool> va : a)
         for (std::vector<bool> vb : b)
@@ -216,27 +222,60 @@ std::vector<std::vector<bool>> combineSolutions(std::vector<std::vector<bool>> a
     return combined;
 }
 
+std::vector<std::vector<bool>> combineAll(std::vector<std::vector<std::vector<bool>>> p_vectors)
+{
+    std::vector<std::vector<bool>> r_combined;
+    int r_combinedBombCount = 0;
+    for (std::vector<std::vector<bool>> vector : p_vectors)
+        r_combined = combineSolutions(r_combined, vector);
+    return r_combined;
+}
+
 void bruteForce::findSafePicks()
 {
     probabilities.clear();
+    std::vector<std::vector<std::vector<bool>>> sols;
     for (int group = 0; group < numbered.size(); group++)
     {
         std::vector<std::vector<bool>> sol = getSolutions(group);
-
-        std::vector<probData> bombChances;
-        for (int i = 0; i < sol[0].size(); i++)
-            bombChances.push_back(probData(unknowns[group][i].iD, 0));
-
-        for (std::vector<bool> v : sol)
-            for (int i = 0; i < v.size(); i++)
-                bombChances[i].probability += v[i];
-
-        for (probData& p : bombChances)
-        {
-            p.probability /= sol.size();
-            probabilities.push_back(p);
-        }   
+        sols.push_back(sol);
     }
+
+    std::vector<std::vector<bool>> sol = combineAll(sols);
+
+    for (int i = 0; i < sol.size(); i++)
+    {
+        std::vector<bool> s = sol[i];
+        int bCount = 0;
+        for (bool b : s)
+            if (b)
+                bCount++;
+        if (bCount > bombCount)
+            sol.erase(sol.begin() + i);
+    }
+
+    if (sol.size() == 0)
+        return;
+    int length = sol[0].size();
+
+    int j = 0;
+    int group = 0;
+    for (int i = 0; i < length; i++)
+    {
+        if (j == unknowns[group].size())
+        {
+            j = 0;
+            group++;
+        }
+        probabilities.push_back(probData(unknowns[group][j].iD, 0));
+        j++;
+    }
+
+    for (std::vector<bool> v : sol)
+        for (int i = 0; i < length; i++)
+            probabilities[i].probability += v[i];
+    for (probData& p : probabilities)
+        p.probability /= sol.size();
 }
 
 float bruteForce::getProbability(int iD)
