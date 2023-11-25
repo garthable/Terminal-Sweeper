@@ -5,15 +5,13 @@
 
 // #define DEBUG
 
-#define CHANCEOF 8
-
 int main()
 {
     #ifndef DEBUG
     mineMap map = mineMap(0);
     #else
     int seed = time(0);
-    seed = 166;
+    seed = 46;
     mineMap map = mineMap(seed);
     #endif
     solver s = solver();

@@ -32,6 +32,7 @@ void bruteForce::addNumbered(int iD, int group, int number)
         numbered.push_back(std::vector<numberedNode>());
 
     numbered[group].push_back(numberedNode(iD, number));
+    numberCount += number;
 }
 
 void bruteForce::addUnknown(int iD, int group, int parentId)
@@ -239,7 +240,7 @@ std::vector<std::vector<bool>> combineSolutions(const std::vector<std::vector<bo
     return combined;
 }
 
-std::vector<std::vector<bool>> combineAll(std::vector<std::vector<std::vector<bool>>> p_vectors, int max)
+std::vector<std::vector<bool>> combineAll(const std::vector<std::vector<std::vector<bool>>>& p_vectors, const int& max)
 {
     std::vector<std::vector<bool>> r_combined;
     int r_combinedBombCount = 0;
@@ -250,7 +251,35 @@ std::vector<std::vector<bool>> combineAll(std::vector<std::vector<std::vector<bo
 
 void bruteForce::findSafePicks()
 {
-    // uprint("In");
+    if (numberCount > bombCount)
+    {
+        findSafePicksBombCount();
+        return;
+    }
+    findSafePicksFast();
+}
+
+void bruteForce::findSafePicksFast()
+{
+    probabilities.clear();
+    for (int group = 0; group < numbered.size(); group++)
+    {
+        std::vector<std::vector<bool>> sol = getSolutions(group);
+
+        for (int i = 0; i < unknowns[group].size(); i++)
+            probabilities.push_back(probData(unknowns[group][i].iD, 0));
+
+        for (const std::vector<bool>& v : sol)
+            for (int i = 0; i < v.size(); i++)
+                probabilities[i].probability += v[i];
+
+        for (probData& p : probabilities)
+            p.probability /= sol.size();
+    }
+}
+
+void bruteForce::findSafePicksBombCount()
+{
     probabilities.clear();
     std::vector<std::vector<std::vector<bool>>> sols;
     for (int group = 0; group < numbered.size(); group++)
@@ -258,26 +287,8 @@ void bruteForce::findSafePicks()
         std::vector<std::vector<bool>> sol = getSolutions(group);
         sols.push_back(sol);
     }
-    // uprint("Got Solution");
+
     std::vector<std::vector<bool>> sol = combineAll(sols, bombCount);
-    // uprint("Combined Solutions");
-    // uprint(sol.size());
-
-    // for (int i = 0; i < sol.size(); i++)
-    // {
-    //     std::vector<bool> s = sol[i];
-    //     int bCount = 0;
-    //     for (bool b : s)
-    //         bCount += b;
-
-    //     if (bCount > bombCount)
-    //     {
-    //         sol.erase(sol.begin() + i);
-    //         i--;
-    //     }
-    // }
-
-    // uprint("Excluded Solutions");
 
     if (sol.size() == 0)
         return;
@@ -296,27 +307,11 @@ void bruteForce::findSafePicks()
         j++;
     }
 
-    // uprint("Set up probs");
-
     for (std::vector<bool> v : sol)
         for (int i = 0; i < length; i++)
             probabilities[i].probability += v[i];
     for (probData& p : probabilities)
         p.probability /= sol.size();
-    // uprint("Calculated probs");
-    // for (probData p : probabilities)
-    // {
-    //     std::string a = "";
-    //     a += "x: ";
-    //     a += std::to_string(p.iD % 9);
-    //     a += " y: ";
-    //     a += std::to_string(p.iD / 9);
-    //     a += " prob: ";
-    //     a += std::to_string(p.probability);
-    //     uprint(a);
-    // }
-    // std::cin.get();
-    // uprint("Out");
 }
 
 float bruteForce::getProbability(int iD)
@@ -331,6 +326,7 @@ float bruteForce::getProbability(int iD)
 bruteForce::bruteForce(int _bombCount)
 {
     bombCount = _bombCount;
+    numberCount = 0;
 }
 
 bruteForce::~bruteForce()

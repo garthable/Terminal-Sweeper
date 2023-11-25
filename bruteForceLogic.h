@@ -60,6 +60,8 @@ class bruteForce
         std::vector<std::vector<bool>> getSolutions(int);
 
         void findSafePicks();
+        void findSafePicksFast();
+        void findSafePicksBombCount();
 
         float getProbability(int);
 
@@ -72,6 +74,7 @@ class bruteForce
 
         std::vector<probData> probabilities;
         
+        int numberCount;
         int bombCount;
 };
 
