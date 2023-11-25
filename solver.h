@@ -9,10 +9,10 @@
 
 struct coord
 {
-    int x;
-    int y;
+    unsigned short x;
+    unsigned short y;
 
-    coord(int _x, int _y)
+    coord(unsigned short _x, unsigned short _y)
     {
         x = _x;
         y = _y;
@@ -27,17 +27,17 @@ struct solverNode
 
     bool visited;
 
-    int group;
+    unsigned short group;
 
-    int x;
-    int y;
-    int adjBombs;
+    unsigned short x;
+    unsigned short y;
+    unsigned short adjBombs;
 
     float weight;
 
     std::vector<solverNode*> adjNodes;
 
-    solverNode(int _x, int _y)
+    solverNode(unsigned short _x, unsigned short _y)
     {
         discovered = false;
         nextToFlag = false;
@@ -57,34 +57,28 @@ struct solverNode
 class solver
 {
     public:
-        solverNode* searchNode(int, int);
-        solverNode* searchNode(int);
+        solverNode* searchNode(const unsigned short&, const unsigned short&);
+        solverNode* searchNode(const unsigned short&);
 
-        void update(std::string);
+        void update(const std::string&);
         void printMap();
-        void readMineMap(std::string);
+        void readMineMap(const std::string&);
 
-        void testIncogs();
         void runBruteForce();
         void getEasyNoBombs();
         void updateWeights();
         void chooseNextClick();
         void reset();
 
-        void DFSHelper(solverNode*, int, std::vector<solverNode*>);
-        void DFSGrouping(std::vector<solverNode*>);
-        bool shareNumbered(solverNode*, solverNode*, std::vector<solverNode*>);
-
-        void resetValidCombinations();
-        void resetMarked();
-        int getBorderingBombCount();
-        std::vector<std::vector<solverNode*>> findValidCombinations(std::vector<std::vector<solverNode*>>);
+        void DFSHelper(solverNode*&, const unsigned short&, std::vector<solverNode*>&);
+        void DFSGrouping(std::vector<solverNode*>&);
+        bool shareNumbered(solverNode*&, solverNode*&, std::vector<solverNode*>&);
 
         bool bombsInStack();
 
-        int getClickX();
-        int getClickY();
-        int getGuesses();
+        unsigned short getClickX();
+        unsigned short getClickY();
+        unsigned short getGuesses();
         std::vector<coord> getFlagged();
 
         solver();
@@ -92,13 +86,15 @@ class solver
 
     private:
         std::vector<solverNode*> nodes;
+        std::vector<solverNode*> undiscoveredNodes;
+        std::vector<solverNode*> importantNodes;
         std::stack<solverNode*> noBombNodes;
         std::vector<coord> flagged;
-        int clickX;
-        int clickY;
-        int bombCount;
-        int undiscoveredCount;
-        int amountOfGuesses;
+        unsigned short clickX;
+        unsigned short clickY;
+        unsigned short bombCount;
+        unsigned short undiscoveredCount;
+        unsigned short amountOfGuesses;
 };
 
 #endif

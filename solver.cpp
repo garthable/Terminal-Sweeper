@@ -1,18 +1,16 @@
 #include "solver.h"
-// #include "incongruency.cpp"
-// #include "util.h"
 #include <iostream>
 #include <math.h>
 #include <unistd.h>
 
-solverNode* solver::searchNode(int x, int y)
+solverNode* solver::searchNode(const unsigned short& x, const unsigned short& y)
 {
-    for (solverNode* n : nodes)
-        if (n->x == x && n->y == y)
-            return n;
-    return nullptr;
+    if (x >= SIZEX || y >= SIZEY || x < 0 || y < 0)
+        return nullptr;
+    solverNode* n = nodes[x + (y*SIZEX)];
+    return n;
 }
-solverNode* solver::searchNode(int val)
+solverNode* solver::searchNode(const unsigned short& val)
 {
     return nodes[val];
 }
@@ -22,17 +20,17 @@ std::vector<coord> solver::getFlagged()
     return flagged;
 }
 
-int solver::getGuesses()
+unsigned short solver::getGuesses()
 {
     return amountOfGuesses;
 }
 
-int solver::getClickX()
+unsigned short solver::getClickX()
 {
     return clickX;
 }
 
-int solver::getClickY()
+unsigned short solver::getClickY()
 {
     return clickY;
 }
@@ -50,7 +48,7 @@ bool solver::bombsInStack()
     return false;
 }
 
-void solver::update(std::string input)
+void solver::update(const std::string& input)
 {
     if (bombsInStack())
         return;
@@ -61,6 +59,7 @@ void solver::update(std::string input)
 
     if (bombsInStack())
         return;
+
     runBruteForce();
 
     if (bombsInStack())
@@ -71,7 +70,7 @@ void solver::update(std::string input)
 
 void solver::reset()
 {
-    for (solverNode* n : nodes)
+    for (solverNode*& n : nodes)
     {
         n->weight = -1;
         n->adjBombs = 0;
@@ -89,16 +88,16 @@ void solver::reset()
     bombCount = 0;
     undiscoveredCount = 0;
     amountOfGuesses = 0;
+    undiscoveredNodes = nodes;
 }
 
 void solver::chooseNextClick()
 {
-    // srand(time(0));
     solverNode* min = nullptr;
     float minWeight = (float)10000;
     float minReplace = ((float)bombCount/(float)undiscoveredCount);
 
-    for (solverNode* n : nodes)
+    for (solverNode*& n : nodes)
     {
         if (n->discovered || n->flagged)
             continue;
@@ -127,12 +126,12 @@ void solver::chooseNextClick()
     clickY = min->y;
 }
 
-void solver::readMineMap(std::string input)
+void solver::readMineMap(const std::string& input)
 {
     bool firstLine = true;
-    int x = 0;
-    int y = 0;
-    int i = 0;
+    unsigned short x = 0;
+    unsigned short y = 0;
+    unsigned short i = 0;
 
     bombCount = 0;
     std::string bombStr = "";
@@ -185,7 +184,7 @@ void solver::readMineMap(std::string input)
     }
 }
 
-void solver::DFSHelper(solverNode* curr, int group, std::vector<solverNode*> set)
+void solver::DFSHelper(solverNode*& curr, const unsigned short& group, std::vector<solverNode*>& set)
 {
     curr->visited = true;
     curr->group = group;
@@ -199,7 +198,7 @@ void solver::DFSHelper(solverNode* curr, int group, std::vector<solverNode*> set
 
         bool shouldContinue = true;
 
-        for (solverNode* compare : set)
+        for (solverNode*& compare : set)
             if (n == compare)
                 shouldContinue = false;
 
@@ -209,16 +208,16 @@ void solver::DFSHelper(solverNode* curr, int group, std::vector<solverNode*> set
         DFSHelper(n, group, set);
     }
 }
-void solver::DFSGrouping(std::vector<solverNode*> set)
+void solver::DFSGrouping(std::vector<solverNode*>& set)
 {
-    int group = 0;
-    for (solverNode* n : nodes)
+    unsigned short group = 0;
+    for (solverNode*& n : nodes)
     {
         n->visited = false;
         n->group = 0;
     }
 
-    for (solverNode* curr : set)
+    for (solverNode*& curr : set)
     {
         if (curr->visited)
             continue;
@@ -226,13 +225,12 @@ void solver::DFSGrouping(std::vector<solverNode*> set)
         DFSHelper(curr, group, set);
         group++;
     }
-    // std::cout << "Groups: " << group << std::endl;
 }
-bool solver::shareNumbered(solverNode* n1, solverNode* n2, std::vector<solverNode*> set)
+bool solver::shareNumbered(solverNode*& n1, solverNode*& n2, std::vector<solverNode*>& set)
 {
-    for (solverNode* a1 : n1->adjNodes)
-        for (solverNode* a2 : n2->adjNodes)
-            for (solverNode* s : set)
+    for (solverNode*& a1 : n1->adjNodes)
+        for (solverNode*& a2 : n2->adjNodes)
+            for (solverNode*& s : set)
                 if (a1->discovered && a1 == a2 && a1 == s)
                     return true;
     return false;
@@ -244,7 +242,7 @@ void solver::runBruteForce()
     
     std::vector<solverNode*> numNodes;
     std::vector<solverNode*> set;
-    std::vector<int> flaggedAmount;
+    std::vector<unsigned short> flaggedAmount;
 
     for(solverNode* n : nodes)
     {
@@ -261,10 +259,11 @@ void solver::runBruteForce()
             }
     }
 
-    for(int i = 0; i < numNodes.size(); i++)
+    unsigned short numNodesSize = numNodes.size();
+    for(unsigned short i = 0; i < numNodesSize; i++)
     {   
         solverNode* n = numNodes[i];
-        for (solverNode* a : n->adjNodes)
+        for (solverNode*& a : n->adjNodes)
         {
             if (a->discovered)
                 continue;
@@ -279,13 +278,12 @@ void solver::runBruteForce()
     }
 
     DFSGrouping(set);
-    // printMap();
 
-    for (int i = 0; i < numNodes.size(); i++)
+    for (int i = 0; i < numNodesSize; i++)
     {
         solverNode* n = numNodes[i];
         b.addNumbered(n->x + SIZEX*n->y, n->group, n->adjBombs-flaggedAmount[i]);
-        for (solverNode* a : n->adjNodes)
+        for (solverNode*& a : n->adjNodes)
         {
             if (a->discovered || a->flagged)
                 continue;
@@ -296,10 +294,7 @@ void solver::runBruteForce()
 
     b.findSafePicks();
 
-    // std::string a;
-    // std::cin >> a;
-
-    for (solverNode* n : nodes)
+    for (solverNode*& n : nodes)
     {
         int iD = n->x + n->y*SIZEX;
         float a = b.getProbability(iD);
@@ -318,19 +313,19 @@ void solver::runBruteForce()
 
 void solver::getEasyNoBombs()
 {
-    int newFlags = 0;
+    unsigned short newFlags = 0;
     do 
     {
         newFlags = 0;
-        for (solverNode* n : nodes)
+        for (solverNode*& n : nodes)
         {
             if (!n->discovered || n->adjBombs == 0)
                 continue;
 
-            int flaggedOptions = 0;
-            int validOptions = 0;
+            unsigned short flaggedOptions = 0;
+            unsigned short validOptions = 0;
 
-            for (solverNode* a : n->adjNodes)
+            for (solverNode*& a : n->adjNodes)
             {
                 if (a->discovered)
                     continue;
@@ -340,7 +335,7 @@ void solver::getEasyNoBombs()
                     validOptions++;
             }
 
-            for (solverNode* a : n->adjNodes)
+            for (solverNode*& a : n->adjNodes)
             {
                 if (a->discovered || a->flagged)
                     continue;
@@ -365,60 +360,10 @@ void solver::getEasyNoBombs()
     while (newFlags != 0);
 }
 
-// void solver::updateWeights()
-// {
-//     for (solverNode* n : nodes)
-//     {
-//         if ((!n->discovered && !n->flagged)|| n->adjBombs == 0)
-//             continue;
-
-//         int flaggedOptions = 0;
-//         int validOptions = 0;
-
-//         for (solverNode* a : n->adjNodes)
-//         {
-//             if (a->discovered || a->flagged)
-//                 continue;
-
-//             if (a->flagged)
-//                 flaggedOptions++;
-//             else
-//                 validOptions++;
-//         }
-
-//         float prob = (float)(n->adjBombs - flaggedOptions)/(float)validOptions;
-//         if (n->flagged)
-//             prob = 0;
-
-//         if (validOptions == 0)
-//             prob = 0;
-
-//         for (solverNode* a : n->adjNodes)
-//         {
-//             if (a->discovered || a->flagged)
-//                 continue;
-            
-//             if (n->flagged)
-//             {
-//                 a->nextToFlag = true;
-//                 continue;
-//             }
-
-//             a->sum += prob;
-//             if (prob != 0.05F)
-//                 a->elements++;
-//         }
-//     }
-// }
-
 void solver::printMap()
 {
     std::string output = "";
     int currY = 0;
-
-    // output += "Flags: "; 
-    // output += std::to_string(bombCount);
-    // output += '\n';
 
     for (solverNode* n : nodes)
     {
@@ -432,9 +377,6 @@ void solver::printMap()
             output += 'a' + n->group;
         else if (n->visited && !n->flagged)
         {
-            // output += 'A' + n->group;
-            // output += ' ';
-            // continue;
             int flagged = 0;
             for (solverNode* a : n->adjNodes)
                 if (a->flagged)
@@ -478,6 +420,7 @@ solver::solver()
             
             n->adjNodes.push_back(adjNode);
         }
+    undiscoveredNodes = nodes;
 }
 
 solver::~solver()
