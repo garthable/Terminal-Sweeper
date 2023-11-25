@@ -1,27 +1,35 @@
 #include "bruteForceLogic.h"
 #include "util.h"
 
-numberedNode* bruteForce::searchNumbered(int iD)
+numberedNode* bruteForce::searchNumbered(const unsigned short& iD)
 {
-    for (int i = 0; i < numbered.size(); i++)
-        for (int g = 0; g < numbered[i].size(); g++)
-            if (numbered[i][g].iD == iD)
-                return &numbered[i][g];
+    unsigned short numberedSize = numbered.size();
+    for (unsigned short group = 0; group < numberedSize; group++)
+    {
+        unsigned short groupSize = numbered[group].size();
+        for (unsigned short g = 0; g < groupSize; g++)
+            if (numbered[group][g].iD == iD)
+                return &numbered[group][g];
+    }
 
     return nullptr;
 }
 
-unknownNode* bruteForce::searchUnknown(int iD)
+unknownNode* bruteForce::searchUnknown(const unsigned short& iD)
 {
-    for (int i = 0; i < unknowns.size(); i++)
-        for (int g = 0; g < unknowns[i].size(); g++)
-            if (unknowns[i][g].iD == iD)
-                return &unknowns[i][g];
+    unsigned short unknownsSize = unknowns.size();
+    for (unsigned short group = 0; group < unknownsSize; group++)
+    {
+        unsigned short groupSize = unknowns[group].size();
+        for (unsigned short g = 0; g < groupSize; g++)
+            if (unknowns[group][g].iD == iD)
+                return &unknowns[group][g];
+    }
 
     return nullptr;
 }
 
-void bruteForce::addNumbered(int iD, int group, int number)
+void bruteForce::addNumbered(const unsigned short& iD, const unsigned short& group, const unsigned short& number)
 {
     if (searchNumbered(iD))
         return;
@@ -33,7 +41,7 @@ void bruteForce::addNumbered(int iD, int group, int number)
     numberCount += number;
 }
 
-void bruteForce::addUnknown(int iD, int group, int parentId)
+void bruteForce::addUnknown(const unsigned short& iD, const unsigned short& group, const unsigned short& parentId)
 {
     unknownNode* unNode = searchUnknown(iD);
     numberedNode* numNode  = searchNumbered(parentId);
@@ -51,53 +59,52 @@ void bruteForce::addUnknown(int iD, int group, int parentId)
         unNode = &unknowns[group][unknowns[group].size() - 1];
     }
 
-    int index = 0;
-    for (; index < unknowns[group].size(); index++)
+    for (unsigned short index = 0; index < unknowns[group].size(); index++)
         if (unknowns[group][index].iD == unNode->iD)
-            break;
-
-    numNode->attached.push_back(index);
+        {
+            numNode->attached.push_back(index);
+            return;
+        }
 }
 
-void bruteForce::sortNumbered(int group, std::vector<unknownNode> unknownList)
+void bruteForce::sortNumbered(const unsigned short& group, std::vector<unknownNode>& unknownList)
 {
     std::vector<numberedNode> clonedNumbered = numbered[group];
     std::vector<numberedNode> sortedList;
-    
-    for (unknownNode u : unknownList)
-        u.visited = false;
+    sortedList.reserve(unknownList.size());
     
     while (numbered[group].size() != sortedList.size())
     {
-        int min = 99999;
+        unsigned short min = 999;
         numberedNode minNode = numberedNode(-1, -1);
 
-        for (numberedNode n : clonedNumbered)
+        for (const numberedNode& n : clonedNumbered)
         {
-            std::vector<int> childNodes;
-            for (int i : n.attached)
+            std::vector<unsigned short> childNodes;
+            for (unsigned short i : n.attached)
                 if (!unknownList[i].visited)
                     childNodes.push_back(i);
             
-            int val = combinationValueHardcoded(childNodes, n.number);
+            unsigned short val = combinationValueHardcoded(childNodes, n.number);
             if (min > val)
             {
                 min = val;
                 minNode = n;
             }
         }
-        for (int i = 0; i < clonedNumbered.size(); i++)
+        unsigned short clonedNumberedSize = clonedNumbered.size();
+        for (unsigned short i = 0; i < clonedNumberedSize; i++)
             if (clonedNumbered[i].iD == minNode.iD)
             {
                 clonedNumbered.erase(clonedNumbered.begin() + i);
                 break;
             }
-        for (int i : minNode.attached)
+        for (unsigned short i : minNode.attached)
             unknownList[i].visited = true;
         sortedList.push_back(minNode);
     }
 
-    for (unknownNode u : unknownList)
+    for (unknownNode& u : unknownList)
         u.visited = false;
 
     numbered[group] = sortedList;
@@ -256,21 +263,27 @@ std::vector<std::vector<bool>> combineAll(const std::vector<std::vector<std::vec
 
 void bruteForce::findSafePicks()
 {
-    if (numberCount > bombCount && unknownCount - unknowns.size() > bombCount)
-    {
-        findSafePicksBombCount();
-        return;
-    }
-    findSafePicksFast();
-}
-
-void bruteForce::findSafePicksFast()
-{
-    probabilities.clear();
+    std::vector<std::vector<std::vector<bool>>> bombLayouts;
     unsigned short numberedSize = numbered.size();
     for (unsigned short group = 0; group < numberedSize; group++)
     {
         std::vector<std::vector<bool>> sol = getSolutions(group);
+        bombLayouts.push_back(sol);
+    }
+    if (numberCount > bombCount && unknownCount > bombCount && (findMaxAmountBetweenVectors(bombLayouts) > bombCount))
+    {
+        findSafePicksBombCount(bombLayouts);
+        return;
+    }
+    findSafePicksFast(bombLayouts);
+}
+
+void bruteForce::findSafePicksFast(const std::vector<std::vector<std::vector<bool>>>& bombLayouts)
+{
+    unsigned short numberedSize = numbered.size();
+    for (unsigned short group = 0; group < numberedSize; group++)
+    {
+        std::vector<std::vector<bool>> sol = bombLayouts[group];
 
         std::vector<probData> bombChances;
 
@@ -295,14 +308,14 @@ void bruteForce::findSafePicksFast()
     }
 }
 
-void bruteForce::findSafePicksBombCount()
+void bruteForce::findSafePicksBombCount(const std::vector<std::vector<std::vector<bool>>>& bombLayouts)
 {
     std::vector<std::vector<std::vector<bool>>> sols;
     unsigned short numSize = numbered.size();
     sols.reserve(numSize);
     for (unsigned short group = 0; group < numSize; group++)
     {
-        std::vector<std::vector<bool>> sol = getSolutions(group);
+        std::vector<std::vector<bool>> sol = bombLayouts[group];
         sols.push_back(sol);
     }
 

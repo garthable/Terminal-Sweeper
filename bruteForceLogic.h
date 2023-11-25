@@ -46,21 +46,21 @@ struct numberedNode
 class bruteForce
 {
     public:
-        numberedNode* searchNumbered(int);
-        unknownNode* searchUnknown(int);
+        numberedNode* searchNumbered(const unsigned short&);
+        unknownNode* searchUnknown(const unsigned short&);
 
-        void addNumbered(int, int, int);
-        void addUnknown(int, int, int);
+        void addNumbered(const unsigned short&, const unsigned short&, const unsigned short&);
+        void addUnknown(const unsigned short&, const unsigned short&, const unsigned short&);
 
-        void sortNumbered(int, std::vector<unknownNode>);
+        void sortNumbered(const unsigned short&, std::vector<unknownNode>&);
 
         bool isValid(const std::vector<numberedNode>&, const std::vector<unknownNode>&);
         void getSolutionsHelper(unsigned short, const std::vector<numberedNode>&, std::vector<unknownNode>, std::vector<std::vector<bool>>&);
         std::vector<std::vector<bool>> getSolutions(const int&);
 
         void findSafePicks();
-        void findSafePicksFast();
-        void findSafePicksBombCount();
+        void findSafePicksFast(const std::vector<std::vector<std::vector<bool>>>&);
+        void findSafePicksBombCount(const std::vector<std::vector<std::vector<bool>>>&);
 
         float getProbability(int);
 

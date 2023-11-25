@@ -53,11 +53,6 @@ bool removeInterectionVects(std::vector<int>& set, std::vector<int>& subset)
     return deleted;
 }
 
-/* arr[] ---> Input Array 
-r ---> Size of a combination to be printed 
-index ---> Current index in data[] 
-data[] ---> Temporary array to store current combination 
-i ---> index of current element in arr[] */
 void combinationUtil(std::vector<int> arr, int r, 
                     int index, std::vector<int> data, int i, std::vector<std::vector<int>>& subsets) 
 { 
@@ -254,10 +249,10 @@ void combinationHardcoded(const std::vector<unsigned short>& arr, const int& r, 
     }
 }
 
-int combinationValueHardcoded(const std::vector<int>& arr, const int& r)
+unsigned short combinationValueHardcoded(const std::vector<unsigned short>& arr, const unsigned short& r)
 {
-    int s = (arr.size()-1);
-    int v = s*8 + (r-1); 
+    unsigned short s = (arr.size()-1);
+    unsigned short v = s*8 + (r-1); 
 
     switch (v)
     {
