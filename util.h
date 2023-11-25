@@ -98,10 +98,10 @@ void combination(std::vector<int> arr, int r, std::vector<std::vector<int>>& sub
     combinationUtil(arr, r, 0, data, 0, subsets);
 }
 
-void combinationHardcoded(const std::vector<int>& arr, const int& r, std::vector<std::vector<int>>& subsets)
+void combinationHardcoded(const std::vector<unsigned short>& arr, const int& r, std::vector<std::vector<unsigned short>>& subsets)
 {
-    int s = (arr.size()-1);
-    int v = s*8 + (r-1); 
+    unsigned short s = (arr.size()-1);
+    unsigned short v = s*8 + (r-1); 
 
     switch (v)
     {
