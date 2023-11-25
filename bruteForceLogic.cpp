@@ -197,7 +197,15 @@ std::vector<std::vector<bool>> bruteForce::getSolutions(int group)
     return solutions;
 }
 
-std::vector<bool> combineBoolVectors(std::vector<bool> A, std::vector<bool> B)
+int getBombCount(const std::vector<bool>& v)
+{
+    int bombCount = 0;
+    for (const bool& b : v)
+        bombCount += b;
+    return bombCount;
+}
+
+std::vector<bool> combineBoolVectors(const std::vector<bool>& A, const std::vector<bool>& B)
 {
     std::vector<bool> AB;
     AB.reserve( A.size() + B.size() ); // preallocate memory
@@ -206,7 +214,7 @@ std::vector<bool> combineBoolVectors(std::vector<bool> A, std::vector<bool> B)
     return AB;
 }
 
-std::vector<std::vector<bool>> combineSolutions(std::vector<std::vector<bool>> a, std::vector<std::vector<bool>> b)
+std::vector<std::vector<bool>> combineSolutions(const std::vector<std::vector<bool>> &a, const std::vector<std::vector<bool>> &b, const int& max)
 {
     if (a.size() == 0)
         return b;
@@ -214,25 +222,35 @@ std::vector<std::vector<bool>> combineSolutions(std::vector<std::vector<bool>> a
         return a;
     else if (a.size() == 0 || b.size() == 0)
         return {{}};
+    
     std::vector<std::vector<bool>> combined;
-    for (std::vector<bool> va : a)
-        for (std::vector<bool> vb : b)
+    for (const std::vector<bool>& va : a)
+    {
+        int vaBombCount = getBombCount(va);
+        for (const std::vector<bool>& vb : b)
+        {
+            int vbBombCount = getBombCount(vb);
+            if (max < vbBombCount + vaBombCount)
+                continue;
             combined.push_back(combineBoolVectors(va, vb));
+        }
+    }
 
     return combined;
 }
 
-std::vector<std::vector<bool>> combineAll(std::vector<std::vector<std::vector<bool>>> p_vectors)
+std::vector<std::vector<bool>> combineAll(std::vector<std::vector<std::vector<bool>>> p_vectors, int max)
 {
     std::vector<std::vector<bool>> r_combined;
     int r_combinedBombCount = 0;
     for (std::vector<std::vector<bool>> vector : p_vectors)
-        r_combined = combineSolutions(r_combined, vector);
+        r_combined = combineSolutions(r_combined, vector, max);
     return r_combined;
 }
 
 void bruteForce::findSafePicks()
 {
+    // uprint("In");
     probabilities.clear();
     std::vector<std::vector<std::vector<bool>>> sols;
     for (int group = 0; group < numbered.size(); group++)
@@ -240,19 +258,26 @@ void bruteForce::findSafePicks()
         std::vector<std::vector<bool>> sol = getSolutions(group);
         sols.push_back(sol);
     }
+    // uprint("Got Solution");
+    std::vector<std::vector<bool>> sol = combineAll(sols, bombCount);
+    // uprint("Combined Solutions");
+    // uprint(sol.size());
 
-    std::vector<std::vector<bool>> sol = combineAll(sols);
+    // for (int i = 0; i < sol.size(); i++)
+    // {
+    //     std::vector<bool> s = sol[i];
+    //     int bCount = 0;
+    //     for (bool b : s)
+    //         bCount += b;
 
-    for (int i = 0; i < sol.size(); i++)
-    {
-        std::vector<bool> s = sol[i];
-        int bCount = 0;
-        for (bool b : s)
-            if (b)
-                bCount++;
-        if (bCount > bombCount)
-            sol.erase(sol.begin() + i);
-    }
+    //     if (bCount > bombCount)
+    //     {
+    //         sol.erase(sol.begin() + i);
+    //         i--;
+    //     }
+    // }
+
+    // uprint("Excluded Solutions");
 
     if (sol.size() == 0)
         return;
@@ -271,11 +296,27 @@ void bruteForce::findSafePicks()
         j++;
     }
 
+    // uprint("Set up probs");
+
     for (std::vector<bool> v : sol)
         for (int i = 0; i < length; i++)
             probabilities[i].probability += v[i];
     for (probData& p : probabilities)
         p.probability /= sol.size();
+    // uprint("Calculated probs");
+    // for (probData p : probabilities)
+    // {
+    //     std::string a = "";
+    //     a += "x: ";
+    //     a += std::to_string(p.iD % 9);
+    //     a += " y: ";
+    //     a += std::to_string(p.iD / 9);
+    //     a += " prob: ";
+    //     a += std::to_string(p.probability);
+    //     uprint(a);
+    // }
+    // std::cin.get();
+    // uprint("Out");
 }
 
 float bruteForce::getProbability(int iD)

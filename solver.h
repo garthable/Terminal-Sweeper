@@ -93,7 +93,6 @@ class solver
     private:
         std::vector<solverNode*> nodes;
         std::stack<solverNode*> noBombNodes;
-        std::vector<solverNode*> meaningfulNodes;
         std::vector<coord> flagged;
         int clickX;
         int clickY;

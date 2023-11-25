@@ -61,20 +61,11 @@ void solver::update(std::string input)
 
     if (bombsInStack())
         return;
-
     runBruteForce();
-    getEasyNoBombs();
 
     if (bombsInStack())
         return;
 
-    // std::cout << "Guess" << std::endl;
-    // exit(0);
-
-    // std::string a;
-    // std::cin >> a;
-
-    // updateWeights();
     chooseNextClick();
 }
 
@@ -91,7 +82,6 @@ void solver::reset()
         n->visited = false;
     }
     flagged.clear();
-    meaningfulNodes.clear();
     while(!noBombNodes.empty())
         noBombNodes.pop();
     clickX = 1;

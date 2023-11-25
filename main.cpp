@@ -13,7 +13,7 @@ int main()
     mineMap map = mineMap(0);
     #else
     int seed = time(0);
-    seed = 46;
+    seed = 166;
     mineMap map = mineMap(seed);
     #endif
     solver s = solver();
@@ -63,8 +63,13 @@ int main()
             averageGuessPerIterationLost += (float)s.getGuesses()/(float)iteration;
             iterationAmountLost += iteration;
 
+            // std::cout << wins + losses << std::endl;
+            // std::cout << map.printWithSpaces() << std::endl;
+
             map.reset();
             s.reset();
+
+            // std::cin.get();
 
             losses++;
             iteration = 0;
@@ -132,10 +137,8 @@ int main()
 
         s.update(map.print());
         
-        #ifdef DEBUG
         for (coord c : s.getFlagged())
             map.flag(c.x, c.y);
-        #endif
     }
     time(&end);
     double time_taken = double(end - start);
