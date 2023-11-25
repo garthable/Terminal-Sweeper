@@ -11,7 +11,7 @@ int main()
     mineMap map = mineMap(0);
     #else
     int seed = time(0);
-    seed = 46;
+    // seed = 46;
     mineMap map = mineMap(seed);
     #endif
     solver s = solver();
@@ -21,16 +21,9 @@ int main()
     #ifndef DEBUG
     float guessAmountLost = 0;
     float guessAmountWon = 0;
-    float averageGuessPerIterationLost = 0;
-    float averageGuessPerIterationWon = 0;
     int wins = 0;
     int losses = 0;
     int runAmount = 1000;
-    int iterationAmountWon = 0;
-    int iterationAmountLost = 0;
-
-    float chanceOfAdj[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-    float amountOf[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     #endif
     
     bool generated = false;
@@ -48,26 +41,15 @@ int main()
         {
             map.generateBombs(s.getClickX(), s.getClickY());
             generated = true;
-            #ifndef DEBUG
-            // for (int i = 0; i < 9; i++)
-            //     amountOf[i] += map.amountOf(i);
-            #endif
         }
         if (!map.click(s.getClickX(), s.getClickY()))
         {
             #ifndef DEBUG
             generated = false;
             guessAmountLost += s.getGuesses();
-            averageGuessPerIterationLost += (float)s.getGuesses()/(float)iteration;
-            iterationAmountLost += iteration;
-
-            // std::cout << wins + losses << std::endl;
-            // std::cout << map.printWithSpaces() << std::endl;
 
             map.reset();
             s.reset();
-
-            // std::cin.get();
 
             losses++;
             iteration = 0;
@@ -102,8 +84,6 @@ int main()
             #ifndef DEBUG
             generated = false;
             guessAmountWon += s.getGuesses();
-            averageGuessPerIterationWon += (float)s.getGuesses()/(float)iteration;
-            iterationAmountWon += iteration;
 
             map.reset();
             s.reset();
@@ -143,31 +123,18 @@ int main()
     #ifndef DEBUG
     system("clear");
     std::cout << "######################################################" << std::endl;
+    std::cout << "Total Games: " << wins + losses << std::endl << std::endl;
+    std::cout << "Wins:        " << wins << std::endl;
+    std::cout << "Losses:      " << losses << std::endl << std::endl;
+    std::cout << "Win Rate:    " << ((float)wins/(float)runAmount)*100 << "%" << std::endl << std::endl;
+    std::cout << "######################################################" << std::endl;
     std::cout << "Time Taken:         " << time_taken << " secs" << std::endl;
     std::cout << "Time Taken per run: " << (time_taken/(float)runAmount)*1000.0F << " millisecs per run" << std::endl << std::endl;
-    std::cout << "######################################################" << std::endl;
-    std::cout << "Total Games:    " << wins + losses << std::endl << std::endl;
-    std::cout << "Wins:           " << wins << std::endl;
-    std::cout << "Losses:         " << losses << std::endl << std::endl;
-    std::cout << "Win Loss Ratio: " << (float)wins/(float)losses << std::endl << std::endl;
-    std::cout << "######################################################" << std::endl;
-    std::cout << "Average Iterations:               " << ((float)iterationAmountWon + (float)iterationAmountLost)/(float)runAmount << std::endl << std::endl;
-    std::cout << "Average Iterations In Won Games:  " << ((float)iterationAmountWon)/(float)wins << std::endl;
-    std::cout << "Average Iterations In Lost Games: " << ((float)iterationAmountLost)/(float)losses << std::endl << std::endl;
     std::cout << "######################################################" << std::endl;
     std::cout << "Average Guesses:               " << (guessAmountLost + guessAmountWon)/(float)runAmount << std::endl << std::endl;
     std::cout << "Average Guesses In Won Games:  " << (guessAmountWon)/(float)wins << std::endl;
     std::cout << "Average Guesses In Lost Games: " << (guessAmountLost)/(float)losses << std::endl << std::endl;
     std::cout << "######################################################" << std::endl;
-    std::cout << "Average Guesses per Iteration:               " << (averageGuessPerIterationWon + averageGuessPerIterationLost)/(float)runAmount << std::endl << std::endl;
-    std::cout << "Average Guesses per Iteration In Won Games:  " << (averageGuessPerIterationWon)/(float)wins << std::endl;
-    std::cout << "Average Guesses per Iteration In Lost Games: " << (averageGuessPerIterationWon + averageGuessPerIterationLost)/(float)losses << std::endl << std::endl;
-    std::cout << "######################################################" << std::endl;
-    // for (int i = 0; i < 9; i++)
-    // {
-    //     std::cout << "Amount of " << i << ": " << amountOf[i]/(float)runAmount << std::endl;
-    // }
-    // std::cout << "######################################################" << std::endl;
     #endif
 
     return 1;

@@ -31,10 +31,10 @@ struct unknownNode
 
 struct numberedNode
 {
-    short iD;
-    short number;
-    std::vector<int> attached;
-    std::vector<std::vector<int>> combinations;
+    unsigned short iD;
+    unsigned short number;
+    std::vector<unsigned short> attached;
+    std::vector<std::vector<unsigned short>> combinations;
 
     numberedNode(int _iD, int _number)
     {
@@ -54,10 +54,9 @@ class bruteForce
 
         void sortNumbered(int, std::vector<unknownNode>);
 
-        bool isValidUpper(const std::vector<numberedNode>&, const std::vector<unknownNode>&);
         bool isValid(const std::vector<numberedNode>&, const std::vector<unknownNode>&);
-        void getSolutionsHelper(int, const std::vector<numberedNode>&, std::vector<unknownNode>, std::vector<std::vector<bool>>&);
-        std::vector<std::vector<bool>> getSolutions(int);
+        void getSolutionsHelper(unsigned short, const std::vector<numberedNode>&, std::vector<unknownNode>, std::vector<std::vector<bool>>&);
+        std::vector<std::vector<bool>> getSolutions(const int&);
 
         void findSafePicks();
         void findSafePicksFast();
@@ -75,6 +74,7 @@ class bruteForce
         std::vector<probData> probabilities;
         
         int numberCount;
+        int unknownCount;
         int bombCount;
 };
 

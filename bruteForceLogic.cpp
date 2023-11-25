@@ -1,8 +1,6 @@
 #include "bruteForceLogic.h"
 #include "util.h"
 
-//NEXT GOAL: IMPROVE BOMB COUNT LOGIC
-
 numberedNode* bruteForce::searchNumbered(int iD)
 {
     for (int i = 0; i < numbered.size(); i++)
@@ -49,6 +47,7 @@ void bruteForce::addUnknown(int iD, int group, int parentId)
             unknowns.push_back(std::vector<unknownNode>());
 
         unknowns[group].push_back(unknownNode(iD));
+        unknownCount++;
         unNode = &unknowns[group][unknowns[group].size() - 1];
     }
 
@@ -104,27 +103,13 @@ void bruteForce::sortNumbered(int group, std::vector<unknownNode> unknownList)
     numbered[group] = sortedList;
 }
 
-bool bruteForce::isValidUpper(const std::vector<numberedNode>& numberedList, const std::vector<unknownNode>& unknownList)
-{
-    for(numberedNode n : numberedList)
-    {
-        int count = 0;
-        for (int i : n.attached)
-            if (unknownList[i].isBomb)
-                count++;
-        if (count > n.number)
-            return false;
-    }
-    return true;
-}
-
 bool bruteForce::isValid(const std::vector<numberedNode>& numberedList, const std::vector<unknownNode>& unknownList)
 {
-    int totalCount = 0;
-    for(numberedNode n : numberedList)
+    unsigned short totalCount = 0;
+    for(const numberedNode& n : numberedList)
     {
-        int count = 0;
-        for (int i : n.attached)
+        unsigned short count = 0;
+        for (const unsigned short& i : n.attached)
             if (unknownList[i].isBomb)
                 count++;
         if (count != n.number)
@@ -133,7 +118,7 @@ bool bruteForce::isValid(const std::vector<numberedNode>& numberedList, const st
     return true;
 }
 
-void bruteForce::getSolutionsHelper(int index, const std::vector<numberedNode>& numberedList, 
+void bruteForce::getSolutionsHelper(unsigned short index, const std::vector<numberedNode>& numberedList, 
                                     std::vector<unknownNode> unknownList, std::vector<std::vector<bool>>& out)
 {       
     if (index == numberedList.size())
@@ -142,23 +127,27 @@ void bruteForce::getSolutionsHelper(int index, const std::vector<numberedNode>& 
             return;
 
         std::vector<bool> solution;
-        for (unknownNode u : unknownList)
+        solution.reserve(unknownList.size());
+        for (const unknownNode& u : unknownList)
             solution.push_back(u.isBomb);
         out.push_back(solution);
         return;
     }
 
     numberedNode n = numberedList[index];
-    int bombCount = 0;
-    std::vector<int> childIndexes;
+    unsigned short bombCount = 0;
+    std::vector<unsigned short> childIndexes;
     for (int i : n.attached)
-        if (unknownList[i].isBomb)
+    {
+        unknownNode& u = unknownList[i];
+        if (u.isBomb)
             bombCount++;
-        else if (!unknownList[i].visited)
+        else if (!u.visited)
         {
             childIndexes.push_back(i);
-            unknownList[i].visited = true;
+            u.visited = true;
         }
+    }
 
     n.number -= bombCount;
 
@@ -172,20 +161,18 @@ void bruteForce::getSolutionsHelper(int index, const std::vector<numberedNode>& 
 
     combinationHardcoded(childIndexes, n.number, n.combinations);
     
-    for (int i = 0; i < n.combinations.size(); i++)
+    unsigned short combinationSize = n.combinations.size();
+    for (unsigned short i = 0; i < combinationSize; i++)
     {
         std::vector<unknownNode> unknownListClone = unknownList;
-        for (int g : n.combinations[i])
+        for (unsigned short g : n.combinations[i])
             unknownListClone[g].isBomb = true;
-
-        if (!isValidUpper(numberedList, unknownListClone))
-            continue;
 
         getSolutionsHelper(index + 1, numberedList, unknownListClone, out);
     }
 }
 
-std::vector<std::vector<bool>> bruteForce::getSolutions(int group)
+std::vector<std::vector<bool>> bruteForce::getSolutions(const int& group)
 {
     sortNumbered(group, unknowns[group]);
     std::vector<std::vector<bool>> solutions;
@@ -198,12 +185,32 @@ std::vector<std::vector<bool>> bruteForce::getSolutions(int group)
     return solutions;
 }
 
-int getBombCount(const std::vector<bool>& v)
+unsigned short getBombCount(const std::vector<bool>& v)
 {
-    int bombCount = 0;
+    unsigned short bombCount = 0;
     for (const bool& b : v)
         bombCount += b;
     return bombCount;
+}
+
+unsigned short findMaxInVector(const std::vector<std::vector<bool>>& input)
+{
+    unsigned short max = 0;
+    for (const std::vector<bool>& v : input)
+    {
+        unsigned short bCount = getBombCount(v);
+        if (bCount > max)
+            max = bCount;
+    }
+    return max;
+}
+
+unsigned short findMaxAmountBetweenVectors(const std::vector<std::vector<std::vector<bool>>>& input)
+{
+    unsigned short sum;
+    for (const std::vector<std::vector<bool>>& v : input)
+        sum += findMaxInVector(v);
+    return sum;
 }
 
 std::vector<bool> combineBoolVectors(const std::vector<bool>& A, const std::vector<bool>& B)
@@ -215,22 +222,21 @@ std::vector<bool> combineBoolVectors(const std::vector<bool>& A, const std::vect
     return AB;
 }
 
-std::vector<std::vector<bool>> combineSolutions(const std::vector<std::vector<bool>> &a, const std::vector<std::vector<bool>> &b, const int& max)
+std::vector<std::vector<bool>> combineSolutions(const std::vector<std::vector<bool>> &a, const std::vector<std::vector<bool>> &b, const unsigned short& max)
 {
     if (a.size() == 0)
         return b;
     else if (b.size() == 0)
         return a;
-    else if (a.size() == 0 || b.size() == 0)
-        return {{}};
     
     std::vector<std::vector<bool>> combined;
+    combined.reserve(a.size() * b.size());
     for (const std::vector<bool>& va : a)
     {
-        int vaBombCount = getBombCount(va);
+        unsigned short vaBombCount = getBombCount(va);
         for (const std::vector<bool>& vb : b)
         {
-            int vbBombCount = getBombCount(vb);
+            unsigned short vbBombCount = getBombCount(vb);
             if (max < vbBombCount + vaBombCount)
                 continue;
             combined.push_back(combineBoolVectors(va, vb));
@@ -240,10 +246,9 @@ std::vector<std::vector<bool>> combineSolutions(const std::vector<std::vector<bo
     return combined;
 }
 
-std::vector<std::vector<bool>> combineAll(const std::vector<std::vector<std::vector<bool>>>& p_vectors, const int& max)
+std::vector<std::vector<bool>> combineAll(const std::vector<std::vector<std::vector<bool>>>& p_vectors, const unsigned short& max)
 {
     std::vector<std::vector<bool>> r_combined;
-    int r_combinedBombCount = 0;
     for (std::vector<std::vector<bool>> vector : p_vectors)
         r_combined = combineSolutions(r_combined, vector, max);
     return r_combined;
@@ -251,7 +256,7 @@ std::vector<std::vector<bool>> combineAll(const std::vector<std::vector<std::vec
 
 void bruteForce::findSafePicks()
 {
-    if (numberCount > bombCount)
+    if (numberCount > bombCount && unknownCount - unknowns.size() > bombCount)
     {
         findSafePicksBombCount();
         return;
@@ -262,27 +267,40 @@ void bruteForce::findSafePicks()
 void bruteForce::findSafePicksFast()
 {
     probabilities.clear();
-    for (int group = 0; group < numbered.size(); group++)
+    unsigned short numberedSize = numbered.size();
+    for (unsigned short group = 0; group < numberedSize; group++)
     {
         std::vector<std::vector<bool>> sol = getSolutions(group);
 
-        for (int i = 0; i < unknowns[group].size(); i++)
-            probabilities.push_back(probData(unknowns[group][i].iD, 0));
+        std::vector<probData> bombChances;
+
+        unsigned short length = sol[0].size();
+        bombChances.reserve(length);
+        for (unsigned short i = 0; i < length; i++)
+            bombChances.push_back(probData(unknowns[group][i].iD, 0));
 
         for (const std::vector<bool>& v : sol)
-            for (int i = 0; i < v.size(); i++)
-                probabilities[i].probability += v[i];
+        {
+            unsigned short vectorSize = v.size();
+            for (unsigned short i = 0; i < vectorSize; i++)
+                bombChances[i].probability += v[i];
+        }
 
-        for (probData& p : probabilities)
+        probabilities.reserve(bombChances.size());
+        for (probData& p : bombChances)
+        {
             p.probability /= sol.size();
+            probabilities.push_back(p);
+        }   
     }
 }
 
 void bruteForce::findSafePicksBombCount()
 {
-    probabilities.clear();
     std::vector<std::vector<std::vector<bool>>> sols;
-    for (int group = 0; group < numbered.size(); group++)
+    unsigned short numSize = numbered.size();
+    sols.reserve(numSize);
+    for (unsigned short group = 0; group < numSize; group++)
     {
         std::vector<std::vector<bool>> sol = getSolutions(group);
         sols.push_back(sol);
@@ -292,26 +310,32 @@ void bruteForce::findSafePicksBombCount()
 
     if (sol.size() == 0)
         return;
-    int length = sol[0].size();
+    unsigned int length = sol[0].size();
 
-    int j = 0;
-    int group = 0;
-    for (int i = 0; i < length; i++)
+    unsigned short j = 0;
+    unsigned short group = 0;
+    std::vector<unknownNode> unknownList = unknowns[group];
+    unsigned short unknownSize = unknownList.size();
+    probabilities.reserve(length);
+    for (unsigned int i = 0; i < length; i++)
     {
-        if (j == unknowns[group].size())
+        if (j == unknownList.size())
         {
             j = 0;
             group++;
+            unknownList = unknowns[group];
+            unknownSize = unknownList.size();
         }
-        probabilities.push_back(probData(unknowns[group][j].iD, 0));
+        probabilities.push_back(probData(unknownList[j].iD, 0));
         j++;
     }
 
-    for (std::vector<bool> v : sol)
-        for (int i = 0; i < length; i++)
+    for (const std::vector<bool>& v : sol)
+        for (unsigned int i = 0; i < length; i++)
             probabilities[i].probability += v[i];
+    float solSize = sol.size();
     for (probData& p : probabilities)
-        p.probability /= sol.size();
+        p.probability /= solSize;
 }
 
 float bruteForce::getProbability(int iD)
