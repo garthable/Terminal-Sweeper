@@ -11,7 +11,7 @@ int main()
     mineMap map = mineMap(0);
     #else
     int seed = time(0);
-    seed = 46;
+    seed = 772;
     mineMap map = mineMap(seed);
     #endif
     solver s = solver();

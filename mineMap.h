@@ -33,14 +33,14 @@ struct node
     bool isBomb;
     bool isFlagged;
 
-    int x;
-    int y;
+    unsigned short x;
+    unsigned short y;
 
-    int adjBombCount;
+    unsigned short adjBombCount;
 
     std::vector<node*> adjNodes;
 
-    node(int _x, int _y)
+    node(unsigned short _x, unsigned short _y)
     {
         x = _x;
         y = _y;
@@ -72,10 +72,9 @@ class mineMap
         ~mineMap();
 
     private:
-        int seed;
-        int bombCount;
+        unsigned int seed;
+        unsigned short bombCount;
         std::vector<node*> nodes;
-        std::vector<node*> chunkNodes;
 };
 
 #endif
