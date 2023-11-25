@@ -55,30 +55,20 @@ struct node
 class mineMap
 {
     public:
-        node* searchNode(int, int);
+        node* searchNode(const unsigned short&, const unsigned short&);
 
         void reset();
-        void setSeed(int);
-        void generateBombs(int, int);
-        void flag(int, int);
-        bool click(int, int);
-        void reveal(node*);
+        void setSeed(const unsigned int&);
+        void generateBombs(const unsigned short&, const unsigned short&);
+        void flag(const unsigned short&, const unsigned short&);
+        bool click(const unsigned short&, const unsigned short&);
+        void reveal(node*&);
         bool won();
-
-        float averageBombAdjs();
-        float averageNonBombAdjs();
-        float averageAdjs();
-
-        float chanceOfAdj(int, int);
-        float amountOf(int);
-
-        float standardDivOfAdj(int, int, float);
-        float standardDivOfAmountOf(int, float);
 
         std::string print();
         std::string printWithSpaces();
 
-        mineMap(int);
+        mineMap(const unsigned int&);
         ~mineMap();
 
     private:
