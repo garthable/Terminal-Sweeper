@@ -3,7 +3,7 @@
 #include "mineMap.h"
 #include <iostream>
 
-int mineMap::searchNode(const short& x, const short& y)
+inline int mineMap::searchNode(const short& x, const short& y)
 {
     if (x >= SIZEX || y >= SIZEY || x < 0 || y < 0)
         return -1;

@@ -56,7 +56,7 @@ struct node
 class mineMap
 {
     public:
-        int searchNode(const short&, const short&);
+        inline int searchNode(const short&, const short&);
 
         void reset();
         void setSeed(const unsigned int&);
