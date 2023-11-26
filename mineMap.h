@@ -1,4 +1,5 @@
 #include <vector>
+#include <array>
 #include <string>
 
 #ifndef MINEMAP
@@ -33,14 +34,14 @@ struct node
     bool isBomb;
     bool isFlagged;
 
-    unsigned short x;
-    unsigned short y;
+    short x;
+    short y;
 
     unsigned short adjBombCount;
 
-    std::vector<node*> adjNodes;
+    std::vector<unsigned short> adjNodes;
 
-    node(unsigned short _x, unsigned short _y)
+    node(short _x, short _y)
     {
         x = _x;
         y = _y;
@@ -55,14 +56,14 @@ struct node
 class mineMap
 {
     public:
-        node* searchNode(const unsigned short&, const unsigned short&);
+        int searchNode(const short&, const short&);
 
         void reset();
         void setSeed(const unsigned int&);
         void generateBombs(const unsigned short&, const unsigned short&);
         void flag(const unsigned short&, const unsigned short&);
         bool click(const unsigned short&, const unsigned short&);
-        void reveal(node*&);
+        void reveal(node&);
         bool won();
 
         std::string print();
@@ -74,7 +75,7 @@ class mineMap
     private:
         unsigned int seed;
         unsigned short bombCount;
-        std::vector<node*> nodes;
+        std::vector<node> nodes;
 };
 
 #endif

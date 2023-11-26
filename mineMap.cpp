@@ -3,23 +3,22 @@
 #include "mineMap.h"
 #include <iostream>
 
-node* mineMap::searchNode(const unsigned short& x, const unsigned short& y)
+int mineMap::searchNode(const short& x, const short& y)
 {
     if (x >= SIZEX || y >= SIZEY || x < 0 || y < 0)
-        return nullptr;
-    node* n = nodes[x + (y*SIZEX)];
-    return n;
+        return -1;
+    return x + (y*SIZEX);
 }
 
 void mineMap::reset()
 {
     bombCount = 0;
-    for (node*& n : nodes)
+    for (node& n : nodes)
     {
-        n->isRevealed = false;
-        n->isBomb = false;
-        n->isFlagged = false;
-        n->adjBombCount = 0;
+        n.isRevealed = false;
+        n.isBomb = false;
+        n.isFlagged = false;
+        n.adjBombCount = 0;
     }
 }
 
@@ -36,64 +35,72 @@ void mineMap::generateBombs(const unsigned short& x, const unsigned short& y)
     while (bombCount != BOMBCOUNT)
     {
         int randomIndex = rand() % nodes.size();
-        node* n = nodes[randomIndex];
-        if (n->isBomb || (abs(n->x - x) < 3 && abs(n->y - y) < 3))
+        node& n = nodes[randomIndex];
+        if (n.isBomb || (abs(n.x - x) < 3 && abs(n.y - y) < 3))
             continue;
-        n->isBomb = true;
+        n.isBomb = true;
         bombCount++;
     }
 
-    for (node* n : nodes)
+    for (node& n : nodes)
     {
-        int bombs = 0;
-        for (node*& a : n->adjNodes)
-            if (a->isBomb)
+        unsigned short bombs = 0;
+        short x = n.x;
+        short y = n.y;
+
+        for (const unsigned short& i : n.adjNodes)
+            if (nodes[i].isBomb)
                 bombs++;
-        n->adjBombCount = bombs;
+
+        n.adjBombCount = bombs;
     }
 }
 
-void mineMap::reveal(node*& curr)
+void mineMap::reveal(node& curr)
 {
-    if (!curr)
+    if (curr.x == -1)
         return;
 
-    curr->isRevealed = true;
-    if (curr->adjBombCount != 0 || curr->isBomb)
+    curr.isRevealed = true;
+    if (curr.adjBombCount != 0 || curr.isBomb)
         return;
 
-    for (node*& n : curr->adjNodes)
+    for (const unsigned short& i : curr.adjNodes)
     {
-        if (!n || n->isRevealed)
+        if (nodes[i].isRevealed)
             continue;
-        reveal(n);
+        reveal(nodes[i]);
     }
 }
 
 void mineMap::flag(const unsigned short& x, const unsigned short& y)
 {
-    node* flaggedNode = searchNode(x, y);
-    if (!flaggedNode)
+    int index = searchNode(x, y);
+    if (index == -1)
         assert(false);
 
-    if (!flaggedNode->isBomb)
+    node& flaggedNode = nodes[index];
+
+    if (!flaggedNode.isBomb)
     {
         std::cout << "Wrong flag at: " << x << " " << y << std::endl;
         exit(0);
     }
 
-    if (!flaggedNode->isFlagged)
+    if (!flaggedNode.isFlagged)
         bombCount--;
-    flaggedNode->isFlagged = true;
+    flaggedNode.isFlagged = true;
 }
 
 bool mineMap::click(const unsigned short& x, const unsigned short& y)
 {
-    node* clickedNode = searchNode(x, y);
-    if (!clickedNode)
+    int index = searchNode(x, y);
+    if (index == -1)
         assert(false);
 
-    if (clickedNode->isBomb)
+    node& clickedNode = nodes[index];
+
+    if (clickedNode.isBomb)
     {
         reveal(clickedNode);
         return false;
@@ -106,8 +113,8 @@ bool mineMap::click(const unsigned short& x, const unsigned short& y)
 
 bool mineMap::won()
 {
-    for (node*& n : nodes)
-        if (!n->isBomb && !n->isRevealed)
+    for (const node& n : nodes)
+        if (!n.isBomb && !n.isRevealed)
             return false;
     return true;
 }
@@ -121,23 +128,23 @@ std::string mineMap::print()
     output += std::to_string(bombCount);
     output += '\n';
 
-    for (node* n : nodes)
+    for (const node& n : nodes)
     {
-        if (currY != n->y)
+        if (currY != n.y)
         {
-            currY = n->y;
+            currY = n.y;
             output += '\n';
         }
-        if (n->isBomb && n->isRevealed)
+        if (n.isBomb && n.isRevealed)
             output += 'X';
-        else if (!n->isRevealed && n->isFlagged)
+        else if (!n.isRevealed && n.isFlagged)
             output += '@';
-        else if (!n->isRevealed)
+        else if (!n.isRevealed)
             output += '#';
-        else if (n->adjBombCount == 0)
+        else if (n.adjBombCount == 0)
             output += ' ';
         else
-            output += (char)('0' + n->adjBombCount);
+            output += (char)('0' + n.adjBombCount);
     }
 
     return output;
@@ -152,23 +159,23 @@ std::string mineMap::printWithSpaces()
     output += std::to_string(bombCount);
     output += '\n';
 
-    for (node* n : nodes)
+    for (const node& n : nodes)
     {
-        if (currY != n->y)
+        if (currY != n.y)
         {
-            currY = n->y;
+            currY = n.y;
             output += '\n';
         }
-        if (n->isBomb && n->isRevealed)
+        if (n.isBomb && n.isRevealed)
             output += 'X';
-        else if (!n->isRevealed && n->isFlagged)
+        else if (!n.isRevealed && n.isFlagged)
             output += '@';
-        else if (!n->isRevealed)
+        else if (!n.isRevealed)
             output += '#';
-        else if (n->adjBombCount == 0)
+        else if (n.adjBombCount == 0)
             output += ' ';
         else
-            output += (char)('0' + n->adjBombCount);
+            output += (char)('0' + n.adjBombCount);
 
         output += ' ';
     }
@@ -183,7 +190,7 @@ mineMap::mineMap(const unsigned int& _seed)
     for (int y = 0; y < SIZEY; y++)
         for (int x = 0; x < SIZEX; x++)
         {
-            node* n = new node(x, y);
+            node n = node(x, y);
             nodes.push_back(n);
         }
 
@@ -191,20 +198,23 @@ mineMap::mineMap(const unsigned int& _seed)
                         {-1, 0},           {1, 0}, 
                         {-1, -1}, {0, -1}, {1, -1}};
 
-    for (node* n : nodes)
+    for (node& n : nodes)
+    {
+        short x = n.x;
+        short y = n.y;
         for (int i = 0; i < 8; i++)
         {
-            node* adjNode = searchNode(n->x + offset[i][0], n->y + offset[i][1]);
+            int index = searchNode(x + offset[i][0], y + offset[i][1]);
 
-            if (!adjNode)
+            if (index == -1)
                 continue;
             
-            n->adjNodes.push_back(adjNode);
+            n.adjNodes.push_back(index);
         }
+    }
 }
 
 mineMap::~mineMap()
 {
-    for (node* n : nodes)
-        delete n;
+    
 }
