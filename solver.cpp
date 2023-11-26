@@ -3,16 +3,11 @@
 #include <math.h>
 #include <unistd.h>
 
-solverNode* solver::searchNode(const unsigned short& x, const unsigned short& y)
+inline int solver::searchNode(const unsigned short& x, const unsigned short& y)
 {
     if (x >= SIZEX || y >= SIZEY || x < 0 || y < 0)
-        return nullptr;
-    solverNode* n = nodes[x + (y*SIZEX)];
-    return n;
-}
-solverNode* solver::searchNode(const unsigned short& val)
-{
-    return nodes[val];
+        return -1;
+    return x + (y*SIZEX);
 }
 
 std::vector<coord> solver::getFlagged()
@@ -192,12 +187,15 @@ void solver::getImportantNodes()
         if (n->flagged || !n->discovered || n->adjBombs == 0)
             continue;
         
-        for (solverNode*& a : n->adjNodes)
+        for (const unsigned short& index : n->adjNodes)
+        {
+            solverNode*& a = nodes[index];
             if (!a->discovered && !a->flagged)
             {
                 importantNodes.push_back(n);
                 break;
             }
+        }
     }
 }
 
@@ -206,8 +204,9 @@ void solver::DFSHelper(solverNode*& curr, const unsigned short& group, std::vect
     curr->visited = true;
     curr->group = group;
 
-    for (solverNode* n : curr->adjNodes)
+    for (const unsigned short& index : curr->adjNodes)
     {
+        solverNode*& n = nodes[index];
         if (curr->discovered && n->discovered)
             continue;
         if (n->visited)
@@ -245,11 +244,17 @@ void solver::DFSGrouping(std::vector<solverNode*>& set)
 }
 bool solver::shareNumbered(solverNode*& n1, solverNode*& n2, std::vector<solverNode*>& set)
 {
-    for (solverNode*& a1 : n1->adjNodes)
-        for (solverNode*& a2 : n2->adjNodes)
+    for (const unsigned short& index1 : n1->adjNodes)
+    {
+        solverNode*& a1 = nodes[index1];
+        for (const unsigned short& index2 : n2->adjNodes)
+        {
+            solverNode*& a2 = nodes[index2];
             for (solverNode*& s : set)
                 if (a1->discovered && a1 == a2 && a1 == s)
-                    return true;
+                    return true;  
+        }
+    }
     return false;
 }
 
@@ -263,7 +268,9 @@ void solver::runBruteForce()
 
     for(solverNode*& n : importantNodes)
     {   
-        for (solverNode*& a : n->adjNodes)
+        for (const unsigned short& index : n->adjNodes)
+        {
+            solverNode*& a = nodes[index];
             if (!a->discovered && !a->flagged)
             {
                 numNodes.push_back(n);
@@ -271,14 +278,16 @@ void solver::runBruteForce()
                 flaggedAmount.push_back(0);
                 break;
             }
+        }
     }
 
     unsigned short numNodesSize = numNodes.size();
     for(unsigned short i = 0; i < numNodesSize; i++)
     {   
         solverNode* n = numNodes[i];
-        for (solverNode*& a : n->adjNodes)
+        for (const unsigned short& index : n->adjNodes)
         {
+            solverNode*& a = nodes[index];
             if (a->discovered)
                 continue;
             else if (a->flagged)
@@ -297,8 +306,9 @@ void solver::runBruteForce()
     {
         solverNode* n = numNodes[i];
         b.addNumbered(n->x + SIZEX*n->y, n->group, n->adjBombs-flaggedAmount[i]);
-        for (solverNode*& a : n->adjNodes)
+        for (const unsigned short index : n->adjNodes)
         {
+            solverNode*& a = nodes[index];
             if (a->discovered || a->flagged)
                 continue;
             
@@ -335,16 +345,20 @@ void solver::getEasyNoBombs()
         unsigned short flaggedOptions = 0;
         unsigned short validOptions = 0;
 
-        for (solverNode*& a : n->adjNodes)
+        for (const unsigned short& index : n->adjNodes)
+        {
+            solverNode*& a = nodes[index];
             if (a->discovered)
                 continue;
             else if (a->flagged)
                 flaggedOptions++;
             else
                 validOptions++;
+        }
 
-        for (solverNode*& a : n->adjNodes)
+        for (const unsigned short& index : n->adjNodes)
         {
+            solverNode*& a = nodes[index];
             if (a->discovered || a->flagged)
                 continue;
 
@@ -384,8 +398,8 @@ void solver::printMap()
         else if (n->visited && !n->flagged)
         {
             int flagged = 0;
-            for (solverNode* a : n->adjNodes)
-                if (a->flagged)
+            for (const unsigned short& index : n->adjNodes)
+                if (nodes[index]->flagged)
                     flagged++;
             output += '0' + n->adjBombs - flagged;
         }
@@ -419,12 +433,12 @@ solver::solver()
     for (solverNode* n : nodes)
         for (int i = 0; i < 8; i++)
         {
-            solverNode* adjNode = searchNode(n->x + offset[i][0], n->y + offset[i][1]);
+            int index = searchNode(n->x + offset[i][0], n->y + offset[i][1]);
 
-            if (!adjNode)
+            if (index == -1)
                 continue;
             
-            n->adjNodes.push_back(adjNode);
+            n->adjNodes.push_back(index);
         }
 }
 

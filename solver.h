@@ -35,7 +35,7 @@ struct solverNode
 
     float weight;
 
-    std::vector<solverNode*> adjNodes;
+    std::vector<unsigned short> adjNodes;
 
     solverNode(unsigned short _x, unsigned short _y)
     {
@@ -57,8 +57,7 @@ struct solverNode
 class solver
 {
     public:
-        solverNode* searchNode(const unsigned short&, const unsigned short&);
-        solverNode* searchNode(const unsigned short&);
+        inline int searchNode(const unsigned short&, const unsigned short&);
 
         void update(const std::string&);
         void printMap();
