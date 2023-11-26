@@ -63,6 +63,8 @@ class solver
         void update(const std::string&);
         void printMap();
         void readMineMap(const std::string&);
+        void getImportantNodes();
+        void updateImportantNodes();
 
         void runBruteForce();
         void getEasyNoBombs();
@@ -86,7 +88,6 @@ class solver
 
     private:
         std::vector<solverNode*> nodes;
-        std::vector<solverNode*> undiscoveredNodes;
         std::vector<solverNode*> importantNodes;
         std::stack<solverNode*> noBombNodes;
         std::vector<coord> flagged;

@@ -88,7 +88,6 @@ void solver::reset()
     bombCount = 0;
     undiscoveredCount = 0;
     amountOfGuesses = 0;
-    undiscoveredNodes = nodes;
 }
 
 void solver::chooseNextClick()
@@ -136,7 +135,7 @@ void solver::readMineMap(const std::string& input)
     bombCount = 0;
     std::string bombStr = "";
     undiscoveredCount = 0;
-    for (char c : input)
+    for (const char& c : input)
     {
         if (firstLine)
         {
@@ -181,6 +180,24 @@ void solver::readMineMap(const std::string& input)
 
         x++;
         i++;
+    }
+    getImportantNodes();
+}
+
+void solver::getImportantNodes()
+{
+    importantNodes.clear();
+    for (solverNode*& n : nodes)
+    {
+        if (n->flagged || !n->discovered || n->adjBombs == 0)
+            continue;
+        
+        for (solverNode*& a : n->adjNodes)
+            if (!a->discovered && !a->flagged)
+            {
+                importantNodes.push_back(n);
+                break;
+            }
     }
 }
 
@@ -244,12 +261,9 @@ void solver::runBruteForce()
     std::vector<solverNode*> set;
     std::vector<unsigned short> flaggedAmount;
 
-    for(solverNode* n : nodes)
-    {
-        if (!n->discovered || n->adjBombs == 0)
-            continue;
-        
-        for (solverNode* a : n->adjNodes)
+    for(solverNode*& n : importantNodes)
+    {   
+        for (solverNode*& a : n->adjNodes)
             if (!a->discovered && !a->flagged)
             {
                 numNodes.push_back(n);
@@ -314,50 +328,42 @@ void solver::runBruteForce()
 void solver::getEasyNoBombs()
 {
     unsigned short newFlags = 0;
-    do 
+
+    newFlags = 0;
+    for (solverNode*& n : importantNodes)
     {
-        newFlags = 0;
-        for (solverNode*& n : nodes)
+        unsigned short flaggedOptions = 0;
+        unsigned short validOptions = 0;
+
+        for (solverNode*& a : n->adjNodes)
+            if (a->discovered)
+                continue;
+            else if (a->flagged)
+                flaggedOptions++;
+            else
+                validOptions++;
+
+        for (solverNode*& a : n->adjNodes)
         {
-            if (!n->discovered || n->adjBombs == 0)
+            if (a->discovered || a->flagged)
                 continue;
 
-            unsigned short flaggedOptions = 0;
-            unsigned short validOptions = 0;
-
-            for (solverNode*& a : n->adjNodes)
+            if (n->adjBombs - flaggedOptions == 0)
             {
-                if (a->discovered)
-                    continue;
-                if (a->flagged)
-                    flaggedOptions++;
-                else
-                    validOptions++;
+                noBombNodes.push(a);
+                a->discovered = true;
+                continue;
             }
 
-            for (solverNode*& a : n->adjNodes)
+            if ((n->adjBombs - flaggedOptions) == validOptions)
             {
-                if (a->discovered || a->flagged)
-                    continue;
-
-                if (n->adjBombs - flaggedOptions == 0)
-                {
-                    noBombNodes.push(a);
-                    a->discovered = true;
-                    continue;
-                }
-
-                if ((n->adjBombs - flaggedOptions) == validOptions)
-                {
-                    flagged.push_back(coord(a->x, a->y));
-                    a->flagged = true;
-                    bombCount--;
-                    newFlags++;
-                }
+                flagged.push_back(coord(a->x, a->y));
+                a->flagged = true;
+                bombCount--;
+                newFlags++;
             }
         }
     }
-    while (newFlags != 0);
 }
 
 void solver::printMap()
@@ -420,7 +426,6 @@ solver::solver()
             
             n->adjNodes.push_back(adjNode);
         }
-    undiscoveredNodes = nodes;
 }
 
 solver::~solver()
