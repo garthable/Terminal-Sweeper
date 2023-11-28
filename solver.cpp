@@ -318,20 +318,22 @@ void solver::runBruteForce()
 
     b.findSafePicks();
 
-    for (solverNode*& n : nodes)
-    {
-        int iD = n->x + n->y*SIZEX;
-        float a = b.getProbability(iD);
+    std::vector<probData> probabilities = b.getProbdata();
 
-        if (a == 0)
+    for (const probData& prob : probabilities)
+    {
+        solverNode* n = nodes[prob.iD];
+        float p = prob.probability;
+
+        if (p == 0)
             noBombNodes.push(n);
-        else if (a == 1)
+        else if (p == 1)
         {
             n->flagged = true;
             flagged.push_back(coord(n->x, n->y));
         }
-        else
-            n->weight = a;
+        else if (p != -1)
+            n->weight = p;
     }
 }
 

@@ -62,7 +62,7 @@ class bruteForce
         void findSafePicksFast(const std::vector<std::vector<std::vector<bool>>>&);
         void findSafePicksBombCount(const std::vector<std::vector<std::vector<bool>>>&);
 
-        float getProbability(int);
+        std::vector<probData> getProbdata();
 
         bruteForce(int);
         ~bruteForce();
