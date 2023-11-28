@@ -57,25 +57,9 @@ struct solverNode
 class solver
 {
     public:
-        inline int searchNode(const unsigned short&, const unsigned short&);
-
         void update(const std::string&);
-        void printMap();
-        void readMineMap(const std::string&);
-        void getImportantNodes();
-        void updateImportantNodes();
 
-        void runBruteForce();
-        void getEasyNoBombs();
-        void updateWeights();
-        void chooseNextClick();
         void reset();
-
-        void DFSHelper(solverNode*&, const unsigned short&, std::vector<solverNode*>&);
-        void DFSGrouping(std::vector<solverNode*>&);
-        bool shareNumbered(solverNode*&, solverNode*&, std::vector<solverNode*>&);
-
-        bool bombsInStack();
 
         unsigned short getClickX();
         unsigned short getClickY();
@@ -86,15 +70,30 @@ class solver
         ~solver();
 
     private:
-        std::vector<solverNode*> nodes;
-        std::vector<solverNode*> importantNodes;
-        std::stack<solverNode*> noBombNodes;
-        std::vector<coord> flagged;
-        unsigned short clickX;
-        unsigned short clickY;
-        unsigned short bombCount;
-        unsigned short undiscoveredCount;
-        unsigned short amountOfGuesses;
+        inline int searchNode(const unsigned short&, const unsigned short&);
+        bool bombsInStack();
+        void readMineMap(const std::string&);
+        void getProbabilities();
+        void getEasyNoBombs();
+        void chooseNextClick();
+
+        void DFSHelper(solverNode*&, const unsigned short&, std::vector<solverNode*>&);
+        void DFSGrouping(std::vector<solverNode*>&);
+        bool shareNumbered(solverNode*&, solverNode*&, std::vector<solverNode*>&);
+
+        void printMap();
+        void getImportantNodes();
+
+    private:
+        std::vector<solverNode*> m_nodes;
+        std::vector<solverNode*> m_importantNodes;
+        std::stack<solverNode*> m_noBombNodes;
+        std::vector<coord> m_flagged;
+        unsigned short m_clickX;
+        unsigned short m_clickY;
+        unsigned short m_bombCount;
+        unsigned short m_undiscoveredCount;
+        unsigned short m_amountOfGuesses;
 };
 
 #endif

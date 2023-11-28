@@ -56,14 +56,11 @@ struct node
 class mineMap
 {
     public:
-        inline int searchNode(const short&, const short&);
-
         void reset();
         void setSeed(const unsigned int&);
         void generateBombs(const unsigned short&, const unsigned short&);
         void flag(const unsigned short&, const unsigned short&);
         bool click(const unsigned short&, const unsigned short&);
-        void reveal(node&);
         bool won();
 
         std::string print();
@@ -73,9 +70,12 @@ class mineMap
         ~mineMap();
 
     private:
-        unsigned int seed;
-        unsigned short bombCount;
-        std::vector<node> nodes;
+        inline int searchNode(const short&, const short&);
+        void reveal(node&);
+
+        unsigned int m_seed;
+        unsigned short m_bombCount;
+        std::vector<node> m_nodes;
 };
 
 #endif

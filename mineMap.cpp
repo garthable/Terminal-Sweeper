@@ -1,19 +1,9 @@
-#include <cmath>
-#include <string>
-#include "mineMap.h"
-#include <iostream>
-
-inline int mineMap::searchNode(const short& x, const short& y)
-{
-    if (x >= SIZEX || y >= SIZEY || x < 0 || y < 0)
-        return -1;
-    return x + (y*SIZEX);
-}
+#include "mineMapPrivate.cpp"
 
 void mineMap::reset()
 {
-    bombCount = 0;
-    for (node& n : nodes)
+    m_bombCount = 0;
+    for (node& n : m_nodes)
     {
         n.isRevealed = false;
         n.isBomb = false;
@@ -24,52 +14,35 @@ void mineMap::reset()
 
 void mineMap::setSeed(const unsigned int& _seed)
 {
-    seed = _seed;
+    m_seed = _seed;
 }
 
 void mineMap::generateBombs(const unsigned short& x, const unsigned short& y)
 {
     reset();
-    srand(seed);
+    srand(m_seed);
     
-    while (bombCount != BOMBCOUNT)
+    while (m_bombCount != BOMBCOUNT)
     {
-        int randomIndex = rand() % nodes.size();
-        node& n = nodes[randomIndex];
+        int randomIndex = rand() % m_nodes.size();
+        node& n = m_nodes[randomIndex];
         if (n.isBomb || (abs(n.x - x) < 3 && abs(n.y - y) < 3))
             continue;
         n.isBomb = true;
-        bombCount++;
+        m_bombCount++;
     }
 
-    for (node& n : nodes)
+    for (node& n : m_nodes)
     {
         unsigned short bombs = 0;
         short x = n.x;
         short y = n.y;
 
         for (const unsigned short& i : n.adjNodes)
-            if (nodes[i].isBomb)
+            if (m_nodes[i].isBomb)
                 bombs++;
 
         n.adjBombCount = bombs;
-    }
-}
-
-void mineMap::reveal(node& curr)
-{
-    if (curr.x == -1)
-        return;
-
-    curr.isRevealed = true;
-    if (curr.adjBombCount != 0 || curr.isBomb)
-        return;
-
-    for (const unsigned short& i : curr.adjNodes)
-    {
-        if (nodes[i].isRevealed)
-            continue;
-        reveal(nodes[i]);
     }
 }
 
@@ -79,7 +52,7 @@ void mineMap::flag(const unsigned short& x, const unsigned short& y)
     if (index == -1)
         assert(false);
 
-    node& flaggedNode = nodes[index];
+    node& flaggedNode = m_nodes[index];
 
     if (!flaggedNode.isBomb)
     {
@@ -88,7 +61,7 @@ void mineMap::flag(const unsigned short& x, const unsigned short& y)
     }
 
     if (!flaggedNode.isFlagged)
-        bombCount--;
+        m_bombCount--;
     flaggedNode.isFlagged = true;
 }
 
@@ -98,7 +71,7 @@ bool mineMap::click(const unsigned short& x, const unsigned short& y)
     if (index == -1)
         assert(false);
 
-    node& clickedNode = nodes[index];
+    node& clickedNode = m_nodes[index];
 
     if (clickedNode.isBomb)
     {
@@ -113,7 +86,7 @@ bool mineMap::click(const unsigned short& x, const unsigned short& y)
 
 bool mineMap::won()
 {
-    for (const node& n : nodes)
+    for (const node& n : m_nodes)
         if (!n.isBomb && !n.isRevealed)
             return false;
     return true;
@@ -125,10 +98,10 @@ std::string mineMap::print()
     int currY = 0;
 
     output += "Flags: "; 
-    output += std::to_string(bombCount);
+    output += std::to_string(m_bombCount);
     output += '\n';
 
-    for (const node& n : nodes)
+    for (const node& n : m_nodes)
     {
         if (currY != n.y)
         {
@@ -156,10 +129,10 @@ std::string mineMap::printWithSpaces()
     int currY = 0;
 
     output += "Flags: "; 
-    output += std::to_string(bombCount);
+    output += std::to_string(m_bombCount);
     output += '\n';
 
-    for (const node& n : nodes)
+    for (const node& n : m_nodes)
     {
         if (currY != n.y)
         {
@@ -185,20 +158,20 @@ std::string mineMap::printWithSpaces()
 
 mineMap::mineMap(const unsigned int& _seed)
 {
-    seed = _seed;
-    bombCount = -1;
+    m_seed = _seed;
+    m_bombCount = -1;
     for (int y = 0; y < SIZEY; y++)
         for (int x = 0; x < SIZEX; x++)
         {
             node n = node(x, y);
-            nodes.push_back(n);
+            m_nodes.push_back(n);
         }
 
     int offset[8][2] = {{-1, 1},  {0, 1},  {1, 1}, 
                         {-1, 0},           {1, 0}, 
                         {-1, -1}, {0, -1}, {1, -1}};
 
-    for (node& n : nodes)
+    for (node& n : m_nodes)
     {
         short x = n.x;
         short y = n.y;
