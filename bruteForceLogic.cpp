@@ -351,13 +351,9 @@ void bruteForce::findSafePicksBombCount(const std::vector<std::vector<std::vecto
         p.probability /= solSize;
 }
 
-float bruteForce::getProbability(int iD)
+std::vector<probData> bruteForce::getProbdata()
 {
-    for (probData p : probabilities)
-        if (p.iD == iD)
-            return p.probability;
-
-    return -1;
+    return probabilities;
 }
 
 bruteForce::bruteForce(int _bombCount)
