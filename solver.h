@@ -1,6 +1,6 @@
 #include "mineMap.h"
 #include <stack>
-#include "bruteForceLogic.h"
+#include "probabilityFinder.h"
 
 #ifndef SOLVER
 #define SOLVER

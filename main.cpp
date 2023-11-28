@@ -23,7 +23,7 @@ int main()
     float guessAmountWon = 0;
     int wins = 0;
     int losses = 0;
-    int runAmount = 1000;
+    int runAmount = 10000;
     #endif
     
     bool generated = false;

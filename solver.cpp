@@ -260,7 +260,7 @@ bool solver::shareNumbered(solverNode*& n1, solverNode*& n2, std::vector<solverN
 
 void solver::runBruteForce()
 {
-    bruteForce b = bruteForce(bombCount);
+    probabilityFinder b = probabilityFinder(bombCount);
     
     std::vector<solverNode*> numNodes;
     std::vector<solverNode*> set;
@@ -322,8 +322,8 @@ void solver::runBruteForce()
 
     for (const probData& prob : probabilities)
     {
-        solverNode* n = nodes[prob.iD];
-        float p = prob.probability;
+        solverNode* n = nodes[prob._solutionNodeIndex];
+        float p = prob._probability;
 
         if (p == 0)
             noBombNodes.push(n);
