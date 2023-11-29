@@ -94,6 +94,8 @@ class solver
         unsigned short m_bombCount;
         unsigned short m_undiscoveredCount;
         unsigned short m_amountOfGuesses;
+        float m_averageBombsUsed;
+        unsigned short m_undiscoveredUsed;
 };
 
 #endif

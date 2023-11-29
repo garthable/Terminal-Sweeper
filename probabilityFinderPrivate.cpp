@@ -168,6 +168,7 @@ std::vector<std::vector<bool>> probabilityFinder::getSolutions(const int& group)
 
 void probabilityFinder::findSafePicksFast(const std::vector<std::vector<std::vector<bool>>>& bombLayouts)
 {
+    // m_averageAmountOfBombsUsed = calcAverageBombs(bombLayouts);
     unsigned short numberedSize = m_numberedNodesGrouped.size();
     for (unsigned short group = 0; group < numberedSize; group++)
     {
@@ -200,6 +201,8 @@ void probabilityFinder::findSafePicksAccountingForBombCount(const std::vector<st
 {
     std::vector<std::vector<bool>> sol = combineAll(bombLayouts, m_remainingBombs);
 
+    // m_averageAmountOfBombsUsed = calcAverageBombs(sol);
+
     if (sol.size() == 0)
         return;
     unsigned int length = sol[0].size();
@@ -228,4 +231,24 @@ void probabilityFinder::findSafePicksAccountingForBombCount(const std::vector<st
     float solSize = sol.size();
     for (probData& p : m_probabilities)
         p._probability /= solSize;
+}
+
+float probabilityFinder::calcAverageBombs(const std::vector<std::vector<std::vector<bool>>>& layouts)
+{
+    if (layouts.size() == 0)
+        return 0;
+    float returnVal = 0;
+    for (const std::vector<std::vector<bool>>& v : layouts)
+        returnVal += calcAverageBombs(v);
+    return returnVal/layouts.size();
+}
+
+float probabilityFinder::calcAverageBombs(const std::vector<std::vector<bool>>& layouts)
+{
+    if (layouts.size() == 0)
+        return 0;
+    float returnVal = 0;
+    for (const std::vector<bool>& v : layouts)
+        returnVal += (float)getBombCount(v);
+    return returnVal/layouts.size();
 }

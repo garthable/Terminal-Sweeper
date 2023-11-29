@@ -48,6 +48,16 @@ std::vector<probData> probabilityFinder::getProbdata()
     return m_probabilities;
 }
 
+float probabilityFinder::getAverageAmountOfBombsUsed()
+{
+    return m_averageAmountOfBombsUsed;
+}
+
+unsigned short probabilityFinder::getUnknownCount()
+{
+    return m_unknownNodeAmount;
+}
+
 void probabilityFinder::findSafePicks()
 {
     std::vector<std::vector<std::vector<bool>>> bombLayouts;
@@ -70,4 +80,6 @@ probabilityFinder::probabilityFinder(int remainingBombs)
 {
     m_remainingBombs = remainingBombs;
     m_adjBombSum = 0;
+    m_unknownNodeAmount = 0;
+    m_averageAmountOfBombsUsed = 0;
 }

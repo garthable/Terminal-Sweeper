@@ -11,7 +11,7 @@ int main()
     mineMap map = mineMap(0);
     #else
     int seed = time(0);
-    // seed = 772;
+    // seed = 8342;
     mineMap map = mineMap(seed);
     #endif
     solver s = solver();
@@ -77,7 +77,7 @@ int main()
         std::cout << "iteration: " << iteration << std::endl;
         std::cout << "guesses: " << s.getGuesses() << std::endl;
         std::cout << map.printWithSpaces() << std::endl;
-        usleep(500000);
+        // usleep(500000);
         #endif
         if (map.won())
         {

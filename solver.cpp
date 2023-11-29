@@ -40,6 +40,9 @@ void solver::reset()
     m_bombCount = 0;
     m_undiscoveredCount = 0;
     m_amountOfGuesses = 0;
+
+    m_averageBombsUsed = 0;
+    m_undiscoveredUsed = 0;
 }
 
 unsigned short solver::getClickX()

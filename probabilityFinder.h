@@ -53,6 +53,9 @@ class probabilityFinder
 
         std::vector<probData> getProbdata();
 
+        float getAverageAmountOfBombsUsed();
+        unsigned short getUnknownCount();
+
         probabilityFinder(int);
 
     private:
@@ -68,15 +71,22 @@ class probabilityFinder
         void findSafePicksFast(const std::vector<std::vector<std::vector<bool>>>&);
         void findSafePicksAccountingForBombCount(const std::vector<std::vector<std::vector<bool>>>&);
 
+        float calcAverageBombs(const std::vector<std::vector<std::vector<bool>>>&);
+        float calcAverageBombs(const std::vector<std::vector<bool>>&);
+
+        int calcMinBombs(const std::vector<std::vector<bool>>&);
+
     private:
         std::vector<std::vector<numberedNode>> m_numberedNodesGrouped;
         std::vector<std::vector<unknownNode>> m_unknownNodesGrouped;
 
         std::vector<probData> m_probabilities;
         
-        int m_adjBombSum;
-        int m_unknownNodeAmount;
-        int m_remainingBombs;
+        unsigned short m_adjBombSum;
+        unsigned short m_unknownNodeAmount;
+        unsigned short m_remainingBombs;
+        float m_averageAmountOfBombsUsed;
+        unsigned short m_minAmountOfBombsUsed;
 };
 
 #endif

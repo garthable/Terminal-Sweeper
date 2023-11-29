@@ -177,6 +177,9 @@ void solver::getProbabilities()
 
     b.findSafePicks();
 
+    // m_averageBombsUsed = b.getAverageAmountOfBombsUsed();
+    // m_undiscoveredUsed = b.getUnknownCount();
+
     std::vector<probData> probabilities = b.getProbdata();
 
     for (const probData& prob : probabilities)
@@ -200,6 +203,8 @@ void solver::chooseNextClick()
 {
     solverNode* min = nullptr;
     float minWeight = (float)10000;
+    // float trueBombCount = (float)(int)m_bombCount - m_averageBombsUsed;
+    // unsigned short trueUndiscoveredCount = m_undiscoveredCount - m_undiscoveredUsed;
     float minReplace = ((float)m_bombCount/(float)m_undiscoveredCount);
 
     for (solverNode*& n : m_nodes)
