@@ -66,7 +66,7 @@ class solver
         unsigned short getGuesses();
         std::vector<coord> getFlagged();
 
-        solver();
+        solver(const unsigned short&, const unsigned short&);
         ~solver();
 
     private:
@@ -96,6 +96,9 @@ class solver
         unsigned short m_amountOfGuesses;
         float m_averageBombsUsed;
         unsigned short m_undiscoveredUsed;
+
+        unsigned short m_sizeX;
+        unsigned short m_sizeY;
 };
 
 #endif

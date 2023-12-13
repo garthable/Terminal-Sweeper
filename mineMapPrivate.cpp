@@ -5,9 +5,9 @@
 
 inline int mineMap::searchNode(const short& x, const short& y)
 {
-    if (x >= SIZEX || y >= SIZEY || x < 0 || y < 0)
+    if (x >= sizeX || y >= sizeY || x < 0 || y < 0)
         return -1;
-    return x + (y*SIZEX);
+    return x + (y*sizeX);
 }
 
 void mineMap::reveal(node& curr)

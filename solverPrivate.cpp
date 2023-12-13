@@ -164,14 +164,14 @@ void solver::getProbabilities()
     for (int i = 0; i < numNodesSize; i++)
     {
         solverNode* n = numNodes[i];
-        b.addNumbered(n->x + SIZEX*n->y, n->group, n->adjBombs-flaggedAmount[i]);
+        b.addNumbered(n->x + m_sizeX*n->y, n->group, n->adjBombs-flaggedAmount[i]);
         for (const unsigned short index : n->adjNodes)
         {
             solverNode*& a = m_nodes[index];
             if (a->discovered || a->flagged)
                 continue;
             
-            b.addUnknown(a->x + SIZEX*a->y, a->group, n->x + SIZEX*n->y);
+            b.addUnknown(a->x + m_sizeX*a->y, a->group, n->x + m_sizeX*n->y);
         }
     }
 
@@ -238,9 +238,9 @@ void solver::chooseNextClick()
 
 inline int solver::searchNode(const unsigned short& x, const unsigned short& y)
 {
-    if (x >= SIZEX || y >= SIZEY || x < 0 || y < 0)
+    if (x >= m_sizeX || y >= m_sizeY || x < 0 || y < 0)
         return -1;
-    return x + (y*SIZEX);
+    return x + (y*m_sizeX);
 }
 
 void solver::getImportantNodes()

@@ -22,7 +22,7 @@ void mineMap::generateBombs(const unsigned short& x, const unsigned short& y)
     reset();
     srand(m_seed);
     
-    while (m_bombCount != BOMBCOUNT)
+    while (m_bombCount != bombCount)
     {
         int randomIndex = rand() % m_nodes.size();
         node& n = m_nodes[randomIndex];
@@ -156,12 +156,39 @@ std::string mineMap::printWithSpaces()
     return  output;
 }
 
-mineMap::mineMap(const unsigned int& _seed)
+mineMap::mineMap(const unsigned int& _seed, const difficulty& _difficulty)
 {
+    switch (_difficulty)
+    {
+    case beginner:
+        sizeX = 9;
+        sizeY = 9;
+        bombCount = 10;
+        break;
+
+    case intermediate:
+        sizeX = 16;
+        sizeY = 16;
+        bombCount = 40;
+        break;
+
+    case expert:
+        sizeX = 30;
+        sizeY = 16;
+        bombCount = 99;
+        break;
+    
+    default:
+        sizeX = 1;
+        sizeY = 1;
+        bombCount = 1;
+        break;
+    }
+
     m_seed = _seed;
     m_bombCount = -1;
-    for (int y = 0; y < SIZEY; y++)
-        for (int x = 0; x < SIZEX; x++)
+    for (int y = 0; y < sizeY; y++)
+        for (int x = 0; x < sizeX; x++)
         {
             node n = node(x, y);
             m_nodes.push_back(n);

@@ -65,14 +65,17 @@ unsigned short solver::getGuesses()
     return m_amountOfGuesses;
 }
 
-solver::solver()
+solver::solver(const unsigned short& sizeX, const unsigned short& sizeY)
 {
+    m_sizeX = sizeX;
+    m_sizeY = sizeY;
+
     m_amountOfGuesses = 0;
     m_clickX = 1;
     m_clickY = 1;
 
-    for (int i = 0; i < SIZEY; i++)
-        for (int j = 0; j < SIZEX; j++)
+    for (int i = 0; i < m_sizeY; i++)
+        for (int j = 0; j < m_sizeX; j++)
         {
             solverNode* n = new solverNode(j, i);
             m_nodes.push_back(n);
