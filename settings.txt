@@ -1,7 +1,7 @@
 run_amount: 10000
 
 # Three difficulties are: beginner, intermediate, and expert
-difficulty: expert
+difficulty: beginner
 
 # Type "r" for a random value
 seed: r
