@@ -1,4 +1,5 @@
 #include "solverPrivateGrouping.cpp"
+#include <queue>
 
 bool solver::bombsInStack()
 {
@@ -177,8 +178,8 @@ void solver::getProbabilities()
 
     b.findSafePicks();
 
-    // m_averageBombsUsed = b.getAverageAmountOfBombsUsed();
-    // m_undiscoveredUsed = b.getUnknownCount();
+    m_minAmountOfBombsUsed = b.getMinAmountOfBombsUsed();
+    m_undiscoveredUsed = b.getUnknownCount();
 
     std::vector<probData> probabilities = b.getProbdata();
 
@@ -203,9 +204,17 @@ void solver::chooseNextClick()
 {
     solverNode* min = nullptr;
     float minWeight = (float)10000;
-    // float trueBombCount = (float)(int)m_bombCount - m_averageBombsUsed;
-    // unsigned short trueUndiscoveredCount = m_undiscoveredCount - m_undiscoveredUsed;
-    float minReplace = ((float)m_bombCount/(float)m_undiscoveredCount);
+    unsigned short trueBombCount = m_bombCount - m_minAmountOfBombsUsed;
+    unsigned short trueUndiscoveredCount = m_undiscoveredCount - m_undiscoveredUsed;
+    float minReplace = ((float)trueBombCount/(float)trueUndiscoveredCount);
+
+    // std::cout << minReplace << " " << m_minAmountOfBombsUsed << " " << " " << m_undiscoveredUsed << std::endl;
+    // std::cin.get();
+
+    if (trueUndiscoveredCount == 0)
+        minReplace = 0;
+    if (minReplace > 1)
+        minReplace = 1;
 
     for (solverNode*& n : m_nodes)
     {
@@ -217,8 +226,8 @@ void solver::chooseNextClick()
         if (n->weight == -1)
         {
             weight = minReplace;
-            if (n->nextToFlag)
-                weight += 0.05;
+            // if (n->nextToFlag)
+            //     weight += 0.05;
         }
         
         if (minWeight > weight)
@@ -226,12 +235,28 @@ void solver::chooseNextClick()
             minWeight = weight;
             min = n;
         }
+        else if (minWeight == weight)
+        {
+            if (min->distFromCenterWeight < n->distFromCenterWeight)
+            {
+                minWeight = weight;
+                min = n;
+            }
+        }
     }
 
     if (!min)
-        return;
+    {
+        std::cout << "ERROR NO MIN FOUND" << std::endl;
+        exit(0);
+    }
 
     m_amountOfGuesses++;
+    if (m_clickX == min->x && m_clickY == min->y)
+    {
+        std::cout << "ERROR REPEAT CLICK" << std::endl;
+        exit(0);
+    }
     m_clickX = min->x;
     m_clickY = min->y;
 }
@@ -260,6 +285,28 @@ void solver::getImportantNodes()
                 break;
             }
         }
+    }
+}
+
+void solver::assignDistance()
+{
+    unsigned short centerX = m_sizeX/2;
+    unsigned short centerY = m_sizeY/2;
+    for(solverNode* n : m_nodes)
+    {
+        if (n->adjNodes.size() == 3)
+        {
+            n->distFromCenterWeight = m_sizeX + m_sizeY + 1;
+            continue;
+        }
+        else if (n->adjNodes.size() == 5)
+        {
+            n->distFromCenterWeight = m_sizeX + m_sizeY;
+            continue;
+        }
+        unsigned short distX = abs(n->x - centerX);
+        unsigned short distY = abs(n->x - centerX);
+        n->distFromCenterWeight = distX + distY;
     }
 }
 

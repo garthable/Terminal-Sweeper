@@ -54,6 +54,7 @@ class probabilityFinder
         std::vector<probData> getProbdata();
 
         float getAverageAmountOfBombsUsed();
+        unsigned short getMinAmountOfBombsUsed();
         unsigned short getUnknownCount();
 
         probabilityFinder(int);

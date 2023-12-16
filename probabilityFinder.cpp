@@ -53,6 +53,11 @@ float probabilityFinder::getAverageAmountOfBombsUsed()
     return m_averageAmountOfBombsUsed;
 }
 
+unsigned short probabilityFinder::getMinAmountOfBombsUsed()
+{
+    return m_minAmountOfBombsUsed;
+}
+
 unsigned short probabilityFinder::getUnknownCount()
 {
     return m_unknownNodeAmount;
@@ -67,6 +72,9 @@ void probabilityFinder::findSafePicks()
         std::vector<std::vector<bool>> sol = getSolutions(group);
         bombLayouts.push_back(sol);
     }
+
+    m_minAmountOfBombsUsed = findMinAmountBetweenVectors(bombLayouts);
+
     if (m_adjBombSum > m_remainingBombs && m_unknownNodeAmount > m_remainingBombs 
         && (findMaxAmountBetweenVectors(bombLayouts) > m_remainingBombs))
     {
@@ -82,4 +90,5 @@ probabilityFinder::probabilityFinder(int remainingBombs)
     m_adjBombSum = 0;
     m_unknownNodeAmount = 0;
     m_averageAmountOfBombsUsed = 0;
+    m_minAmountOfBombsUsed = 0;
 }

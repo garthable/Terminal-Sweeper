@@ -1,9 +1,12 @@
 run_amount: 10000
 
 # Three difficulties are: beginner, intermediate, and expert
-difficulty: beginner
+difficulty: expert
 
 # Type "r" for a random value
 seed: r
+
+# Type "f" to ignore, type txt file name to use custom map
+customMap: f
 
 wait_time: 50000

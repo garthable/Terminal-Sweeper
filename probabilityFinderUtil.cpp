@@ -13,6 +13,18 @@ unsigned short getBombCount(const std::vector<bool>& v)
     return bombCount;
 }
 
+unsigned short findMinInVector(const std::vector<std::vector<bool>>& input)
+{
+    unsigned short min = 1000;
+    for (const std::vector<bool>& v : input)
+    {
+        unsigned short bCount = getBombCount(v);
+        if (bCount < min)
+            min = bCount;
+    }
+    return min;
+}
+
 unsigned short findMaxInVector(const std::vector<std::vector<bool>>& input)
 {
     unsigned short max = 0;
@@ -25,9 +37,17 @@ unsigned short findMaxInVector(const std::vector<std::vector<bool>>& input)
     return max;
 }
 
+unsigned short findMinAmountBetweenVectors(const std::vector<std::vector<std::vector<bool>>>& input)
+{
+    unsigned short sum = 0;
+    for (const std::vector<std::vector<bool>>& v : input)
+        sum += findMinInVector(v);
+    return sum;
+}
+
 unsigned short findMaxAmountBetweenVectors(const std::vector<std::vector<std::vector<bool>>>& input)
 {
-    unsigned short sum;
+    unsigned short sum = 0;
     for (const std::vector<std::vector<bool>>& v : input)
         sum += findMaxInVector(v);
     return sum;

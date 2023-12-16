@@ -34,6 +34,7 @@ struct solverNode
     unsigned short adjBombs;
 
     float weight;
+    unsigned short distFromCenterWeight;
 
     std::vector<unsigned short> adjNodes;
 
@@ -48,6 +49,7 @@ struct solverNode
         adjBombs = 0;
 
         weight = 0;
+        distFromCenterWeight = -1;
 
         group = 0;
     }
@@ -83,6 +85,7 @@ class solver
 
         void printMap();
         void getImportantNodes();
+        void assignDistance();
 
     private:
         std::vector<solverNode*> m_nodes;
@@ -96,6 +99,7 @@ class solver
         unsigned short m_amountOfGuesses;
         float m_averageBombsUsed;
         unsigned short m_undiscoveredUsed;
+        unsigned short m_minAmountOfBombsUsed;
 
         unsigned short m_sizeX;
         unsigned short m_sizeY;

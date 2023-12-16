@@ -1,4 +1,5 @@
 #include "app.h"
+#include "failMap.cpp"
 
 void app::run()
 {
@@ -54,6 +55,7 @@ void app::massTests()
 {
     mineMap map = mineMap(0, m_difficulty);
     solver s = solver(map.sizeX, map.sizeY);
+    failMap f = failMap(map.sizeX, map.sizeY);
 
     int iteration = 0;
     int wins = 0;
@@ -78,6 +80,7 @@ void app::massTests()
         if (!map.click(s.getClickX(), s.getClickY()))
         {
             generated = false;
+            f.addLoss(s.getClickX(), s.getClickY());
 
             map.reset();
             s.reset();
@@ -131,7 +134,7 @@ void app::massTests()
     std::cout << "Time Taken:         " << time_taken << " secs" << std::endl;
     std::cout << "Time Taken per run: " << (time_taken/(float)m_runAmount)*1000.0F << " millisecs per run" << std::endl << std::endl;
     std::cout << "######################################################" << std::endl;
-
+    f.write();
     std::cin.get();
 }
 

@@ -43,6 +43,7 @@ void solver::reset()
 
     m_averageBombsUsed = 0;
     m_undiscoveredUsed = 0;
+    m_minAmountOfBombsUsed = 0;
 }
 
 unsigned short solver::getClickX()
@@ -95,6 +96,7 @@ solver::solver(const unsigned short& sizeX, const unsigned short& sizeY)
             
             n->adjNodes.push_back(index);
         }
+    assignDistance();
 }
 
 solver::~solver()
