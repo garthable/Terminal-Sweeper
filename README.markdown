@@ -35,10 +35,9 @@ Settings can be set in the settings file found in the doc directory.
 - wait_time is the sleep time in nanoseconds between iterations which is used when watching the algorithm not for testing.
 
 ## Terminal Grabs:
-Relevant info about these grabs:
-c x y: This refers to the coordinates of where the last click was.
-XY Coordinates:
-X = 0 refers the left of the screen, Y = 0 refers to the top of the screen
+Info about coordinates and what "c x y" means:
+- c x y: This refers to the coordinates of where the last click was.
+- x = 0 refers the left of the screen, y = 0 refers to the top of the screen
 
 ASCII key for how minesweeper game is displayed:
 - '@': Flagged
