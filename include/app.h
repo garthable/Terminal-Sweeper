@@ -8,7 +8,8 @@
 #ifndef APP
 #define APP
 
-#define SETTINGSFILE "settings.txt"
+#define SETTINGSFILE "doc/settings.txt"
+#define SETTINGSFILE2 "../doc/settings.txt"
 
 class app
 {
@@ -30,6 +31,7 @@ class app
         bool m_randSeed;
         int m_seed;
         int m_waitTime;
+        int m_safeRadius;
 };
 
 #endif

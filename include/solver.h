@@ -1,5 +1,6 @@
-#include "mineMap.h"
 #include <stack>
+
+#include "mineMap.h"
 #include "probabilityFinder.h"
 
 #ifndef SOLVER
@@ -68,11 +69,16 @@ class solver
         unsigned short getGuesses();
         std::vector<coord> getFlagged();
 
-        solver(const unsigned short&, const unsigned short&);
+        solver(const unsigned short&, const unsigned short&, const unsigned short&);
         ~solver();
 
     private:
-        inline int searchNode(const unsigned short&, const unsigned short&);
+        inline int searchNode(const unsigned short& x, const unsigned short& y)
+        {
+            if (x >= m_sizeX || y >= m_sizeY || x < 0 || y < 0)
+                return -1;
+            return x + (y*m_sizeX);
+        }
         bool bombsInStack();
         void readMineMap(const std::string&);
         void getProbabilities();

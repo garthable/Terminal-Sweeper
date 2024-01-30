@@ -5,26 +5,6 @@
 #ifndef MINEMAP
 #define MINEMAP
 
-// #define EXPERT
-
-// #ifdef BEGINNER
-//     #define SIZEX 9
-//     #define SIZEY 9
-//     #define BOMBCOUNT 10
-// #elif defined(INTERMEDIATE)
-//     #define SIZEX 16
-//     #define SIZEY 16
-//     #define BOMBCOUNT 40
-// #elif defined (EXPERT)
-//     #define SIZEX 30
-//     #define SIZEY 16
-//     #define BOMBCOUNT 99
-// #else
-//     #define SIZEX 30
-//     #define SIZEY 16
-//     #define BOMBCOUNT 99
-// #endif
-
 enum difficulty
 {
     beginner,
@@ -70,7 +50,7 @@ class mineMap
         std::string print();
         std::string printWithSpaces();
 
-        mineMap(const unsigned int&, const difficulty&);
+        mineMap(const unsigned int&, const unsigned int&, const difficulty&);
         ~mineMap();
 
     public:
@@ -83,6 +63,7 @@ class mineMap
         void reveal(node&);
 
         unsigned int m_seed;
+        unsigned short m_safeRadius;
         unsigned short m_bombCount;
         std::vector<node> m_nodes;
 };

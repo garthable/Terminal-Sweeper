@@ -1,5 +1,114 @@
-#include "solverPrivateGrouping.cpp"
-#include <queue>
+#include "../include/solver.h"
+#include <iostream>
+
+void solver::update(const std::string& input)
+{
+    if (bombsInStack())
+        return;
+
+    readMineMap(input);
+
+    getEasyNoBombs();
+
+    if (bombsInStack())
+        return;
+
+    getProbabilities();
+
+    if (bombsInStack())
+        return;
+
+    chooseNextClick();
+}
+
+void solver::reset()
+{
+    for (solverNode*& n : m_nodes)
+    {
+        n->weight = -1;
+        n->adjBombs = 0;
+        n->group = 0;
+        n->flagged = false;
+        n->discovered = false;
+        n->nextToFlag = false;
+        n->visited = false;
+    }
+    m_flagged.clear();
+    while(!m_noBombNodes.empty())
+        m_noBombNodes.pop();
+    m_clickX = 1;
+    m_clickY = 1;
+    m_bombCount = 0;
+    m_undiscoveredCount = 0;
+    m_amountOfGuesses = 0;
+
+    m_averageBombsUsed = 0;
+    m_undiscoveredUsed = 0;
+    m_minAmountOfBombsUsed = 0;
+}
+
+unsigned short solver::getClickX()
+{
+    return m_clickX;
+}
+
+unsigned short solver::getClickY()
+{
+    return m_clickY;
+}
+
+std::vector<coord> solver::getFlagged()
+{
+    return m_flagged;
+}
+
+unsigned short solver::getGuesses()
+{
+    return m_amountOfGuesses;
+}
+
+solver::solver(const unsigned short& sizeX, const unsigned short& sizeY, const unsigned short& safeRadius)
+{
+    m_sizeX = sizeX;
+    m_sizeY = sizeY;
+
+    m_amountOfGuesses = 0;
+    m_clickX = safeRadius/2;
+    m_clickY = safeRadius/2;
+
+    for (int i = 0; i < m_sizeY; i++)
+        for (int j = 0; j < m_sizeX; j++)
+        {
+            solverNode* n = new solverNode(j, i);
+            m_nodes.push_back(n);
+        }
+
+    int offset[8][2] = {{-1, 1},  {0, 1},  {1, 1}, 
+                        {-1, 0},           {1, 0}, 
+                        {-1, -1}, {0, -1}, {1, -1}};
+
+    for (solverNode* n : m_nodes)
+        for (int i = 0; i < 8; i++)
+        {
+            int index = searchNode(n->x + offset[i][0], n->y + offset[i][1]);
+
+            if (index == -1)
+                continue;
+            
+            n->adjNodes.push_back(index);
+        }
+    assignDistance();
+}
+
+solver::~solver()
+{
+    for (solverNode* n : m_nodes)
+        delete n;
+}
+
+//
+// Private:
+//
 
 bool solver::bombsInStack()
 {
@@ -49,8 +158,7 @@ void solver::readMineMap(const std::string& input)
 
         if (!n)
         {
-            std::cout << "null at: " << x << " " << y <<std::endl;
-            return;
+            throw std::runtime_error("Read minemap error: Null at " + std::to_string(x) + " " + std::to_string(y));
         }
 
         if (c == '#' || c == '@')
@@ -208,9 +316,6 @@ void solver::chooseNextClick()
     unsigned short trueUndiscoveredCount = m_undiscoveredCount - m_undiscoveredUsed;
     float minReplace = ((float)trueBombCount/(float)trueUndiscoveredCount);
 
-    // std::cout << minReplace << " " << m_minAmountOfBombsUsed << " " << " " << m_undiscoveredUsed << std::endl;
-    // std::cin.get();
-
     if (trueUndiscoveredCount == 0)
         minReplace = 0;
     if (minReplace > 1)
@@ -237,6 +342,10 @@ void solver::chooseNextClick()
         }
         else if (minWeight == weight)
         {
+            if (!min)
+            {
+                throw std::runtime_error("\"min\" variable in chooseClick was null when called in minWeight == weight if statement");
+            }
             if (min->distFromCenterWeight < n->distFromCenterWeight)
             {
                 minWeight = weight;
@@ -247,25 +356,16 @@ void solver::chooseNextClick()
 
     if (!min)
     {
-        std::cout << "ERROR NO MIN FOUND" << std::endl;
-        exit(0);
+        throw std::runtime_error("ERROR NO MIN FOUND IN chooseNextClick");
     }
 
     m_amountOfGuesses++;
     if (m_clickX == min->x && m_clickY == min->y)
     {
-        std::cout << "ERROR REPEAT CLICK" << std::endl;
-        exit(0);
+        throw std::runtime_error("ERROR REPEAT CLICK IN chooseNextClick");
     }
     m_clickX = min->x;
     m_clickY = min->y;
-}
-
-inline int solver::searchNode(const unsigned short& x, const unsigned short& y)
-{
-    if (x >= m_sizeX || y >= m_sizeY || x < 0 || y < 0)
-        return -1;
-    return x + (y*m_sizeX);
 }
 
 void solver::getImportantNodes()
@@ -291,7 +391,6 @@ void solver::getImportantNodes()
 void solver::assignDistance()
 {
     unsigned short centerX = m_sizeX/2;
-    unsigned short centerY = m_sizeY/2;
     for(solverNode* n : m_nodes)
     {
         if (n->adjNodes.size() == 3)
@@ -341,4 +440,63 @@ void solver::printMap()
     }
 
     std::cout << output << std::endl;
+}
+
+void solver::DFSHelper(solverNode*& curr, const unsigned short& group, std::vector<solverNode*>& set)
+{
+    curr->visited = true;
+    curr->group = group;
+
+    for (const unsigned short& index : curr->adjNodes)
+    {
+        solverNode*& n = m_nodes[index];
+        if (curr->discovered && n->discovered)
+            continue;
+        if (n->visited)
+            continue;
+
+        bool shouldContinue = true;
+
+        for (solverNode*& compare : set)
+            if (n == compare)
+                shouldContinue = false;
+
+        if (shouldContinue || (!(curr->discovered || n->discovered) && !shareNumbered(curr, n, set)))
+            continue;
+
+        DFSHelper(n, group, set);
+    }
+}
+void solver::DFSGrouping(std::vector<solverNode*>& set)
+{
+    unsigned short group = 0;
+    for (solverNode*& n : m_nodes)
+    {
+        n->visited = false;
+        n->group = 0;
+    }
+
+    for (solverNode*& curr : set)
+    {
+        if (curr->visited)
+            continue;
+
+        DFSHelper(curr, group, set);
+        group++;
+    }
+}
+bool solver::shareNumbered(solverNode*& n1, solverNode*& n2, std::vector<solverNode*>& set)
+{
+    for (const unsigned short& index1 : n1->adjNodes)
+    {
+        solverNode*& a1 = m_nodes[index1];
+        for (const unsigned short& index2 : n2->adjNodes)
+        {
+            solverNode*& a2 = m_nodes[index2];
+            for (solverNode*& s : set)
+                if (a1->discovered && a1 == a2 && a1 == s)
+                    return true;  
+        }
+    }
+    return false;
 }

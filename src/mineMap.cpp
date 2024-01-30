@@ -1,4 +1,4 @@
-#include "mineMapPrivate.cpp"
+#include "../include/mineMap.h"
 
 void mineMap::reset()
 {
@@ -26,7 +26,7 @@ void mineMap::generateBombs(const unsigned short& x, const unsigned short& y)
     {
         int randomIndex = rand() % m_nodes.size();
         node& n = m_nodes[randomIndex];
-        if (n.isBomb || (abs(n.x - x) < 3 && abs(n.y - y) < 3))
+        if (n.isBomb || (abs(n.x - x) < m_safeRadius && abs(n.y - y) < m_safeRadius))
             continue;
         n.isBomb = true;
         m_bombCount++;
@@ -35,8 +35,6 @@ void mineMap::generateBombs(const unsigned short& x, const unsigned short& y)
     for (node& n : m_nodes)
     {
         unsigned short bombs = 0;
-        short x = n.x;
-        short y = n.y;
 
         for (const unsigned short& i : n.adjNodes)
             if (m_nodes[i].isBomb)
@@ -50,15 +48,12 @@ void mineMap::flag(const unsigned short& x, const unsigned short& y)
 {
     int index = searchNode(x, y);
     if (index == -1)
-        assert(false);
+        throw std::runtime_error("No index was found by searchNode in flag");
 
     node& flaggedNode = m_nodes[index];
 
     if (!flaggedNode.isBomb)
-    {
-        std::cout << "Wrong flag at: " << x << " " << y << std::endl;
-        exit(0);
-    }
+        throw std::runtime_error("Wrong flag at: " + std::to_string(x) + " " + std::to_string(y));
 
     if (!flaggedNode.isFlagged)
         m_bombCount--;
@@ -69,7 +64,7 @@ bool mineMap::click(const unsigned short& x, const unsigned short& y)
 {
     int index = searchNode(x, y);
     if (index == -1)
-        assert(false);
+        throw std::runtime_error("No index was found by searchNode in click");
 
     node& clickedNode = m_nodes[index];
 
@@ -156,8 +151,9 @@ std::string mineMap::printWithSpaces()
     return  output;
 }
 
-mineMap::mineMap(const unsigned int& _seed, const difficulty& _difficulty)
+mineMap::mineMap(const unsigned int& _seed, const unsigned int& _safeRadius, const difficulty& _difficulty)
 {
+    m_safeRadius = _safeRadius;
     switch (_difficulty)
     {
     case beginner:
@@ -217,4 +213,32 @@ mineMap::mineMap(const unsigned int& _seed, const difficulty& _difficulty)
 mineMap::~mineMap()
 {
     
+}
+
+//
+// Private:
+//
+
+inline int mineMap::searchNode(const short& x, const short& y)
+{
+    if (x >= sizeX || y >= sizeY || x < 0 || y < 0)
+        return -1;
+    return x + (y*sizeX);
+}
+
+void mineMap::reveal(node& curr)
+{
+    if (curr.x == -1)
+        return;
+
+    curr.isRevealed = true;
+    if (curr.adjBombCount != 0 || curr.isBomb)
+        return;
+
+    for (const unsigned short& i : curr.adjNodes)
+    {
+        if (m_nodes[i].isRevealed)
+            continue;
+        reveal(m_nodes[i]);
+    }
 }

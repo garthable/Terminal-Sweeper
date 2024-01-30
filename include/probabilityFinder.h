@@ -25,6 +25,7 @@ struct unknownNode
     unknownNode(int solutionNodeIndex)
     {
         _solutionNodeIndex = solutionNodeIndex;
+        _isBomb = false;
         _visited = false;
     }
 };

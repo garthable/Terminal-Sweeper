@@ -1,12 +1,11 @@
-#include "app.h"
-#include "failMap.cpp"
+#include "../include/app.h"
 
 void app::run()
 {
     while (true)
     {
         system("clear");
-        std::cout << "Type \"p\" to play minesweeper" << std::endl;
+        // std::cout << "Type \"p\" to play minesweeper" << std::endl;
         std::cout << "Type \"w\" to watch minesweeper algorithm" << std::endl;
         std::cout << "Type \"t\" to test minesweeper algorithm" << std::endl;
         std::cout << "Type \"q\" to quit" << std::endl;
@@ -19,10 +18,10 @@ void app::run()
         char c = input[0];
         switch (c)
         {
-        case 'p':
-            readSettings();
-            play();
-            break;
+        // case 'p':
+        //     readSettings();
+        //     play();
+        //     break;
         case 'w':
             readSettings();
             watch();
@@ -53,9 +52,8 @@ void app::play()
 
 void app::massTests()
 {
-    mineMap map = mineMap(0, m_difficulty);
-    solver s = solver(map.sizeX, map.sizeY);
-    failMap f = failMap(map.sizeX, map.sizeY);
+    mineMap map = mineMap(0, m_safeRadius, m_difficulty);
+    solver s = solver(map.sizeX, map.sizeY, m_safeRadius);
 
     int iteration = 0;
     int wins = 0;
@@ -68,7 +66,7 @@ void app::massTests()
 
     time(&start);
 
-    while (true)
+    while (m_runAmount > wins + losses)
     {
         iteration++;
 
@@ -80,7 +78,6 @@ void app::massTests()
         if (!map.click(s.getClickX(), s.getClickY()))
         {
             generated = false;
-            f.addLoss(s.getClickX(), s.getClickY());
 
             map.reset();
             s.reset();
@@ -114,8 +111,6 @@ void app::massTests()
             map.setSeed(wins + losses);
             continue;
         }
-        if (m_runAmount <= wins + losses)
-            break;
 
         s.update(map.print());
         
@@ -134,7 +129,6 @@ void app::massTests()
     std::cout << "Time Taken:         " << time_taken << " secs" << std::endl;
     std::cout << "Time Taken per run: " << (time_taken/(float)m_runAmount)*1000.0F << " millisecs per run" << std::endl << std::endl;
     std::cout << "######################################################" << std::endl;
-    f.write();
     std::cin.get();
 }
 
@@ -144,8 +138,8 @@ void app::watch()
     if (m_randSeed)
         seed = time(0);
 
-    mineMap map = mineMap(seed, m_difficulty);
-    solver s = solver(map.sizeX, map.sizeY);
+    mineMap map = mineMap(seed, m_safeRadius, m_difficulty);
+    solver s = solver(map.sizeX, map.sizeY, m_safeRadius);
 
     int iteration = 0;
     
@@ -179,7 +173,7 @@ void app::watch()
             std::cout << "seed " << seed << std::endl;
             std::cout << "guesses: " << s.getGuesses() << std::endl;
             std::cout << map.printWithSpaces() << std::endl;
-            std::cout << "YIPPIE" << std::endl;
+            std::cout << "Solved!" << std::endl;
             std::cin.get();
             return;
         }
@@ -205,7 +199,12 @@ void app::readSettings()
 {
     std::ifstream settingsFile(SETTINGSFILE);
     if (!settingsFile.is_open())
-        return;
+    {
+        settingsFile.close();
+        settingsFile.open(SETTINGSFILE2);
+        if (!settingsFile.is_open())
+            throw std::runtime_error("readSettings failed to open settings file!");   
+    }
     
     std::string line;
 
@@ -250,6 +249,7 @@ void app::readSettings()
                 m_waitTime = std::stoi(setting);
                 break;
             }
+            m_safeRadius = 2;
         }
     }
     settingsFile.close();
