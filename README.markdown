@@ -1,13 +1,18 @@
 # Mine Sweeper Solver Prototype
-This is currently a project that im working on for fun and to gain experience with C++. The goal of this project for me is to create an algorithm that can solve mine sweeper on expert difficult 45% of the time and as fast as possible. Currently it can solve 42.66% of expert games with seeds 0-9999 in 55 seconds meaning it can solve the average game from this set in 5.5 milliseconds.
+This is currently a project that im working on for fun and to gain experience with C++. The goal of this project is to create an algorithm that can solve mine sweeper on expert difficulty 45% of the time as fast as possible. Currently it can solve 42.66% of expert games with seeds 0-9999 in 55 seconds meaning it can solve the average game from this set in 5.5 milliseconds.
 ## Planned Fixes and Improvements in rewrite:
-- I will reimplement being able to actually play the game
-- In my rewrite I already improved this algorithm by implementing a minesweeper strategy shown in this [article](https://minesweepergame.com/strategy/patterns.php) which results in less calls to an expensive function.
-- Part of the reason for the poor solve time is that I overassign heap memory in functions. In my rewrite im trying to use heap memory anywhere that I can.
-- The reason why im not hitting the 45% win rate at the moment is because currently im only selecting for bombProbability and using whether or not the tile is a corner as a tiebreaker. In my rewrite I plan on implementing an algorithm that will factor in both bomb probability and the probability that it will have to guess after choosing the tile. This will allow for a better guessing process and will hopefully increase the winrate. If I find that Im not able to reliably discover the reguess probability I will likely use my prior method except use the probability of the tile having no adjacent bombs as the tie breaker.
-- Currently this program is only single threaded, in my next implementation I plan on having I/O threads to give the user control over the program while it runs and get instantanious feedback.
-- I plan on swapping my terminal UI with a GUI, currently im planning on using the ImGui library.
+- I will reimplement being able to actually play the game in the rewrite.
+- In my rewrite I have already improved this algorithm by implementing a minesweeper strategy shown in this [article](https://minesweepergame.com/strategy/patterns.php) which results in less calls to an expensive function.
+- Part of the reason for the poor solve time is that I overassign heap memory in frequently called functions. In my rewrite im pooling all heap memory used frequently to improve runtime.
+- The reason why im not hitting the 45% win rate at the moment is because when my algorithm guesses it is only takes bomb probability and whether or not it borders a corner or edge into account. In my rewrite I plan on implementing an algorithm that will factor in both bomb probability and reguess probability. This will allow for a better guessing process and will hopefully increase the winrate. If I find that Im not able to discover the reguess probability I will likely improve on my prior design.
+- Currently this program is only single threaded, in my next implementation I plan on having threads that handle user inputs to give the user control over the program while it runs.
+- I plan on swapping my terminal UI with a GUI. Currently im planning on using the ImGui for the library.
 - The readability in this is rather poor so in my rewrite ive taken time to make sure variables and functions are correctly named and to describe functions and classes bettter in the header files.
+## How to compile and run
+1. Navigate to the root of the repository
+2. Type "make" into the console
+3. Type ./build/runner into the console
+4. The program should now be running, if you received an error make sure your current directory is either the root of the repository or is the build directory.
 ## How to use
 Settings can be set in the settings file found in the doc directory.
 - run_amount specifies how many times the algorithm is run by the test call. 
@@ -15,17 +20,17 @@ Settings can be set in the settings file found in the doc directory.
     - Beginner: 9x9 board, 10 bombs
     - Intermediate: 16x16 board, 40 bombs
     - Expert  30x16 board, 99 bombs
-- seed is a setting used for watching the algorithm, if you set it to "r" it will set the seed equal to time, if its set to a number thats the seed it will use.
-- wait_time is the sleep time in nanoseconds between iterations for watching the algorithm.
+- seed is a setting used for watching the algorithm, it is not used for testing. If you set it to "r" it will set the seed equal to time, if its set to a number thats the seed it will use.
+- wait_time is the sleep time in nanoseconds between iterations which is used when watching the algorithm not for testing.
 When booting up the program in terminal you will be greeted by 3 options:
 ```
 Type "w" to watch minesweeper algorithm
 Type "t" to test minesweeper algorithm
 Type "q" to quit
 ```
-- Typing w will allow you to watch the minesweeper algorithm solve a map with the selected difficulty
+- Typing w will allow you to watch the minesweeper algorithm solve a map with the selected difficulty and seed.
 - Typing t will run the minesweeper algorithm on seeds 0-(run_amount-1) on the selected difficulty and tell you the time taken and the win rate.
-- Typing q will exit the program
+- Typing q will exit the program.
 
 ASCII key for how minesweeper game is displayed:
 - '@': Flagged
@@ -34,7 +39,9 @@ ASCII key for how minesweeper game is displayed:
 - 'n' where n is an integer between 1 and 8: the adjacent bomb count
 - 'X' A detonated bomb
 
-NOTE ABOUT XY COORDINATES:
+c <x, y>: This refers to where the last click was.
+
+XY Coordinates:
 X = 0 refers the left of the screen, Y = 0 refers to the top of the screen
 ## Terminal Grabs:
 Example of solved game:
