@@ -103,3 +103,4 @@ Time Taken per run: 4.6 millisecs per run
 ######################################################
 ```
 ## License
+Mine Sweeper Solver is liscenced under the MIT License, see [LICENCE.txt](https://github.com/garthable/Mine-Sweeper-Solver/blob/main/LICENSE.txt) for more information
