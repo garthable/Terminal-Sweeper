@@ -14,14 +14,6 @@ This is currently a project that im working on for fun and to gain experience wi
 3. Type ./build/runner into the console
 4. The program should now be running, if you received an error make sure your current directory is either the root of the repository or is the build directory.
 ## How to use
-Settings can be set in the settings file found in the doc directory.
-- run_amount specifies how many times the algorithm is run by the test call. 
-- difficulty has three different settings:
-    - Beginner: 9x9 board, 10 bombs
-    - Intermediate: 16x16 board, 40 bombs
-    - Expert  30x16 board, 99 bombs
-- seed is a setting used for watching the algorithm, it is not used for testing. If you set it to "r" it will set the seed equal to time, if its set to a number thats the seed it will use.
-- wait_time is the sleep time in nanoseconds between iterations which is used when watching the algorithm not for testing.
 When booting up the program in terminal you will be greeted by 3 options:
 ```
 Type "w" to watch minesweeper algorithm
@@ -31,7 +23,16 @@ Type "q" to quit
 - Typing w will allow you to watch the minesweeper algorithm solve a map with the selected difficulty and seed.
 - Typing t will run the minesweeper algorithm on seeds 0-(run_amount-1) on the selected difficulty and tell you the time taken and the win rate.
 - Typing q will exit the program.
-
+## Settings
+Settings can be set in the settings file found in the doc directory.
+- run_amount specifies how many times the algorithm is run when testing preformance and win rate. 
+- difficulty has three different settings:
+    - Beginner: 9x9 board, 10 bombs
+    - Intermediate: 16x16 board, 40 bombs
+    - Expert  30x16 board, 99 bombs
+- difficulty is used when testing and when running a seed to watch.
+- seed is a setting used for watching the algorithm, it is not used for testing. If you set it to "r" it will set the seed equal to time, if its set to a number thats the seed it will use.
+- wait_time is the sleep time in nanoseconds between iterations which is used when watching the algorithm not for testing.
 ASCII key for how minesweeper game is displayed:
 - '@': Flagged
 - '\#': Unknown
@@ -39,11 +40,12 @@ ASCII key for how minesweeper game is displayed:
 - 'n' where n is an integer between 1 and 8: the adjacent bomb count
 - 'X' A detonated bomb
 
-c <x, y>: This refers to where the last click was.
-
+## Terminal Grabs:
+Relevant info about these grabs:
+c x y: This refers to the coordinates of where the last click was.
 XY Coordinates:
 X = 0 refers the left of the screen, Y = 0 refers to the top of the screen
-## Terminal Grabs:
+
 Example of solved game:
 ```
 c 29 15
