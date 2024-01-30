@@ -33,18 +33,19 @@ Settings can be set in the settings file found in the doc directory.
 - difficulty is used when testing and when running a seed to watch.
 - seed is a setting used for watching the algorithm, it is not used for testing. If you set it to "r" it will set the seed equal to time, if its set to a number thats the seed it will use.
 - wait_time is the sleep time in nanoseconds between iterations which is used when watching the algorithm not for testing.
-ASCII key for how minesweeper game is displayed:
-- '@': Flagged
-- '\#': Unknown
-- ' ': No adjacent bombs
-- 'n' where n is an integer between 1 and 8: the adjacent bomb count
-- 'X' A detonated bomb
 
 ## Terminal Grabs:
 Relevant info about these grabs:
 c x y: This refers to the coordinates of where the last click was.
 XY Coordinates:
 X = 0 refers the left of the screen, Y = 0 refers to the top of the screen
+
+ASCII key for how minesweeper game is displayed:
+- '@': Flagged
+- '\#': Unknown
+- ' ': No adjacent bombs
+- 'n' where n is an integer between 1 and 8: the adjacent bomb count
+- 'X' A detonated bomb
 
 Example of solved game:
 ```
