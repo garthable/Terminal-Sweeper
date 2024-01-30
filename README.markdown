@@ -1,5 +1,5 @@
 # Mine Sweeper Solver Prototype
-This is currently a project that im working on for fun and to gain experience with C++. The goal of this project is to create an algorithm that can solve mine sweeper on expert difficulty 45% of the time as fast as possible. Currently it can solve 42.66% of expert games with seeds 0-9999 in 55 seconds meaning it can solve the average game from this set in 5.5 milliseconds.
+This is currently a casual project that im currently working on to gain experience with C++. The goal of this project is to create an algorithm that can solve mine sweeper on expert difficulty 45% of the time as fast as possible. Currently it can solve 42.66% of expert games with seeds 0-9999 in 55 seconds meaning it can solve the average game from this set in 5.5 milliseconds.
 ## Planned Fixes and Improvements in rewrite:
 - I will reimplement being able to actually play minesweeper in the rewrite.
 - In my rewrite I have already improved this algorithm by implementing a minesweeper strategy shown in this [article](https://minesweepergame.com/strategy/patterns.php) which results in less calls to an expensive function.
@@ -8,6 +8,16 @@ This is currently a project that im working on for fun and to gain experience wi
 - Currently this program is only single threaded, in my next implementation I plan on having threads that handle user inputs to give the user control over the program while it runs.
 - I plan on swapping my terminal UI with a GUI. Currently im planning on using the ImGui for the library.
 - The readability in this is rather poor so in my rewrite ive taken time to make sure variables and functions are correctly named and to describe functions and classes bettter in the header files.
+## How it works
+- A class called "mineMap" emulates the actual mine sweeper game
+- A class called "solver" receives the game state through a string.
+- The solver class will then search for any tiles that have the same number of adjacent bombs as adjacent unknown tiles. If this is true all adjacent unknown tiles will be flagged.
+- The solver class will then search for any tiles that have the same number of adjacent bombs as adjacent flagged tiles. If this is true all adjacent unknown tiles will be clicked.
+- If neither of these are true the solver class will group the tiles together into distinct groups and send these to the "probabilityFinder" class and check for every single possible arrangement of bombs within these groups.
+- If there is a possibility that the bombs in these groups can surpass the amount of bombs left the algorithm will then combine these solutions and exclude combinations that surpass the amount of bombs left.
+- Using these solutions the algorithm then calculates the probability of each tile being a bomb. Any tiles that have a 100% chance of being a bomb are flagged and any that have a 0% chance of being a bomb are clicked.
+- If there are no obvious tile choices the algorithm will then find the bomb with the lowest probability of being a bomb and click it. If theres a tie between probabilities the algorithm will use whether or not the tile is a corner/edge as a tie breaker.
+- This cycle will be repeated every iteration.
 ## How to compile and run
 1. Navigate to the root of the repository
 2. Type "make" into the console
