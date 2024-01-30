@@ -1,7 +1,7 @@
 # Mine Sweeper Solver Prototype
 This is currently a project that im working on for fun and to gain experience with C++. The goal of this project is to create an algorithm that can solve mine sweeper on expert difficulty 45% of the time as fast as possible. Currently it can solve 42.66% of expert games with seeds 0-9999 in 55 seconds meaning it can solve the average game from this set in 5.5 milliseconds.
 ## Planned Fixes and Improvements in rewrite:
-- I will reimplement being able to actually play the game in the rewrite.
+- I will reimplement being able to actually play minesweeper in the rewrite.
 - In my rewrite I have already improved this algorithm by implementing a minesweeper strategy shown in this [article](https://minesweepergame.com/strategy/patterns.php) which results in less calls to an expensive function.
 - Part of the reason for the poor solve time is that I overassign heap memory in frequently called functions. In my rewrite im pooling all heap memory used frequently to improve runtime.
 - The reason why im not hitting the 45% win rate at the moment is because when my algorithm guesses it is only takes bomb probability and whether or not it borders a corner or edge into account. In my rewrite I plan on implementing an algorithm that will factor in both bomb probability and reguess probability. This will allow for a better guessing process and will hopefully increase the winrate. If I find that Im not able to discover the reguess probability I will likely improve on my prior design.
