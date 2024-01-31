@@ -2,7 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <sys/time.h>
-#include <windows.h> 
+#if defined(_WIN32)
+    #include <windows.h> 
+#endif
 #include <unistd.h>
 #include "solver.h"
 
