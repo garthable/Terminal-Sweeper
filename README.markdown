@@ -21,7 +21,7 @@ This is a casual project that I'm currently working on to gain experience with C
 ## How to compile and run
 1. Navigate to the root directory of the repository
 2. Type "make" into the console
-    - If you get an error from doing this make sure you are using a linux based terminal and that you have make installed.
+    - If you get an error from this make sure you are using a linux based terminal and that you have "make" installed.
 3. Type ./build/runner into the console
     - If you received an error make sure your current directory is either the root of the repository or is the build directory.
 4. The program should now be running.
