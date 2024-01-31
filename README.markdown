@@ -1,7 +1,7 @@
-# Mine Sweeper Solver Prototype
-This is currently a casual project that im currently working on to gain experience with C++. The goal of this project is to create an algorithm that can solve mine sweeper on expert difficulty 45% of the time as fast as possible. Currently it can solve 42.66% of expert games with seeds 0-9999 in 55 seconds meaning it can solve the average game from this set in 5.5 milliseconds.
+# Minesweeper Solver Prototype
+This is a casual project that I'm currently working on to gain experience with C++. The goal of this project is to create an algorithm to solve Minesweeper on expert difficulty 45% of the time as fast as possible. Currently it can solve 42.66% of expert games with seeds 0-9999 in 55 seconds making the average game from this set solvable in 5.5 millisecs.
 ## Planned Fixes and Improvements in rewrite:
-- I will reimplement being able to actually play minesweeper in the rewrite.
+- I will implement realtime minesweeper play in the rewrite.
 - In my rewrite I have already improved this algorithm by implementing a minesweeper strategy shown in this [article](https://minesweepergame.com/strategy/patterns.php) which results in less calls to an expensive function.
 - Part of the reason for the poor solve time is that I overassign heap memory in frequently called functions. In my rewrite im pooling all heap memory used frequently to improve runtime.
 - The reason why im not hitting the 45% win rate at the moment is because when my algorithm guesses it is only takes bomb probability and whether or not it borders a corner or edge into account. In my rewrite I plan on implementing an algorithm that will factor in both bomb probability and reguess probability. This will allow for a better guessing process and will hopefully increase the winrate. If I find that Im not able to discover the reguess probability I will likely improve on my prior design.
@@ -9,7 +9,7 @@ This is currently a casual project that im currently working on to gain experien
 - I plan on swapping my terminal UI with a GUI. Currently im planning on using the ImGui for the library.
 - The readability in this is rather poor so in my rewrite ive taken time to make sure variables and functions are correctly named and to describe functions and classes bettter in the header files.
 ## How it works
-- A class called "mineMap" emulates the actual mine sweeper game
+- A class called "mineMap" emulates the actual Minesweeper game
 - A class called "solver" receives the game state through a string.
 - The solver class will then search for any tiles that have the same number of adjacent bombs as adjacent unknown tiles. If this is true all adjacent unknown tiles will be flagged.
 - The solver class will then search for any tiles that have the same number of adjacent bombs as adjacent flagged tiles. If this is true all adjacent unknown tiles will be clicked.
@@ -122,4 +122,4 @@ Time Taken per run: 4.6 millisecs per run
 ######################################################
 ```
 ## License
-Mine Sweeper Solver is liscenced under the MIT License, see [LICENCE.txt](https://github.com/garthable/Mine-Sweeper-Solver/blob/main/LICENSE.txt) for more information
+Minesweeper Solver is liscenced under the MIT License, see [LICENCE.txt](https://github.com/garthable/Mine-Sweeper-Solver/blob/main/LICENSE.txt) for more information
