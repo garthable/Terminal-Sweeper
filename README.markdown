@@ -3,11 +3,11 @@ This is a casual project that I'm currently working on to gain experience with C
 ## Planned Fixes and Improvements in rewrite:
 - I will implement realtime minesweeper play in the rewrite.
 - I plan to optimize my algorithm further by using the techinique specified [here](https://minesweepergame.com/strategy/patterns.php) which will reduce the amount of calls to find all solutions which is NP.
-- A way to optimize this algorithm greatly would be to use memory pooling reducing the amount of heap memory that needs to be assigned. This is something I plan to do.
-- I can increase the win rate by finding the reguess chance of each unknown tile when guessing and use that to decrease the amount of guesses.
+- One way that Ill optimize this algorithm is by using memory pooling since currently alot of heap memory is being assigned on frequently called functions.
+- I can increase the win rate by finding the reguess chance for each tile which will allow me to reduce the amount of guesses my algorithm makes.
 - Inorder to give the user greater control over the program I will multithread my program allowing for inputs while its running.
-- I plan on swapping my terminal UI with a GUI making it more user friendly.
-- I will improve the readability of this code by choosing better names for variables and functions. I will also add explanations for what functions do.
+- I plan on swapping my terminal UI with a GUI to it more user friendly.
+- I planning on improving the readability of my code by choosing better names for variables and functions. I have also been adding explanations for what functions do.
 ## How it works
 - A class called "mineMap" emulates the actual Minesweeper game
 - A class called "solver" receives the game state through a string.
