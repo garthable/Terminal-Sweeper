@@ -2,7 +2,7 @@
 This is a casual project that I'm currently working on to gain experience with C++. The goal of this project is to create an algorithm to solve Minesweeper on expert difficulty 45% of the time as fast as possible. Currently it can solve 42.66% of expert games with seeds 0-9999 in 55 seconds making the average game from this set solvable in 5.5 millisecs.
 ## Planned Fixes and Improvements in rewrite:
 - I will implement realtime minesweeper play in the rewrite.
-- I plan to optimize my algorithm further by using the techinique specified [here](https://minesweepergame.com/strategy/patterns.php) reducing the amount of calls to find all solutions which is NP.
+- I plan to optimize my algorithm further by using the techinique specified [here](https://minesweepergame.com/strategy/patterns.php) which will reduce the amount of calls to find all solutions which is NP.
 - A way to optimize this algorithm greatly would be to use memory pooling reducing the amount of heap memory that needs to be assigned. This is something I plan to do.
 - I can increase the win rate by finding the reguess chance of each unknown tile when guessing and use that to decrease the amount of guesses.
 - Inorder to give the user greater control over the program I will multithread my program allowing for inputs while its running.
