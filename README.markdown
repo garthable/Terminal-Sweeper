@@ -2,24 +2,24 @@
 This is a casual project that I'm currently working on to gain experience with C++. The goal of this project is to create an algorithm to solve Minesweeper on expert difficulty 45% of the time as fast as possible. Currently it can solve 42.66% of expert games with seeds 0-9999 in 55 seconds making the average game from this set solvable in 5.5 millisecs.
 ## Planned Fixes and Improvements in rewrite:
 - I will implement realtime minesweeper play in the rewrite.
-- In my rewrite I have already improved this algorithm by implementing a minesweeper strategy shown in this [article](https://minesweepergame.com/strategy/patterns.php) which results in less calls to an expensive function.
-- Part of the reason for the poor solve time is that I overassign heap memory in frequently called functions. In my rewrite im pooling all heap memory used frequently to improve runtime.
-- The reason why im not hitting the 45% win rate at the moment is because when my algorithm guesses it is only takes bomb probability and whether or not it borders a corner or edge into account. In my rewrite I plan on implementing an algorithm that will factor in both bomb probability and reguess probability. This will allow for a better guessing process and will hopefully increase the winrate. If I find that Im not able to discover the reguess probability I will likely improve on my prior design.
-- Currently this program is only single threaded, in my next implementation I plan on having threads that handle user inputs to give the user control over the program while it runs.
-- I plan on swapping my terminal UI with a GUI. Currently im planning on using the ImGui for the library.
-- The readability in this is rather poor so in my rewrite ive taken time to make sure variables and functions are correctly named and to describe functions and classes bettter in the header files.
+- I plan to optimize my algorithm further by using this technique [article](https://minesweepergame.com/strategy/patterns.php) reducing the amount of calls to find all solutions which is NP.
+- A way to optimize this algorithm greatly would be to use memory pooling reducing the amount of heap memory that needs to be assigned. This is something I plan to do.
+- I can increase the win rate by finding the reguess chance of each unknown tile when guessing and use that to decrease the amount of guesses.
+- Inorder to give the user greater control over the program I will multithread my program allowing for inputs while its running.
+- I plan on swapping my terminal UI with a GUI making it more user friendly.
+- I will improve the readability of this code by choosing better names for variables and functions. I will also add explanations for what functions do.
 ## How it works
 - A class called "mineMap" emulates the actual Minesweeper game
 - A class called "solver" receives the game state through a string.
 - The solver class will then search for any tiles that have the same number of adjacent bombs as adjacent unknown tiles. If this is true all adjacent unknown tiles will be flagged.
 - The solver class will then search for any tiles that have the same number of adjacent bombs as adjacent flagged tiles. If this is true all adjacent unknown tiles will be clicked.
 - If neither of these are true the solver class will group the tiles together into distinct groups and send these to the "probabilityFinder" class and check for every single possible arrangement of bombs within these groups.
-- If there is a possibility that the bombs in these groups can surpass the amount of bombs left the algorithm will then combine these solutions and exclude combinations that surpass the amount of bombs left.
+- If there is a possibility that the bombs in these groups can surpass the amount of bombs left the algorithm will combine these solutions and exclude combinations that surpass the amount of bombs left.
 - Using these solutions the algorithm then calculates the probability of each tile being a bomb. Any tiles that have a 100% chance of being a bomb are flagged and any that have a 0% chance of being a bomb are clicked.
 - If there are no obvious tile choices the algorithm will then find the bomb with the lowest probability of being a bomb and click it. If theres a tie between probabilities the algorithm will use whether or not the tile is a corner/edge as a tie breaker.
 - This cycle will be repeated every iteration.
 ## How to compile and run
-1. Navigate to the root of the repository
+1. Navigate to the root directory of the repository
 2. Type "make" into the console
 3. Type ./build/runner into the console
 4. The program should now be running, if you received an error make sure your current directory is either the root of the repository or is the build directory.
