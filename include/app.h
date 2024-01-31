@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sys/time.h>
+#include <windows.h> 
 #include <unistd.h>
 #include "solver.h"
 

@@ -5,6 +5,7 @@ void app::run()
     while (true)
     {
         system("clear");
+        system("CLS");
         // std::cout << "Type \"p\" to play minesweeper" << std::endl;
         std::cout << "Type \"w\" to watch minesweeper algorithm" << std::endl;
         std::cout << "Type \"t\" to test minesweeper algorithm" << std::endl;
@@ -86,6 +87,7 @@ void app::massTests()
             iteration = 0;
 
             system("clear");
+            system("CLS");
             std::cout << wins + losses << std::endl
             << "Wins: " << wins << std::endl
             << "Losses: " << losses << std::endl;
@@ -104,6 +106,7 @@ void app::massTests()
             iteration = 0;
 
             system("clear");
+            system("CLS");
             std::cout << wins + losses << std::endl
             << "Wins: " << wins << std::endl
             << "Losses: " << losses << std::endl;
@@ -120,6 +123,7 @@ void app::massTests()
     time(&end);
     double time_taken = double(end - start);
     system("clear");
+    system("CLS");
     std::cout << "######################################################" << std::endl;
     std::cout << "Total Games: " << wins + losses << std::endl << std::endl;
     std::cout << "Wins:        " << wins << std::endl;
@@ -157,6 +161,7 @@ void app::watch()
         if (!map.click(s.getClickX(), s.getClickY()))
         {
             system("clear");
+            system("CLS");
             std::cout << "iteration: " << iteration << std::endl;
             std::cout << "seed " << seed << std::endl;
             std::cout << "guesses: " << s.getGuesses() << std::endl;
@@ -168,6 +173,7 @@ void app::watch()
         else if (map.won())
         {
             system("clear");
+            system("CLS");
             std::cout << "c " << s.getClickX() << " " << s.getClickY() << std::endl;
             std::cout << "iteration: " << iteration << std::endl;
             std::cout << "seed " << seed << std::endl;
@@ -180,6 +186,7 @@ void app::watch()
         else
         {
             system("clear");
+            system("CLS");
             std::cout << "c " << s.getClickX() << " " << s.getClickY() << std::endl;
             std::cout << "seed " << seed << std::endl;
             std::cout << "iteration: " << iteration << std::endl;

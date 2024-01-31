@@ -10,7 +10,7 @@ EXECUTABLENAME := runner
 standard:
 	@mkdir -p build
 	cd build; \
-	$(COMPILER) $(CFLAGS) -I ./../include*.cpp ../src/*.cpp $(CVERSION) -o $(EXECUTABLENAME)
+	$(COMPILER) $(CFLAGS) $(CVERSION) -I ./../include*.cpp ../src/*.cpp -o $(EXECUTABLENAME)
 
 clean:
 	rm -f -r build/*

@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "../include/mineMap.h"
 
 void mineMap::reset()
