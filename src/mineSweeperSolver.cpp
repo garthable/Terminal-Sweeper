@@ -1,4 +1,4 @@
-#include "mineSweeperSolver.h"
+#include "../include/mineSweeperSolver.h"
 #include <iostream>
 
 //
