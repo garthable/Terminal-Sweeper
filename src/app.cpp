@@ -82,6 +82,7 @@ void app::readSettings()
 
     if (!settingsFileRead.is_open())
     {
+        throw std::runtime_error("Failed to open settings file!");
         return;
     }
 
