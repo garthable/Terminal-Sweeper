@@ -6,9 +6,7 @@
 #ifndef MINESWEEPERSOLUTIONFINDER
 #define MINESWEEPERSOLUTIONFINDER
 
-#include "mineSweeperSolver.h"
-
-struct solverTile;
+#include "solverTile.h"
 
 struct hiddenTile
 {

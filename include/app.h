@@ -4,6 +4,7 @@
 #define APP
 
 #include "mineSweeperSolver.h"
+#include "mineSweeper.h"
 
 #define SETTINGSFILE "settings.txt"
 

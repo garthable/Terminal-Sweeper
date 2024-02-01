@@ -322,6 +322,11 @@ bool mineSweeperSolutionFinder::canSurpassMaxBombs()
     return maxBombs > m_maxBombs;
 }
 
+uint16_t mineSweeperSolutionFinder::findMaxBombSet(const std::vector<solutionSet>& solutionSets)
+{
+    return 1;
+}   
+
 void mineSweeperSolutionFinder::applyProbabilitiesCombined(std::vector<std::vector<solverTile*>>& outGroupedHiddenTiles)
 {
 
