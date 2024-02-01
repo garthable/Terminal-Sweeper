@@ -3,7 +3,7 @@ This is a casual project that I'm currently working on to gain experience with C
 ## Planned Fixes and Improvements in rewrite:
 - Add in the ability for the user to play minesweeper.
 - Optimize the algorithm further by using the techinique specified [here](https://minesweepergame.com/strategy/patterns.php) which will reduce the amount of calls to find all solutions (An NP time complexity function).
-- Implement memory pooling to reduce unnecessary heap allocations.
+- Implement memory pooling to reduce heap allocations.
 - Factor in reguess probaility when geussing to reduce guesses.
 - Implement multithreading so program can take inputs while its running algorithm.
 - Swap terminal UI with a GUI to make it more user friendly.
