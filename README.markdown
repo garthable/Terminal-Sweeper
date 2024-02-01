@@ -9,14 +9,14 @@ This is a casual project that I'm currently working on to gain experience with C
 - Swap terminal UI with a GUI to make it more user friendly.
 - Improve readability of code by choosing better names for variables and functions.
 ## How it works
-- A class called "mineMap" emulates the actual Minesweeper game
+- A class called "mineMap" emulates the actual Minesweeper game.
 - A class called "solver" receives the game state through a string.
-- The solver class will then search for any tiles that have the same number of adjacent bombs as adjacent unknown tiles. If this is true all adjacent unknown tiles will be flagged.
-- The solver class will then search for any tiles that have the same number of adjacent bombs as adjacent flagged tiles. If this is true all adjacent unknown tiles will be clicked.
-- If neither of these are true the solver class will group the tiles together into distinct groups and send these to the "probabilityFinder" class and check for all possible arrangements of bombs within these groups.
-- If there is a possibility that the bombs in these groups can surpass the amount of bombs left the algorithm will combine these solutions and exclude combinations that surpass the amount of bombs left.
-- Using these solutions the algorithm will calculate the probability of each tile being a bomb. Any tiles that have a 100% chance of being a bomb are flagged and any that have a 0% chance of being a bomb are clicked.
-- If there are no obvious tile choices the algorithm will find the bomb with the lowest probability of being a bomb and click it. If there's a tie between probabilities the algorithm will use whether or not the tile is a corner or edge as a tie breaker.
+- The solver class will then search for any tiles that have the same number of adjacent bombs as adjacent unknown tiles. If this is true, all adjacent unknown tiles will be flagged.
+- The solver class will then search for any tiles that have the same number of adjacent bombs as adjacent flagged tiles. If this is true, all adjacent unknown tiles will be clicked.
+- If neither of these are true, the solver class will group the tiles together into distinct groups and send these to the "probabilityFinder" class and check for all possible arrangements of bombs within these groups.
+- If there is a possibility that the bombs in these groups can surpass the amount of bombs left, the algorithm will combine these solutions and exclude combinations that surpass the amount of bombs left.
+- Using these solutions, the algorithm will calculate the probability of each tile being a bomb. Any tiles that have a 100% chance of being a bomb are flagged and any that have a 0% chance of being a bomb are clicked.
+- If there are no obvious tile choices, the algorithm will find the bomb with the lowest probability of being a bomb and click it. If there's a tie between probabilities, the algorithm will use whether or not the tile is a corner or edge as a tie breaker.
 - This cycle will be repeated every iteration.
 ## How to compile and run
 1. Navigate to the root directory of the repository
@@ -49,7 +49,7 @@ Settings can be set in the settings.txt file found in the doc directory.
 ## Terminal Grabs:
 Info about coordinates and what "c x y" means:
 - c x y: This refers to the coordinates of where the last click was.
-- x = 0 refers the left of the screen, y = 0 refers to the top of the screen
+- x = 0 refers the left of the screen, y = 0 refers to the top of the screen.
 <pre>
 ASCII key for how minesweeper game is displayed:
 - '@': Flagged
