@@ -1,5 +1,5 @@
 # Minesweeper Solver Prototype
-This is a casual project that I'm currently working on to gain experience with C++. The goal of this project is to create an algorithm to solve Minesweeper on expert difficulty 45% of the time as fast as possible. Currently it can solve 42.66% of expert games with seeds 0-9999 in 55 seconds making the average game from this set solvable in 5.5 millisecs.
+This is a casual project that I'm currently working on to gain experience with C++. The goal of this project is to create an algorithm to solve Minesweeper on expert difficulty 45% of the time as fast as possible. Currently on my Mac Pro with an Apple M1 chip, it can solve 42.66% of expert games with seeds 0-9999 in 55 seconds making the average game from this set solvable in 5.5 millisecs.
 ## Planned Fixes and Improvements in rewrite:
 - Add in the ability for the user to play minesweeper.
 - Optimize the algorithm further by using the techinique specified [here](https://minesweepergame.com/strategy/patterns.php) which will reduce the amount of calls to find all solutions (An NP time complexity function).
