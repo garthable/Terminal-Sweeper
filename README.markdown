@@ -50,14 +50,14 @@ Settings can be set in the settings.txt file found in the doc directory.
 Info about coordinates and what "c x y" means:
 - c x y: This refers to the coordinates of where the last click was.
 - x = 0 refers the left of the screen, y = 0 refers to the top of the screen.
-<pre>
+```
 ASCII key for how minesweeper game is displayed:
 - '@': Flagged
 - '#': Unknown
 - ' ': No adjacent bombs
 - 'n' where n is an integer between 1 and 8: the adjacent bomb count
 - 'X': A detonated bomb
-</pre>
+```
 
 Example of solved game:
 ```
