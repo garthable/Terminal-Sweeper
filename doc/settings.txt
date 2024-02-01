@@ -1,9 +1,4 @@
-run_amount: 10000
-
-# Three difficulties are: beginner, intermediate, and expert
-difficulty: expert
-
-# Type "r" for a random value
-seed: r
-
-wait_time: 50000
+# valid entries: baby, beginner, intermediate, expert
+difficulty: intermediate
+# type "t" to make seed time based.
+seed: 1425341542

@@ -1,40 +1,40 @@
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <sys/time.h>
-#if defined(_WIN32)
-    #include <windows.h> 
-#endif
-#include <unistd.h>
-#include "solver.h"
+#include <stdint.h>
 
 #ifndef APP
 #define APP
 
-#define SETTINGSFILE "doc/settings.txt"
-#define SETTINGSFILE2 "../doc/settings.txt"
+#include "mineSweeperSolver.h"
 
+#define SETTINGSFILE "settings.txt"
+
+// Handles UI, user input and program state.
 class app
 {
     public:
-        void run();
         app();
 
+        // Purpose:
+        // Runs main program loop
+        void run();
     private:
-        void play();
-        void watch();
-        void massTests();
-
         void readSettings();
-    
-    private:
-        unsigned long m_runAmount;
-        difficulty m_difficulty;
 
-        bool m_randSeed;
-        int m_seed;
-        int m_waitTime;
-        int m_safeRadius;
+        void playMineSweeper();
+
+        // Purpose:
+        // Lets user watch in real time as the solver solves the generated map.
+        void watchMineSweeperSolver();
+
+        // Purpose:
+        // Tests solver against a predetermined number of mine sweeper maps to determine its overall effectiveness.
+        void testMineSweeperSolver();
+    private:
+        uint8_t m_sizeX;
+        uint8_t m_sizeY;
+        uint16_t m_bombCount;
+
+        bool m_makeSeedEqualToTime;
+        uint32_t m_seed;
 };
 
 #endif
