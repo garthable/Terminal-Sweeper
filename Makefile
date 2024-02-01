@@ -1,7 +1,3 @@
-#
-# Scuffed since I dont know make very well but works
-#
-
 COMPILER := g++
 CVERSION := -std=c++20
 CFLAGS := -g -O3
