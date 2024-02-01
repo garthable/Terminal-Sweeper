@@ -1,298 +1,335 @@
+#include <iostream>
+#include <fstream>
 #include "../include/app.h"
+
+app::app()
+{
+    m_makeSeedEqualToTime = false;
+    m_sizeX = 0;
+    m_sizeY = 0;
+    m_bombCount = 0;
+    m_seed = 0;
+}
+
+// Purpose:
+// Spaces out string to make it more readable
+std::string spaceOutString(std::string inputString)
+{
+    std::string outputString = "";
+
+    for (const char& character : inputString)
+    {
+        outputString += character;
+
+        if (character == '\n')
+        {
+            continue;
+        }
+
+        outputString += ' ';
+    }
+
+    return outputString;
+}
 
 void app::run()
 {
     while (true)
     {
-        #if __APPLE__
-            system("clear");
-        #elif _WIN32
-            system("CLS");
-        #else
-            system("clear");
-        #endif
-        // std::cout << "Type \"p\" to play minesweeper" << std::endl;
-        std::cout << "Type \"w\" to watch minesweeper algorithm" << std::endl;
-        std::cout << "Type \"t\" to test minesweeper algorithm" << std::endl;
-        std::cout << "Type \"q\" to quit" << std::endl;
+        system("clear");
+        std::string input = "";
 
-        std::string input;
+        std::cout << 
+        "Type 'p' to play minesweeper.\nType 'w' to watch minesweeper solver.\nType 't' to test minesweeper solver.\nType 'q' to quit" 
+        << std::endl;
+
         getline(std::cin, input);
 
         if (input == "")
-            continue;
-        char c = input[0];
-        switch (c)
         {
-        // case 'p':
-        //     readSettings();
-        //     play();
-        //     break;
-        case 'w':
-            readSettings();
-            watch();
-            break;
-        case 't':
-            readSettings();
-            massTests();
-            break;
-        case 'q':
-            exit(0);
-            break;
-        
-        default:
-            break;
-        }
-    }
-}
-
-app::app()
-{
-    readSettings();
-}
-
-void app::play()
-{
-
-}
-
-void app::massTests()
-{
-    mineMap map = mineMap(0, m_safeRadius, m_difficulty);
-    solver s = solver(map.sizeX, map.sizeY, m_safeRadius);
-
-    int iteration = 0;
-    int wins = 0;
-    int losses = 0;
-    
-    bool generated = false;
-
-    time_t start;
-    time_t end;
-
-    time(&start);
-
-    while (m_runAmount > wins + losses)
-    {
-        iteration++;
-
-        if (!generated)
-        {
-            map.generateBombs(s.getClickX(), s.getClickY());
-            generated = true;
-        }
-        if (!map.click(s.getClickX(), s.getClickY()))
-        {
-            generated = false;
-
-            map.reset();
-            s.reset();
-
-            losses++;
-            iteration = 0;
-
-            #if __APPLE__
-                system("clear");
-            #elif _WIN32
-                system("CLS");
-            #else
-                system("clear");
-            #endif
-            std::cout << wins + losses << std::endl
-            << "Wins: " << wins << std::endl
-            << "Losses: " << losses << std::endl;
-
-            map.setSeed(wins + losses);
             continue;
         }
-        if (map.won())
-        {
-            generated = false;
-
-            map.reset();
-            s.reset();
-
-            wins++;
-            iteration = 0;
-
-            #if __APPLE__
-                system("clear");
-            #elif _WIN32
-                system("CLS");
-            #else
-                system("clear");
-            #endif
-            std::cout << wins + losses << std::endl
-            << "Wins: " << wins << std::endl
-            << "Losses: " << losses << std::endl;
-
-            map.setSeed(wins + losses);
-            continue;
-        }
-
-        s.update(map.print());
         
-        for (coord c : s.getFlagged())
-            map.flag(c.x, c.y);
-    }
-    time(&end);
-    double time_taken = double(end - start);
-    #if __APPLE__
-        system("clear");
-    #elif _WIN32
-        system("CLS");
-    #else
-        system("clear");
-    #endif
-    std::cout << "######################################################" << std::endl;
-    std::cout << "Total Games: " << wins + losses << std::endl << std::endl;
-    std::cout << "Wins:        " << wins << std::endl;
-    std::cout << "Losses:      " << losses << std::endl << std::endl;
-    std::cout << "Win Rate:    " << ((float)wins/(float)m_runAmount)*100 << "%" << std::endl << std::endl;
-    std::cout << "######################################################" << std::endl;
-    std::cout << "Time Taken:         " << time_taken << " secs" << std::endl;
-    std::cout << "Time Taken per run: " << (time_taken/(float)m_runAmount)*1000.0F << " millisecs per run" << std::endl << std::endl;
-    std::cout << "######################################################" << std::endl;
-    std::cin.get();
-}
+        char firstLetterInInput = input[0];
 
-void app::watch()
-{
-    int seed = m_seed;
-    if (m_randSeed)
-        seed = time(0);
-
-    mineMap map = mineMap(seed, m_safeRadius, m_difficulty);
-    solver s = solver(map.sizeX, map.sizeY, m_safeRadius);
-
-    int iteration = 0;
-    
-    bool generated = false;
-
-    while (true)
-    {
-        iteration++;
-
-        if (!generated)
+        switch (firstLetterInInput)
         {
-            map.generateBombs(s.getClickX(), s.getClickY());
-            generated = true;
+            case 'p':
+                readSettings();
+                playMineSweeper();
+                break;
+            case 'w':
+                readSettings();
+                watchMineSweeperSolver();
+                break;
+            case 't':
+                readSettings();
+                testMineSweeperSolver();
+                break;
+            case 'q':
+                return;
+                break;
+            default:
+                break;
         }
-        if (!map.click(s.getClickX(), s.getClickY()))
-        {
-            #if __APPLE__
-                system("clear");
-            #elif _WIN32
-                system("CLS");
-            #else
-                system("clear");
-            #endif
-            std::cout << "iteration: " << iteration << std::endl;
-            std::cout << "seed " << seed << std::endl;
-            std::cout << "guesses: " << s.getGuesses() << std::endl;
-            std::cout << map.printWithSpaces() << std::endl;
-            std::cout << "Explode at " << s.getClickX() << " " << s.getClickY() << std::endl;
-            std::cin.get();
-            return;
-        }
-        else if (map.won())
-        {
-            #if __APPLE__
-                system("clear");
-            #elif _WIN32
-                system("CLS");
-            #else
-                system("clear");
-            #endif
-            std::cout << "c " << s.getClickX() << " " << s.getClickY() << std::endl;
-            std::cout << "iteration: " << iteration << std::endl;
-            std::cout << "seed " << seed << std::endl;
-            std::cout << "guesses: " << s.getGuesses() << std::endl;
-            std::cout << map.printWithSpaces() << std::endl;
-            std::cout << "Solved!" << std::endl;
-            std::cin.get();
-            return;
-        }
-        else
-        {
-            #if __APPLE__
-                system("clear");
-            #elif _WIN32
-                system("CLS");
-            #else
-                system("clear");
-            #endif
-            std::cout << "c " << s.getClickX() << " " << s.getClickY() << std::endl;
-            std::cout << "seed " << seed << std::endl;
-            std::cout << "iteration: " << iteration << std::endl;
-            std::cout << "guesses: " << s.getGuesses() << std::endl;
-            std::cout << map.printWithSpaces() << std::endl;
-            usleep(m_waitTime);
-        }
-
-        s.update(map.print());
-        
-        for (coord c : s.getFlagged())
-            map.flag(c.x, c.y);
     }
 }
 
 void app::readSettings()
 {
-    std::ifstream settingsFile(SETTINGSFILE);
-    if (!settingsFile.is_open())
-    {
-        settingsFile.close();
-        settingsFile.open(SETTINGSFILE2);
-        if (!settingsFile.is_open())
-            throw std::runtime_error("readSettings failed to open settings file!");   
-    }
-    
-    std::string line;
+    std::string line = "";
+    std::fstream settingsFileRead = std::fstream(SETTINGSFILE);
 
-    while (std::getline(settingsFile, line))
+    if (!settingsFileRead.is_open())
     {
-        std::string lineReader = "";
-        for (char c : line)
+        return;
+    }
+
+    while (getline(settingsFileRead, line))
+    {
+        std::string tempString = "";
+        for (const char& character : line)
         {
-            lineReader += c;
-            if (lineReader == "run_amount: ")
+            tempString += character;
+            if (tempString == "#")
             {
-                std::string setting = line.substr(lineReader.size(), line.size());
-                m_runAmount = std::stoi(setting);
-                break;
+                continue;
             }
-            else if (lineReader == "difficulty: ")
+            else if (tempString == "difficulty: ")
             {
-                std::string setting = line.substr(lineReader.size(), line.size());
-                if (setting == "beginner")
-                    m_difficulty = beginner;
-                else if (setting == "intermediate")
-                    m_difficulty = intermediate;
-                else if (setting == "expert")
-                    m_difficulty = expert;
-                break;
-            }
-            else if (lineReader == "seed: ")
-            {
-                std::string setting = line.substr(lineReader.size(), line.size());
-                if (setting[0] == 'r')
+                std::string setting = line.substr(tempString.size(), line.size());
+                if (setting == "baby")
                 {
-                    m_randSeed = true;
-                    break;
+                    m_sizeX = 4;
+                    m_sizeY = 4;
+                    m_bombCount = 2;
                 }
-                m_seed = std::stoi(setting);
-                m_randSeed = false;
-                break;
+                else if (setting == "beginner")
+                {
+                    m_sizeX = 9;
+                    m_sizeY = 9;
+                    m_bombCount = 10;
+                }
+                else if (setting == "intermediate")
+                {
+                    m_sizeX = 16;
+                    m_sizeY = 16;
+                    m_bombCount = 40;
+                }
+                else if (setting == "expert")
+                {
+                    m_sizeX = 30;
+                    m_sizeY = 16;
+                    m_bombCount = 99;
+                }
             }
-            else if (lineReader == "wait_time: ")
+            else if (tempString == "seed: ")
             {
-                std::string setting = line.substr(lineReader.size(), line.size());
-                m_waitTime = std::stoi(setting);
-                break;
+                std::string setting = line.substr(tempString.size(), line.size());
+
+                if (setting == "")
+                {
+                    continue;
+                }
+                else if (setting[0] == 't') // For the seeds setting typing 't' means to make the seed equal the time.
+                {
+                    m_makeSeedEqualToTime = true;
+                    m_seed = 0;
+                }
+                else
+                {
+                    m_makeSeedEqualToTime = false;
+                    m_seed = std::stoi(setting);
+                }
             }
-            m_safeRadius = 2;
         }
     }
-    settingsFile.close();
+}
+
+struct parsedInput
+{
+    bool isFlag;
+    uint8_t x;
+    uint8_t y;
+    parsedInput(const bool& _isFlag, const uint8_t& _x, const uint8_t& _y)
+    {
+        isFlag = _isFlag;
+        x = _x;
+        y = _y;
+    }
+};
+
+// Purpose:
+// Temporary Parser used to get inputs
+parsedInput parser(std::string input)
+{
+    bool isFlag = false;
+    uint8_t x = 80;
+    uint8_t y = 80;
+
+    uint8_t state = 0;
+
+    std::string tempString = "";
+
+    for (const char& character : input)
+    {
+        if (character != ' ')
+        {
+            tempString += character;
+            continue;
+        }
+        else if (state == 0)
+        {
+            if (tempString == "f")
+                isFlag = true;
+        }
+        else
+        {
+            x = std::stoi(tempString);
+        }
+
+        tempString = "";
+        state++;
+    }
+
+    y = std::stoi(tempString);
+
+    return parsedInput(isFlag, x, y);
+}
+
+void app::playMineSweeper()
+{
+    mineSweeper _mineSweeper = mineSweeper(m_sizeX, m_sizeY, m_bombCount);
+    bool isFirstMove = true;
+    bool isFlag = false;
+    uint8_t clickX = 0;
+    uint8_t clickY = 0;
+
+    if (m_makeSeedEqualToTime)
+    {
+        m_seed = time(0);
+    }
+    while (true)
+    {
+        system("clear");
+        // Get Output:
+        std::cout << "Flags: " << _mineSweeper.getFlagsRemaining() << '\n'
+        << spaceOutString(_mineSweeper.getOutputMineSweeperMap()) << std::endl;
+
+        // Win loss detection:
+        if (_mineSweeper.isLost())
+        {
+            std::cout << "KABOOM" << std::endl;
+            break;
+        }
+        else if (_mineSweeper.isWon())
+        {
+            std::cout << "VICTORY" << std::endl;
+            break;
+        }
+
+        // Get Input: NOT SAFE
+        std::string input = "";
+        getline(std::cin, input);
+
+        parsedInput p = parser(input);
+        clickX = p.x;
+        clickY = p.y;
+        isFlag = p.isFlag;
+
+        if (clickX >= m_sizeX || clickY >= m_sizeY)
+        {
+            continue;
+        }
+
+        // Use Input:
+        if (isFirstMove && !isFlag)
+        {
+            isFirstMove = false;
+            _mineSweeper.generateBombs(clickX, clickY, m_seed);
+        }
+
+        if (isFlag)
+        {
+            _mineSweeper.flagTile(clickX, clickY);
+        }
+        else
+        {
+            _mineSweeper.clickTile(clickX, clickY);
+        }
+    }
+}
+
+void app::watchMineSweeperSolver()
+{
+    mineSweeper _mineSweeper = mineSweeper(m_sizeX, m_sizeY, m_bombCount);
+    mineSweeperSolver _mineSweeperSolver = mineSweeperSolver(m_sizeX, m_sizeY, m_bombCount);
+    bool isFirstMove = true;
+    bool isFlag = false;
+    uint16_t clickX = 0;
+    uint16_t clickY = 0;
+
+    if (m_makeSeedEqualToTime)
+    {
+        m_seed = time(0);
+    }
+    _mineSweeper.generateBombs(1, 1, m_seed);
+    _mineSweeper.clickTile(1, 1);
+    while (true)
+    {
+        // Get Output:
+        std::cout << "Flags: " << _mineSweeper.getFlagsRemaining() << '\n'
+        << spaceOutString(_mineSweeper.getOutputMineSweeperMap()) << std::endl;
+
+        // Win loss detection:
+        if (_mineSweeper.isLost())
+        {
+            std::cout << "KABOOM" << std::endl;
+            std::cin.get();
+            break;
+        }
+        else if (_mineSweeper.isWon())
+        {
+            std::cout << "VICTORY" << std::endl;
+            std::cin.get();
+            break;
+        }
+
+        // Get Input:
+        _mineSweeperSolver.update(_mineSweeper.getOutputMineSweeperMap());
+        isFlag = false;
+        coordinate coord = _mineSweeperSolver.getReccomendedClick();
+        if (coord.x == UINT16_MAX)
+        {
+            isFlag = true;
+            coord = _mineSweeperSolver.getReccomendedFlag();
+        }
+        clickX = coord.x;
+        clickY = coord.y;
+        
+        if (clickX == UINT16_MAX)
+        {
+            std::cout << "Unable" << std::endl;
+            std::cin.get();
+            break;
+        }
+
+        if (isFlag)
+        {
+            _mineSweeper.flagTile(clickX, clickY);
+        }
+        else
+        {
+            _mineSweeper.clickTile(clickX, clickY);
+        }
+        system("clear");
+    }
+}
+
+void app::testMineSweeperSolver()
+{
+    while (true)
+    {
+        break;
+    }
 }
