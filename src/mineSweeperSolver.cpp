@@ -5,7 +5,7 @@
 // Public
 //
 
-mineSweeperSolver::mineSweeperSolver(const uint16_t& sizeX, const uint16_t& sizeY, const uint16_t& bombCount)
+MineSweeperSolver::MineSweeperSolver(const uint16_t& sizeX, const uint16_t& sizeY, const uint16_t& bombCount)
 {
     m_sizeX = sizeX;
     m_sizeY = sizeY;
@@ -14,7 +14,7 @@ mineSweeperSolver::mineSweeperSolver(const uint16_t& sizeX, const uint16_t& size
     generateSolverTiles();
 }
 
-void mineSweeperSolver::update(const std::string& mineSweeperMap)
+void MineSweeperSolver::update(const std::string& mineSweeperMap)
 {
     if (hasReccomendedSolverTiles())
     {
@@ -39,10 +39,10 @@ void mineSweeperSolver::update(const std::string& mineSweeperMap)
     // exit(-1);
 }
 
-std::string mineSweeperSolver::getSolverMap()
+std::string MineSweeperSolver::getSolverMap()
 {
     std::string output = "";
-    for (const solverTile& _solverTile : m_solverTiles)
+    for (const SolverTile& _solverTile : m_solverTiles)
     {
         switch (_solverTile.solverTileState)
         {
@@ -67,33 +67,33 @@ std::string mineSweeperSolver::getSolverMap()
     return output;
 }
 
-void mineSweeperSolver::reset()
+void MineSweeperSolver::reset()
 {
 
 }
 
-coordinate mineSweeperSolver::getReccomendedClick()
+Coordinate MineSweeperSolver::getReccomendedClick()
 {
-    coordinate reccomendedClick = coordinate(UINT16_MAX, UINT16_MAX);
+    Coordinate reccomendedClick = Coordinate(UINT16_MAX, UINT16_MAX);
 
     if (!m_reccomendedClicks.empty())
     {
-        solverTile* solverTilePtr = m_reccomendedClicks[m_reccomendedClicks.size() - 1];
-        reccomendedClick = coordinate(solverTilePtr->x, solverTilePtr->y);
+        SolverTile* solverTilePtr = m_reccomendedClicks[m_reccomendedClicks.size() - 1];
+        reccomendedClick = Coordinate(solverTilePtr->x, solverTilePtr->y);
         m_reccomendedClicks.erase(m_reccomendedClicks.begin() + (m_reccomendedClicks.size() - 1));
     }
 
     return reccomendedClick;
 }
 
-coordinate mineSweeperSolver::getReccomendedFlag()
+Coordinate MineSweeperSolver::getReccomendedFlag()
 {
-    coordinate reccomendedFlag = coordinate(UINT16_MAX, UINT16_MAX);
+    Coordinate reccomendedFlag = Coordinate(UINT16_MAX, UINT16_MAX);
 
     if (!m_reccomendedFlags.empty())
     {
-        solverTile* solverTilePtr = m_reccomendedFlags[m_reccomendedFlags.size() - 1];
-        reccomendedFlag = coordinate(solverTilePtr->x, solverTilePtr->y);
+        SolverTile* solverTilePtr = m_reccomendedFlags[m_reccomendedFlags.size() - 1];
+        reccomendedFlag = Coordinate(solverTilePtr->x, solverTilePtr->y);
         m_reccomendedFlags.erase(m_reccomendedFlags.begin() + (m_reccomendedFlags.size() - 1));
     }
 
@@ -104,7 +104,7 @@ coordinate mineSweeperSolver::getReccomendedFlag()
 // Private
 //
 
-inline solverTile* mineSweeperSolver::searchSolverTile(const uint16_t& x, const uint16_t& y)
+inline SolverTile* MineSweeperSolver::searchSolverTile(const uint16_t& x, const uint16_t& y)
 {
     if (x >= m_sizeX || y >= m_sizeY)
     {
@@ -113,40 +113,40 @@ inline solverTile* mineSweeperSolver::searchSolverTile(const uint16_t& x, const 
     return &m_solverTiles[x + y*m_sizeX];
 }
 
-inline solverTile* mineSweeperSolver::searchSolverTile(const uint16_t& index)
+inline SolverTile* MineSweeperSolver::searchSolverTile(const uint16_t& index)
 {
     return &m_solverTiles[index];
 }
 
-inline uint16_t mineSweeperSolver::getSolverTileIndex(solverTile* solverTilePtr)
+inline uint16_t MineSweeperSolver::getSolverTileIndex(SolverTile* solverTilePtr)
 {
     return solverTilePtr->x + solverTilePtr->y*m_sizeX;
 }
 
-inline bool mineSweeperSolver::hasReccomendedSolverTiles()
+inline bool MineSweeperSolver::hasReccomendedSolverTiles()
 {
     return !m_reccomendedClicks.empty() || !m_reccomendedFlags.empty();
 }
 
-inline void mineSweeperSolver::flagSolverTile(solverTile& solverTileOut)
+inline void MineSweeperSolver::flagSolverTile(SolverTile& solverTileOut)
 {
     solverTileOut.solverTileState = flagged;
     m_reccomendedFlags.push_back(&solverTileOut);
 }
 
-inline void mineSweeperSolver::clickSolverTile(solverTile& solverTileOut)
+inline void MineSweeperSolver::clickSolverTile(SolverTile& solverTileOut)
 {
     solverTileOut.solverTileState = clicked;
     m_reccomendedClicks.push_back(&solverTileOut);
 }
 
-void mineSweeperSolver::generateSolverTiles()
+void MineSweeperSolver::generateSolverTiles()
 {
     for (uint16_t y = 0; y < m_sizeY; y++)
     {
         for (uint16_t x = 0; x < m_sizeX; x++)
         {
-            m_solverTiles.push_back(solverTile(x, y));
+            m_solverTiles.push_back(SolverTile(x, y));
         }
     }
 
@@ -154,13 +154,13 @@ void mineSweeperSolver::generateSolverTiles()
                              {-1,  0},          {1,  0}, 
                              {-1, -1}, {0, -1}, {1, -1}};
 
-    for (solverTile& refSolverTile : m_solverTiles)
+    for (SolverTile& refSolverTile : m_solverTiles)
     {
         const uint16_t& x = refSolverTile.x;
         const uint16_t& y = refSolverTile.y;
         for (uint16_t i = 0u; i < 8u; i++)
         {
-            solverTile* adjSolverTile = searchSolverTile(x+offsets[i][0], y+offsets[i][1]);
+            SolverTile* adjSolverTile = searchSolverTile(x+offsets[i][0], y+offsets[i][1]);
             if (!adjSolverTile)
             {
                 continue;
@@ -170,7 +170,7 @@ void mineSweeperSolver::generateSolverTiles()
     }
 }
 
-void mineSweeperSolver::readMineMap(const std::string& mineSweeperMap)
+void MineSweeperSolver::readMineMap(const std::string& mineSweeperMap)
 {
     uint16_t index = 0;
     for (const char& character : mineSweeperMap)
@@ -201,29 +201,29 @@ void mineSweeperSolver::readMineMap(const std::string& mineSweeperMap)
     }
 }
 
-inline uint16_t mineSweeperSolver::getEffectiveBombCount(const solverTile& solverTilePtr)
+inline uint16_t MineSweeperSolver::getEffectiveBombCount(const SolverTile& solverTilePtr)
 {
     uint16_t effectiveBombCount = solverTilePtr.adjBombsAmount;
-    for (solverTile* adjSolverTile : solverTilePtr.adjSolverTiles)
+    for (SolverTile* adjSolverTile : solverTilePtr.adjSolverTiles)
     {
         effectiveBombCount -= adjSolverTile->solverTileState == flagged;
     }
     return effectiveBombCount;
 }
 
-inline uint16_t mineSweeperSolver::getAdjUnknownCount(const solverTile& solverTilePtr)
+inline uint16_t MineSweeperSolver::getAdjUnknownCount(const SolverTile& solverTilePtr)
 {
     uint16_t getAdjUnknownCount = 0;
-    for (solverTile* adjSolverTile : solverTilePtr.adjSolverTiles)
+    for (SolverTile* adjSolverTile : solverTilePtr.adjSolverTiles)
     {
         getAdjUnknownCount += adjSolverTile->solverTileState == unknown;
     }
     return getAdjUnknownCount;
 }
 
-void mineSweeperSolver::fastBombFinder()
+void MineSweeperSolver::fastBombFinder()
 {
-    for (solverTile& solverTileRef : m_solverTiles)
+    for (SolverTile& solverTileRef : m_solverTiles)
     {
         if (solverTileRef.solverTileState != visible)
         {
@@ -231,7 +231,7 @@ void mineSweeperSolver::fastBombFinder()
         }
         if (getAdjUnknownCount(solverTileRef) == getEffectiveBombCount(solverTileRef))
         {
-            for (solverTile* adjSolverTile : solverTileRef.adjSolverTiles)
+            for (SolverTile* adjSolverTile : solverTileRef.adjSolverTiles)
             {
                 if (adjSolverTile->solverTileState != unknown)
                 {
@@ -242,7 +242,7 @@ void mineSweeperSolver::fastBombFinder()
         }
     }
 
-    for (solverTile& solverTileRef : m_solverTiles)
+    for (SolverTile& solverTileRef : m_solverTiles)
     {
         if (solverTileRef.solverTileState != visible)
         {
@@ -250,7 +250,7 @@ void mineSweeperSolver::fastBombFinder()
         }
         if (getEffectiveBombCount(solverTileRef) == 0)
         {
-            for (solverTile* adjSolverTile : solverTileRef.adjSolverTiles)
+            for (SolverTile* adjSolverTile : solverTileRef.adjSolverTiles)
             {
                 if (adjSolverTile->solverTileState != unknown)
                 {
@@ -262,17 +262,17 @@ void mineSweeperSolver::fastBombFinder()
     }
 }
 
-uint16_t mineSweeperSolver::getIntersectionSizeBetweenTileUnknownAdjs(const solverTile* solverTilePtrA, const solverTile* solverTilePtrB)
+uint16_t MineSweeperSolver::getIntersectionSizeBetweenTileUnknownAdjs(const SolverTile* solverTilePtrA, const SolverTile* solverTilePtrB)
 {
     uint16_t intersectionSizeBetweenTileUnknownAdjs = 0;
 
-    for (solverTile* adjSolverTileA : solverTilePtrA->adjSolverTiles)
+    for (SolverTile* adjSolverTileA : solverTilePtrA->adjSolverTiles)
     {
         if (adjSolverTileA->solverTileState != unknown)
         {
             continue;
         }
-        for (solverTile* adjSolverTileB : solverTilePtrB->adjSolverTiles)
+        for (SolverTile* adjSolverTileB : solverTilePtrB->adjSolverTiles)
         {
             if (adjSolverTileB->solverTileState != unknown)
             {
@@ -289,16 +289,16 @@ uint16_t mineSweeperSolver::getIntersectionSizeBetweenTileUnknownAdjs(const solv
     return intersectionSizeBetweenTileUnknownAdjs;
 }
 
-void mineSweeperSolver::clickTilesInAMinusBSet(solverTile* solverTilePtrA, solverTile* solverTilePtrB)
+void MineSweeperSolver::clickTilesInAMinusBSet(SolverTile* solverTilePtrA, SolverTile* solverTilePtrB)
 {
-    for (solverTile* adjSolverTileA : solverTilePtrA->adjSolverTiles)
+    for (SolverTile* adjSolverTileA : solverTilePtrA->adjSolverTiles)
     {
         if (adjSolverTileA->solverTileState != unknown)
         {
             continue;
         }
         bool inBSet = false;
-        for (solverTile* adjSolverTileB : solverTilePtrB->adjSolverTiles)
+        for (SolverTile* adjSolverTileB : solverTilePtrB->adjSolverTiles)
         {
             if (adjSolverTileB->solverTileState != unknown)
             {
@@ -318,16 +318,16 @@ void mineSweeperSolver::clickTilesInAMinusBSet(solverTile* solverTilePtrA, solve
     }
 }
 
-void mineSweeperSolver::flagTilesInAMinusBSet(solverTile* solverTilePtrA, solverTile* solverTilePtrB)
+void MineSweeperSolver::flagTilesInAMinusBSet(SolverTile* solverTilePtrA, SolverTile* solverTilePtrB)
 {
-    for (solverTile* adjSolverTileA : solverTilePtrA->adjSolverTiles)
+    for (SolverTile* adjSolverTileA : solverTilePtrA->adjSolverTiles)
     {
         if (adjSolverTileA->solverTileState != unknown)
         {
             continue;
         }
         bool inBSet = false;
-        for (solverTile* adjSolverTileB : solverTilePtrB->adjSolverTiles)
+        for (SolverTile* adjSolverTileB : solverTilePtrB->adjSolverTiles)
         {
             if (adjSolverTileB->solverTileState != unknown)
             {
@@ -347,15 +347,15 @@ void mineSweeperSolver::flagTilesInAMinusBSet(solverTile* solverTilePtrA, solver
     }
 }
 
-void mineSweeperSolver::flagTilesInAIntersectBSet(solverTile* solverTilePtrA, solverTile* solverTilePtrB)
+void MineSweeperSolver::flagTilesInAIntersectBSet(SolverTile* solverTilePtrA, SolverTile* solverTilePtrB)
 {
-    for (solverTile* adjSolverTileA : solverTilePtrA->adjSolverTiles)
+    for (SolverTile* adjSolverTileA : solverTilePtrA->adjSolverTiles)
     {
         if (adjSolverTileA->solverTileState != unknown)
         {
             continue;
         }
-        for (solverTile* adjSolverTileB : solverTilePtrB->adjSolverTiles)
+        for (SolverTile* adjSolverTileB : solverTilePtrB->adjSolverTiles)
         {
             if (adjSolverTileB->solverTileState != unknown)
             {
@@ -370,9 +370,9 @@ void mineSweeperSolver::flagTilesInAIntersectBSet(solverTile* solverTilePtrA, so
     }
 }
 
-void mineSweeperSolver::patternBombFinder()
+void MineSweeperSolver::patternBombFinder()
 {
-    for (solverTile& solverTileRef : m_solverTiles)
+    for (SolverTile& solverTileRef : m_solverTiles)
     {
         if (solverTileRef.solverTileState != visible)
         {
@@ -380,7 +380,7 @@ void mineSweeperSolver::patternBombFinder()
         }
         int16_t tileSetSize = getAdjUnknownCount(solverTileRef);
         int16_t tileBombCount = getEffectiveBombCount(solverTileRef);
-        for (solverTile* adjSolverTile : solverTileRef.adjSolverTiles)
+        for (SolverTile* adjSolverTile : solverTileRef.adjSolverTiles)
         {
             if (adjSolverTile->solverTileState != visible)
             {
@@ -414,7 +414,7 @@ void mineSweeperSolver::patternBombFinder()
     }
 }
 
-void mineSweeperSolver::groupTiles()
+void MineSweeperSolver::groupTiles()
 {
     uint16_t currGroup = 0u;
     uint16_t groupCount = m_unknownGroupedSolverTiles.size();
@@ -423,11 +423,11 @@ void mineSweeperSolver::groupTiles()
         m_unknownGroupedSolverTiles[group].clear();
         m_visibleGroupedSolverTiles[group].clear();
     }
-    for (solverTile& solverTileRef : m_solverTiles)
+    for (SolverTile& solverTileRef : m_solverTiles)
     {
         solverTileRef.visited = false;
     }
-    for (solverTile& solverTileRef : m_solverTiles)
+    for (SolverTile& solverTileRef : m_solverTiles)
     {
         if (solverTileRef.solverTileState != visible || solverTileRef.visited)
         {
@@ -436,7 +436,7 @@ void mineSweeperSolver::groupTiles()
 
         bool hasUnknownAdj = false;
 
-        for (solverTile* adjSolverTile : solverTileRef.adjSolverTiles)
+        for (SolverTile* adjSolverTile : solverTileRef.adjSolverTiles)
         {
             if (adjSolverTile->solverTileState == unknown)
             {
@@ -452,8 +452,8 @@ void mineSweeperSolver::groupTiles()
 
         if (currGroup == groupCount)
         {
-            m_unknownGroupedSolverTiles.push_back(std::vector<solverTile*>());
-            m_visibleGroupedSolverTiles.push_back(std::vector<solverTile*>());
+            m_unknownGroupedSolverTiles.push_back(std::vector<SolverTile*>());
+            m_visibleGroupedSolverTiles.push_back(std::vector<SolverTile*>());
             groupCount++;
         }
 
@@ -462,7 +462,7 @@ void mineSweeperSolver::groupTiles()
     }
 }
 
-void mineSweeperSolver::groupTilesReccursion(solverTile* currTilePtr, const uint16_t& group)
+void MineSweeperSolver::groupTilesReccursion(SolverTile* currTilePtr, const uint16_t& group)
 {
     currTilePtr->visited = true;
     if (currTilePtr->solverTileState == visible)
@@ -474,7 +474,7 @@ void mineSweeperSolver::groupTilesReccursion(solverTile* currTilePtr, const uint
         m_unknownGroupedSolverTiles[group].push_back(currTilePtr);
     }
 
-    for (solverTile* adjTile : currTilePtr->adjSolverTiles)
+    for (SolverTile* adjTile : currTilePtr->adjSolverTiles)
     {
         if (adjTile->visited || adjTile->solverTileState == flagged || (adjTile->solverTileState == visible && adjTile->adjBombsAmount == 0) ||
            (currTilePtr->solverTileState == unknown && adjTile->solverTileState == unknown && !shareSameNumbered(currTilePtr, adjTile)))
@@ -486,15 +486,15 @@ void mineSweeperSolver::groupTilesReccursion(solverTile* currTilePtr, const uint
     }
 }
 
-bool mineSweeperSolver::shareSameNumbered(const solverTile* solverTilePtrA, const solverTile* solverTilePtrB)
+bool MineSweeperSolver::shareSameNumbered(const SolverTile* solverTilePtrA, const SolverTile* solverTilePtrB)
 {
-    for (solverTile* adjSolverTileA : solverTilePtrA->adjSolverTiles)
+    for (SolverTile* adjSolverTileA : solverTilePtrA->adjSolverTiles)
     {
         if (adjSolverTileA->solverTileState != visible)
         {
             continue;
         }
-        for (solverTile* adjSolverTileB : solverTilePtrB->adjSolverTiles)
+        for (SolverTile* adjSolverTileB : solverTilePtrB->adjSolverTiles)
         {
             if (adjSolverTileB->solverTileState != visible)
             {
@@ -510,7 +510,7 @@ bool mineSweeperSolver::shareSameNumbered(const solverTile* solverTilePtrA, cons
     return false;
 }
 
-void mineSweeperSolver::getAllSolutions()
+void MineSweeperSolver::getAllSolutions()
 {
 
 }

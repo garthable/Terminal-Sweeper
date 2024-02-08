@@ -8,20 +8,20 @@
 
 #include "solverTile.h"
 
-struct hiddenTile
+struct HiddenTile
 {
-    solverTile* originalTile;
+    SolverTile* originalTile;
     bool isBomb;
     bool claimed;
 
-    hiddenTile(solverTile* originalTile)
+    HiddenTile(SolverTile* originalTile)
     {
         this->originalTile = originalTile;
         isBomb = false;
         claimed = false;
     }
 
-    hiddenTile(solverTile* originalTile, bool isBomb)
+    HiddenTile(SolverTile* originalTile, bool isBomb)
     {
         this->originalTile = originalTile;
         this->isBomb = isBomb;
@@ -29,41 +29,41 @@ struct hiddenTile
     }
 };
 
-struct visibleTile
+struct VisibleTile
 {
     std::vector<uint16_t> adjHiddenTiles;
     std::vector<uint16_t> ownedHiddenTiles;
     uint16_t bombCount;
 
-    visibleTile(uint16_t bombCount)
+    VisibleTile(uint16_t bombCount)
     {
         this->bombCount = bombCount;
     }
 };
 
-struct solutionSet
+struct SolutionSet
 {
-    std::vector<hiddenTile> hiddenTiles;
+    std::vector<HiddenTile> hiddenTiles;
     uint16_t bombCount;
 
     void reset()
     {
-        for (hiddenTile& hiddenTileRef : hiddenTiles)
+        for (HiddenTile& hiddenTileRef : hiddenTiles)
         {
             hiddenTileRef.isBomb = false;
         }
     }
 
-    solutionSet()
+    SolutionSet()
     {
         bombCount = 0;
     }
 };
 
-class mineSweeperSolutionFinder
+class MineSweeperSolutionFinder
 {
     public:
-        mineSweeperSolutionFinder();
+        MineSweeperSolutionFinder();
 
         // Parameters:
         // Grouped Visible Tiles
@@ -72,8 +72,8 @@ class mineSweeperSolutionFinder
         //
         // Purpose:
         // Gathers data for future calculations, applies probability of being a bomb to all hiddenTiles passed.
-        void applyProbabilities(const std::vector<std::vector<solverTile*>>& groupedVisibleTiles,
-                                std::vector<std::vector<solverTile*>>& outGroupedHiddenTiles,
+        void applyProbabilities(const std::vector<std::vector<SolverTile*>>& groupedVisibleTiles,
+                                std::vector<std::vector<SolverTile*>>& outGroupedHiddenTiles,
                                 uint16_t maxBombs);
         
         // Purpose:
@@ -85,16 +85,16 @@ class mineSweeperSolutionFinder
         // 
         // Purpose:
         // Converts hidden tiles into format used by class
-        void getHidden(const std::vector<std::vector<solverTile*>>& groupedHiddenTiles);
+        void getHidden(const std::vector<std::vector<SolverTile*>>& groupedHiddenTiles);
 
         // Parameters:
         // Grouped visible tiles
         // 
         // Purpose:
         // Converts visible tiles into format used by class
-        void getVisibles(const std::vector<std::vector<solverTile*>>& groupedVisibleTiles);
+        void getVisibles(const std::vector<std::vector<SolverTile*>>& groupedVisibleTiles);
 
-        inline int16_t searchHidden(const solverTile* _solverTile);
+        inline int16_t searchHidden(const SolverTile* _solverTile);
 
         // Parameters:
         // The size of the adjacents list
@@ -117,7 +117,7 @@ class mineSweeperSolutionFinder
         //
         // Purpose:
         // Any tile that has not been claimed by some other visible tile will be claimed by this one
-        void claimUnclaimedAdjTiles(visibleTile& outCurrVisibleTile, solutionSet& outCurrSolutionSet);
+        void claimUnclaimedAdjTiles(VisibleTile& outCurrVisibleTile, SolutionSet& outCurrSolutionSet);
 
         // Parameters:
         // Visible Tile
@@ -125,7 +125,7 @@ class mineSweeperSolutionFinder
         //
         // Returns:
         // The combination size of the number of ways the inputed visible tile can arrange its adjacent bombs
-        uint16_t getCombinationSize(const visibleTile& currVisibleTile, const solutionSet& currSolutionSet);
+        uint16_t getCombinationSize(const VisibleTile& currVisibleTile, const SolutionSet& currSolutionSet);
 
         // Purpose:
         // Runs getSolutionOfGroupReccursion for each group.
@@ -138,7 +138,7 @@ class mineSweeperSolutionFinder
         //
         // Purpose:
         // Finds all possible solutions.
-        void getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, solutionSet& currSolutionSet);
+        void getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, SolutionSet& currSolutionSet);
 
         // Parameters:
         // Group number
@@ -146,14 +146,14 @@ class mineSweeperSolutionFinder
         //
         // Returns:
         // If this is a valid configuration.
-        bool isValid(const uint16_t& group, const solutionSet& currSolutionSet);
+        bool isValid(const uint16_t& group, const SolutionSet& currSolutionSet);
 
         // Parameters:
         // Vector of solution sets
         //
         // Returns:
         // The number of bombs in the solutionSet with the highest amount of bombs.
-        uint16_t findMaxBombSet(const std::vector<solutionSet>& solutionSets);
+        uint16_t findMaxBombSet(const std::vector<SolutionSet>& solutionSets);
 
         // Returns:
         // Whether its possible to exceed to max bomb count specified.
@@ -165,14 +165,14 @@ class mineSweeperSolutionFinder
         // Purpose:
         // If its possible to surpass the max bomb count combine all solution sets such that they dont surpass the
         // max bomb count and use that to get probability. After this apply this to all tiles.
-        void applyProbabilitiesCombined(std::vector<std::vector<solverTile*>>& outGroupedHiddenTiles);
+        void applyProbabilitiesCombined(std::vector<std::vector<SolverTile*>>& outGroupedHiddenTiles);
 
         // Parameters:
         // Out to grouped hiddenTiles
         //
         // Purpose:
         // Find the probabilty that each tile is a bomb based off the solutions set
-        void applyProbabilitiesSeperate(std::vector<std::vector<solverTile*>>& outGroupedHiddenTiles);
+        void applyProbabilitiesSeperate(std::vector<std::vector<SolverTile*>>& outGroupedHiddenTiles);
 
         // Parameters:
         // Visible tile reference
@@ -180,7 +180,7 @@ class mineSweeperSolutionFinder
         //
         // Returns:
         // The bombcount - the amount of bombs in domain.
-        inline uint16_t getEffectiveBombCount(visibleTile& visibleTileRef, solutionSet& solutionSetRef);
+        inline uint16_t getEffectiveBombCount(VisibleTile& visibleTileRef, SolutionSet& solutionSetRef);
     private:
         enum solverTileStates
         {
@@ -191,9 +191,9 @@ class mineSweeperSolutionFinder
         };
         uint16_t m_maxBombs;
 
-        std::vector<std::vector<visibleTile>> m_groupedVisibleTiles; // Redo with singular vector OR figure out how to implement without deleting less vectors
-        std::vector<std::vector<solutionSet>> m_groupedIncompleteSolutions; // Redo with singular vector
-        std::vector<std::vector<solutionSet>> m_groupedCompleteSolutions;
+        std::vector<std::vector<VisibleTile>> m_groupedVisibleTiles; // Redo with singular vector OR figure out how to implement without deleting less vectors
+        std::vector<std::vector<SolutionSet>> m_groupedIncompleteSolutions; // Redo with singular vector
+        std::vector<std::vector<SolutionSet>> m_groupedCompleteSolutions;
         std::vector<float> m_probabilities;
 
         std::vector<std::vector<std::vector<uint16_t>>> m_hardcodedCombinations;

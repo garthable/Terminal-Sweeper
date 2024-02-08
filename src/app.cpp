@@ -2,7 +2,7 @@
 #include <fstream>
 #include "../include/app.h"
 
-app::app()
+App::App()
 {
     m_makeSeedEqualToTime = false;
     m_sizeX = 0;
@@ -32,7 +32,7 @@ std::string spaceOutString(std::string inputString)
     return outputString;
 }
 
-void app::run()
+void App::run()
 {
     while (true)
     {
@@ -75,7 +75,7 @@ void app::run()
     }
 }
 
-void app::readSettings()
+void App::readSettings()
 {
     std::string line = "";
     std::fstream settingsFileRead = std::fstream(SETTINGSFILE);
@@ -198,9 +198,9 @@ parsedInput parser(std::string input)
     return parsedInput(isFlag, x, y);
 }
 
-void app::playMineSweeper()
+void App::playMineSweeper()
 {
-    mineSweeper _mineSweeper = mineSweeper(m_sizeX, m_sizeY, m_bombCount);
+    MineSweeper _mineSweeper = MineSweeper(m_sizeX, m_sizeY, m_bombCount);
     bool isFirstMove = true;
     bool isFlag = false;
     uint8_t clickX = 0;
@@ -261,10 +261,10 @@ void app::playMineSweeper()
     }
 }
 
-void app::watchMineSweeperSolver()
+void App::watchMineSweeperSolver()
 {
-    mineSweeper _mineSweeper = mineSweeper(m_sizeX, m_sizeY, m_bombCount);
-    mineSweeperSolver _mineSweeperSolver = mineSweeperSolver(m_sizeX, m_sizeY, m_bombCount);
+    MineSweeper _mineSweeper = MineSweeper(m_sizeX, m_sizeY, m_bombCount);
+    MineSweeperSolver _mineSweeperSolver = MineSweeperSolver(m_sizeX, m_sizeY, m_bombCount);
     bool isFirstMove = true;
     bool isFlag = false;
     uint16_t clickX = 0;
@@ -299,7 +299,7 @@ void app::watchMineSweeperSolver()
         // Get Input:
         _mineSweeperSolver.update(_mineSweeper.getOutputMineSweeperMap());
         isFlag = false;
-        coordinate coord = _mineSweeperSolver.getReccomendedClick();
+        Coordinate coord = _mineSweeperSolver.getReccomendedClick();
         if (coord.x == UINT16_MAX)
         {
             isFlag = true;
@@ -327,7 +327,7 @@ void app::watchMineSweeperSolver()
     }
 }
 
-void app::testMineSweeperSolver()
+void App::testMineSweeperSolver()
 {
     while (true)
     {

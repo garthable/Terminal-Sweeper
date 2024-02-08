@@ -4,9 +4,9 @@
 #include <vector>
 #include <array>
 
-struct solverTile
+struct SolverTile
 {
-    std::vector<solverTile*> adjSolverTiles;
+    std::vector<SolverTile*> adjSolverTiles;
     std::array<float, 9u> probabilityOfHavingNAdjBombs;
     std::vector<bool> bombBackTracking;
     float bombProbability;
@@ -17,7 +17,7 @@ struct solverTile
 
     bool visited;
 
-    solverTile(const uint16_t& _x, const uint16_t& _y)
+    SolverTile(const uint16_t& _x, const uint16_t& _y)
     {
         x = _x;
         y = _y;
