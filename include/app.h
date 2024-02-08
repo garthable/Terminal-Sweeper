@@ -9,10 +9,10 @@
 #define SETTINGSFILE "doc/settings.txt"
 
 // Handles UI, user input and program state.
-class app
+class App
 {
     public:
-        app();
+        App();
 
         // Purpose:
         // Runs main program loop

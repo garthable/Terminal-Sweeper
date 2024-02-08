@@ -8,12 +8,12 @@
 
 #include "mineSweeperSolutionFinder.h"
 
-struct coordinate
+struct Coordinate
 {
     uint16_t x;
     uint16_t y;
 
-    coordinate(uint16_t _x, uint16_t _y)
+    Coordinate(uint16_t _x, uint16_t _y)
     {
         x = _x;
         y = _y;
@@ -24,14 +24,14 @@ struct coordinate
 // Optimized to be able to solve multiple games back to back of the same difficulty running.
 // Receives input of map via update
 // Gives output of next click via getReccomendedClick
-class mineSweeperSolver
+class MineSweeperSolver
 {
     public:
         // Parameters:
         // The length of the mine sweeper map
         // The height of the mine sweeper map
         // The number of bombs in the mine sweeper map
-        mineSweeperSolver(const uint16_t& sizeX, const uint16_t& sizeY, const uint16_t& bombCount);
+        MineSweeperSolver(const uint16_t& sizeX, const uint16_t& sizeY, const uint16_t& bombCount);
 
         // Parameters:
         // The current mine sweeper map output
@@ -50,11 +50,11 @@ class mineSweeperSolver
 
         // Returns:
         // A location with one of the lowest probabilities of being a bomb
-        coordinate getReccomendedClick();
+        Coordinate getReccomendedClick();
 
         // Returns:
         // A location that has a 100% chance of being a bomb
-        coordinate getReccomendedFlag();
+        Coordinate getReccomendedFlag();
 
     private:
         // Parameters:
@@ -64,7 +64,7 @@ class mineSweeperSolver
         // Returns:
         // A pointer to the solver tile with coordinates (x, y)
         // If a solver tile with said coords does not exist it returns the null pointer
-        inline solverTile* searchSolverTile(const uint16_t& x, const uint16_t& y);
+        inline SolverTile* searchSolverTile(const uint16_t& x, const uint16_t& y);
 
         // Parameters:
         // The index of a solverTile
@@ -72,14 +72,14 @@ class mineSweeperSolver
         // Returns:
         // A pointer to the solver tile with coordinates (x, y)
         // If a solver tile with said coords does not exist it returns the null pointer
-        inline solverTile* searchSolverTile(const uint16_t& index);
+        inline SolverTile* searchSolverTile(const uint16_t& index);
 
         // Parameters:
         // Pointer to solver tile
         //
         // Returns:
         // Index of solverTile in solverTiles
-        inline uint16_t getSolverTileIndex(solverTile* solverTilePtr);
+        inline uint16_t getSolverTileIndex(SolverTile* solverTilePtr);
 
         // Returns:
         // Whether reccomendedFlags and reccomendedClicks are empty
@@ -90,14 +90,14 @@ class mineSweeperSolver
         //
         // Outs:
         // Sets inputed tile to a flag and adds it to reccomended flags
-        inline void flagSolverTile(solverTile& solverTileOut);
+        inline void flagSolverTile(SolverTile& solverTileOut);
 
         // Parameters:
         // out Solvertile to be clicked
         //
         // Outs:
         // Sets inputed tile to clicked and adds it to reccomended clicks
-        inline void clickSolverTile(solverTile& solverTileOut);
+        inline void clickSolverTile(SolverTile& solverTileOut);
 
         // Purpose:
         // Generates the tiles and adds the pointers between them.
@@ -115,14 +115,14 @@ class mineSweeperSolver
         //
         // Returns:
         // Number of non flagged bombs
-        inline uint16_t getEffectiveBombCount(const solverTile& solverTilePtr);
+        inline uint16_t getEffectiveBombCount(const SolverTile& solverTilePtr);
 
         // Parameters:
         // solverTilePtr
         //
         // Returns:
         // Number of unkown adjacent tiles
-        inline uint16_t getAdjUnknownCount(const solverTile& solverTilePtr);
+        inline uint16_t getAdjUnknownCount(const SolverTile& solverTilePtr);
 
         // Purpose:
         // Preforms checks that are in p time.
@@ -133,28 +133,28 @@ class mineSweeperSolver
         //
         // Returns:
         // The number of common unknown adjacents
-        uint16_t getIntersectionSizeBetweenTileUnknownAdjs(const solverTile* solverTilePtrA, const solverTile* solverTilePtrB);
+        uint16_t getIntersectionSizeBetweenTileUnknownAdjs(const SolverTile* solverTilePtrA, const SolverTile* solverTilePtrB);
 
         // Parameters:
         // Two solver tiles
         //
         // Purpose:
         // Clicks all unknown tiles of A that are not shared by B
-        void clickTilesInAMinusBSet(solverTile* solverTilePtrA, solverTile* solverTilePtrB);
+        void clickTilesInAMinusBSet(SolverTile* solverTilePtrA, SolverTile* solverTilePtrB);
 
         // Parameters:
         // Two solver tiles
         //
         // Purpose:
         // Flags all unknown tiles of A that are not shared by B
-        void flagTilesInAMinusBSet(solverTile* solverTilePtrA, solverTile* solverTilePtrB);
+        void flagTilesInAMinusBSet(SolverTile* solverTilePtrA, SolverTile* solverTilePtrB);
 
         // Parameters:
         // Two solver tiles
         //
         // Purpose:
         // Flags all unknown tiles of A that are shared by B
-        void flagTilesInAIntersectBSet(solverTile* solverTilePtrA, solverTile* solverTilePtrB);
+        void flagTilesInAIntersectBSet(SolverTile* solverTilePtrA, SolverTile* solverTilePtrB);
 
         // Purpose:
         // Finds 1 2 x pattern
@@ -170,14 +170,14 @@ class mineSweeperSolver
         // 
         // Purpose:
         // Preforms DFS to group tiles together
-        void groupTilesReccursion(solverTile* currTilePtr, const uint16_t& group);
+        void groupTilesReccursion(SolverTile* currTilePtr, const uint16_t& group);
 
         // Parameters:
         // Two unknown/not visible tiles
         //
         // Purpose:
         // Makes sure both tiles have a numbered tile in common.
-        bool shareSameNumbered(const solverTile* tileA, const solverTile* tileB);
+        bool shareSameNumbered(const SolverTile* tileA, const SolverTile* tileB);
 
         // Purpose:
         // Gets every possible arrangement of mines.
@@ -199,13 +199,13 @@ class mineSweeperSolver
         uint16_t m_sizeY;
         uint16_t m_bombCount;
 
-        std::vector<solverTile> m_solverTiles;
+        std::vector<SolverTile> m_solverTiles;
 
-        std::vector<solverTile*> m_reccomendedClicks;
-        std::vector<solverTile*> m_reccomendedFlags;
+        std::vector<SolverTile*> m_reccomendedClicks;
+        std::vector<SolverTile*> m_reccomendedFlags;
 
-        std::vector<std::vector<solverTile*>> m_visibleGroupedSolverTiles;
-        std::vector<std::vector<solverTile*>> m_unknownGroupedSolverTiles;
+        std::vector<std::vector<SolverTile*>> m_visibleGroupedSolverTiles;
+        std::vector<std::vector<SolverTile*>> m_unknownGroupedSolverTiles;
 
         std::vector<uint16_t> m_bombCounts;
 

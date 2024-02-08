@@ -6,7 +6,7 @@
 // Public
 //
 
-mineSweeper::mineSweeper(const uint16_t& sizeX, const uint16_t& sizeY, const uint16_t& bombCount)
+MineSweeper::MineSweeper(const uint16_t& sizeX, const uint16_t& sizeY, const uint16_t& bombCount)
 {
     m_sizeX = sizeX;
     m_sizeY = sizeY;
@@ -21,7 +21,7 @@ mineSweeper::mineSweeper(const uint16_t& sizeX, const uint16_t& sizeY, const uin
     initializeOutputMineSweeperMap();
 }
 
-void mineSweeper::generateBombs(const uint16_t& innitClickX, const uint16_t& innitClickY, const unsigned int& seed)
+void MineSweeper::generateBombs(const uint16_t& innitClickX, const uint16_t& innitClickY, const unsigned int& seed)
 {
     reset();
     srand(seed);
@@ -48,7 +48,7 @@ void mineSweeper::generateBombs(const uint16_t& innitClickX, const uint16_t& inn
     while (currBombCount != m_bombCount)
     {
         uint16_t index = arc4random_uniform(m_sizeX*m_sizeY);
-        tile& curr = m_tiles[index];
+        Tile& curr = m_tiles[index];
 
         if (curr.tileState & bomb ||
             (curr.x >= safeSquareTopLeftX && curr.x <= safeSquareBottomRightX &&
@@ -60,16 +60,16 @@ void mineSweeper::generateBombs(const uint16_t& innitClickX, const uint16_t& inn
         currBombCount++;
         curr.tileState |= bomb;
 
-        for (tile* adjTile : curr.adjTiles)
+        for (Tile* adjTile : curr.adjTiles)
         {
             adjTile->adjBombs++;
         }
     }
 }
 
-void mineSweeper::clickTile(const uint16_t& clickX, const uint16_t& clickY)
+void MineSweeper::clickTile(const uint16_t& clickX, const uint16_t& clickY)
 {
-    tile* tilePtr = searchTile(clickX, clickY);
+    Tile* tilePtr = searchTile(clickX, clickY);
 
     if (!tilePtr || tilePtr->tileState & visible)
     {
@@ -79,9 +79,9 @@ void mineSweeper::clickTile(const uint16_t& clickX, const uint16_t& clickY)
     cascadeReveal(tilePtr);
 }
 
-void mineSweeper::flagTile(const uint16_t& flagX, const uint16_t& flagY)
+void MineSweeper::flagTile(const uint16_t& flagX, const uint16_t& flagY)
 {
-    tile* tilePtr = searchTile(flagX, flagY);
+    Tile* tilePtr = searchTile(flagX, flagY);
 
     if (!tilePtr || tilePtr->tileState & visible)
     {
@@ -102,22 +102,22 @@ void mineSweeper::flagTile(const uint16_t& flagX, const uint16_t& flagY)
     tilePtr->tileState ^= flagged;
 }
 
-bool mineSweeper::isWon()
+bool MineSweeper::isWon()
 {
     return (m_nonBombTilesRemaining == 0);
 }
 
-bool mineSweeper::isLost()
+bool MineSweeper::isLost()
 {
     return m_isLost;
 }
 
-std::string mineSweeper::getOutputMineSweeperMap()
+std::string MineSweeper::getOutputMineSweeperMap()
 {
     return m_outputMineSweeperMap;
 }
 
-int16_t mineSweeper::getFlagsRemaining()
+int16_t MineSweeper::getFlagsRemaining()
 {
     return m_flagsRemaining;
 }
@@ -126,13 +126,13 @@ int16_t mineSweeper::getFlagsRemaining()
 // Private
 //
 
-void mineSweeper::generateMap()
+void MineSweeper::generateMap()
 {
     for (uint16_t y = 0u; y < m_sizeY; y++)
     {
         for (uint16_t x = 0u; x < m_sizeX; x++)
         {
-            m_tiles.push_back(tile(x, y));
+            m_tiles.push_back(Tile(x, y));
         }
     }
 
@@ -140,13 +140,13 @@ void mineSweeper::generateMap()
                              {-1,  0},          {1,  0}, 
                              {-1, -1}, {0, -1}, {1, -1}};
 
-    for (tile& refTile : m_tiles)
+    for (Tile& refTile : m_tiles)
     {
         const uint16_t& x = refTile.x;
         const uint16_t& y = refTile.y;
         for (uint16_t i = 0u; i < 8u; i++)
         {
-            tile* adjTile = searchTile(x+offsets[i][0], y+offsets[i][1]);
+            Tile* adjTile = searchTile(x+offsets[i][0], y+offsets[i][1]);
             if (!adjTile)
             {
                 continue;
@@ -156,16 +156,16 @@ void mineSweeper::generateMap()
     }
 }
 
-void mineSweeper::reset()
+void MineSweeper::reset()
 {
-    for (tile& writeTile : m_tiles)
+    for (Tile& writeTile : m_tiles)
     {
         writeTile.adjBombs = 0u;
         writeTile.tileState = 0u;
     }
 }
 
-inline tile* mineSweeper::searchTile(uint16_t x, uint16_t y)
+inline Tile* MineSweeper::searchTile(uint16_t x, uint16_t y)
 {
     if (x >= m_sizeX || y >= m_sizeY)
     {
@@ -174,7 +174,7 @@ inline tile* mineSweeper::searchTile(uint16_t x, uint16_t y)
     return &m_tiles[x + y*m_sizeX];
 }
 
-void mineSweeper::initializeOutputMineSweeperMap()
+void MineSweeper::initializeOutputMineSweeperMap()
 {
     m_outputMineSweeperMap = "";
     for (uint16_t y = 0u; y < m_sizeY; y++)
@@ -187,13 +187,13 @@ void mineSweeper::initializeOutputMineSweeperMap()
     }
 }
 
-inline void mineSweeper::setOutputMineSweeperMapChar(const uint16_t& x, const uint16_t& y, const char& newChar)
+inline void MineSweeper::setOutputMineSweeperMapChar(const uint16_t& x, const uint16_t& y, const char& newChar)
 {
     uint16_t charIndex = x + y*(m_sizeX + 1);
     m_outputMineSweeperMap[charIndex] = newChar;
 }
 
-void mineSweeper::cascadeReveal(tile* curr)
+void MineSweeper::cascadeReveal(Tile* curr)
 {
     curr->tileState |= visible;
     m_nonBombTilesRemaining--;
@@ -213,7 +213,7 @@ void mineSweeper::cascadeReveal(tile* curr)
 
     setOutputMineSweeperMapChar(curr->x, curr->y, ' ');
 
-    for (tile* adjTile : curr->adjTiles)
+    for (Tile* adjTile : curr->adjTiles)
     {
         if (adjTile->tileState & visible)
         {

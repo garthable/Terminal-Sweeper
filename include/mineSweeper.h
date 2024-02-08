@@ -5,9 +5,9 @@
 #include <string>
 #include <stdint.h>
 
-struct tile
+struct Tile
 {
-    std::vector<tile*> adjTiles;
+    std::vector<Tile*> adjTiles;
 
     uint16_t x;
     uint16_t y;
@@ -15,7 +15,7 @@ struct tile
     uint8_t adjBombs;
     uint8_t tileState;
 
-    tile(const uint16_t& _x, const uint16_t& _y)
+    Tile(const uint16_t& _x, const uint16_t& _y)
     {
         x = _x;
         y = _y;
@@ -29,21 +29,21 @@ struct tile
 // Optimized to run different seeds of the same difficulty
 // Accepts inputs from player via 'clickTile(x, y)' and 'flagTile(x, y)'
 // The outputs are given from 'getMineSweeperMap()' and 'getFlagsRemaining()'
-class mineSweeper
+class MineSweeper
 {
     public:
         // Parameters:
         // The length of the mine sweeper map
         // The height of the mine sweeper map
         // The number of bombs in the mine sweeper map
-        mineSweeper(const uint16_t& sizeX, const uint16_t& sizeY, const uint16_t& bombCount);
+        MineSweeper(const uint16_t& sizeX, const uint16_t& sizeY, const uint16_t& bombCount);
 
         // Parameters:
         // Filename of test map
         //
         // Purpose:
         // Used in testing.
-        mineSweeper(const std::string& fileName);
+        MineSweeper(const std::string& fileName);
 
         // Parameters:
         // The x coordinate of the first click,
@@ -110,7 +110,7 @@ class mineSweeper
         // Returns:
         // A pointer to the tile with coordinates (x, y)
         // If a tile with said coords does not exist it returns the null pointer
-        inline tile* searchTile(uint16_t x, uint16_t y);
+        inline Tile* searchTile(uint16_t x, uint16_t y);
 
         // Parameters:
         // x coordinate of char in outputMineSweeperMap
@@ -135,7 +135,7 @@ class mineSweeper
         //
         // Purpose:
         // A reccursive function used to reveal all tiles with zero adjacent bombs and their surroundings. Used exclusivley by the click function.
-        void cascadeReveal(tile* curr);
+        void cascadeReveal(Tile* curr);
 
     private:
         enum tileStates
@@ -145,7 +145,7 @@ class mineSweeper
             bomb = 4u
         };
 
-        std::vector<tile> m_tiles;
+        std::vector<Tile> m_tiles;
         std::string m_outputMineSweeperMap;
         uint16_t m_sizeX;
         uint16_t m_sizeY;
