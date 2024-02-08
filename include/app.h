@@ -1,7 +1,7 @@
-#include <stdint.h>
-
 #ifndef APP
 #define APP
+
+#include <stdint.h>
 
 #include "mineSweeperSolver.h"
 #include "mineSweeper.h"

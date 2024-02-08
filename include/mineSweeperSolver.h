@@ -1,10 +1,10 @@
+#ifndef MINESWEEPERSOLVER
+#define MINESWEEPERSOLVER
+
 #include <stdint.h>
 #include <string>
 #include <array>
 #include <vector>
-
-#ifndef MINESWEEPERSOLVER
-#define MINESWEEPERSOLVER
 
 #include "mineSweeperSolutionFinder.h"
 

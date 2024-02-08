@@ -1,10 +1,10 @@
+#ifndef MINESWEEPERSOLUTIONFINDER
+#define MINESWEEPERSOLUTIONFINDER
+
 #include <vector>
 #include <iterator>
 #include <stdint.h>
 #include <string>
-
-#ifndef MINESWEEPERSOLUTIONFINDER
-#define MINESWEEPERSOLUTIONFINDER
 
 #include "solverTile.h"
 
@@ -111,9 +111,21 @@ class mineSweeperSolutionFinder
         // Sorts tiles in order from least to greatest combinations inorder to optimize the program.
         void sortVisibleTilesByCombinationSize(const uint16_t& group);
 
-        void claimUnclaimedAdjTiles(visibleTile& currVisibleTile, solutionSet& currSolutionSet);
+        // Parameters:
+        // Out visible tile
+        // Out solution set
+        //
+        // Purpose:
+        // Any tile that has not been claimed by some other visible tile will be claimed by this one
+        void claimUnclaimedAdjTiles(visibleTile& outCurrVisibleTile, solutionSet& outCurrSolutionSet);
 
-        uint16_t getCombinationSize(visibleTile& currVisibleTile, solutionSet& currSolutionSet);
+        // Parameters:
+        // Visible Tile
+        // Solution Set
+        //
+        // Returns:
+        // The combination size of the number of ways the inputed visible tile can arrange its adjacent bombs
+        uint16_t getCombinationSize(const visibleTile& currVisibleTile, const solutionSet& currSolutionSet);
 
         // Purpose:
         // Runs getSolutionOfGroupReccursion for each group.
@@ -136,6 +148,11 @@ class mineSweeperSolutionFinder
         // If this is a valid configuration.
         bool isValid(const uint16_t& group, const solutionSet& currSolutionSet);
 
+        // Parameters:
+        // Vector of solution sets
+        //
+        // Returns:
+        // The number of bombs in the solutionSet with the highest amount of bombs.
         uint16_t findMaxBombSet(const std::vector<solutionSet>& solutionSets);
 
         // Returns:

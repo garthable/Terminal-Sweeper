@@ -197,12 +197,12 @@ void mineSweeperSolutionFinder::sortVisibleTilesByCombinationSize(const uint16_t
     }
 }
 
-uint16_t mineSweeperSolutionFinder::getCombinationSize(visibleTile& currVisibleTile, solutionSet& currSolutionSet)
+uint16_t mineSweeperSolutionFinder::getCombinationSize(const visibleTile& currVisibleTile, const solutionSet& currSolutionSet)
 {
     uint16_t n = 0;
     for (const uint16_t& adjIndex : currVisibleTile.adjHiddenTiles)
     {
-        hiddenTile& currHiddenTile = currSolutionSet.hiddenTiles[adjIndex];
+        const hiddenTile& currHiddenTile = currSolutionSet.hiddenTiles[adjIndex];
         if (currHiddenTile.claimed)
         {
             continue;
@@ -217,17 +217,17 @@ uint16_t mineSweeperSolutionFinder::getCombinationSize(visibleTile& currVisibleT
     return getHardcodedCombinations(n, r).size();
 }
 
-void mineSweeperSolutionFinder::claimUnclaimedAdjTiles(visibleTile& currVisibleTile, solutionSet& currSolutionSet)
+void mineSweeperSolutionFinder::claimUnclaimedAdjTiles(visibleTile& outCurrVisibleTile, solutionSet& outCurrSolutionSet)
 {
-    for (const uint16_t& adjIndex : currVisibleTile.adjHiddenTiles)
+    for (const uint16_t& adjIndex : outCurrVisibleTile.adjHiddenTiles)
     {
-        hiddenTile& currHiddenTile = currSolutionSet.hiddenTiles[adjIndex];
-        if (currHiddenTile.claimed)
+        hiddenTile& outCurrHiddenTile = outCurrSolutionSet.hiddenTiles[adjIndex];
+        if (outCurrHiddenTile.claimed)
         {
             continue;
         }
-        currHiddenTile.claimed = true;
-        currVisibleTile.ownedHiddenTiles.push_back(adjIndex);
+        outCurrHiddenTile.claimed = true;
+        outCurrVisibleTile.ownedHiddenTiles.push_back(adjIndex);
     }
 }
 
@@ -324,7 +324,15 @@ bool mineSweeperSolutionFinder::canSurpassMaxBombs()
 
 uint16_t mineSweeperSolutionFinder::findMaxBombSet(const std::vector<solutionSet>& solutionSets)
 {
-    return 1;
+    uint16_t maxAmountOfBombs = 0;
+    for (const solutionSet& currSolutionSet : solutionSets)
+    {
+        if (currSolutionSet.bombCount > maxAmountOfBombs)
+        {
+            maxAmountOfBombs = currSolutionSet.bombCount;
+        }
+    }
+    return maxAmountOfBombs;
 }   
 
 void mineSweeperSolutionFinder::applyProbabilitiesCombined(std::vector<std::vector<solverTile*>>& outGroupedHiddenTiles)
