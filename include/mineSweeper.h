@@ -1,9 +1,9 @@
+#ifndef MINESWEEPER
+#define MINESWEEPER
+
 #include <vector>
 #include <string>
 #include <stdint.h>
-
-#ifndef MINESWEEPER
-#define MINESWEEPER
 
 struct tile
 {

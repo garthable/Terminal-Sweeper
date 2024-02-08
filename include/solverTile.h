@@ -1,8 +1,8 @@
-#include <vector>
-#include <array>
-
 #ifndef SOLVERTILE
 #define SOLVERTILE
+
+#include <vector>
+#include <array>
 
 struct solverTile
 {
