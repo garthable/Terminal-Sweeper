@@ -1,5 +1,7 @@
 #include <random>
 #include <cmath>
+#include <iostream>
+#include <fstream>
 #include "../include/mineSweeper.h"
 
 //
@@ -47,7 +49,7 @@ void MineSweeper::generateBombs(const uint16_t& innitClickX, const uint16_t& inn
 
     while (currBombCount != m_bombCount)
     {
-        uint16_t index = arc4random_uniform(m_sizeX*m_sizeY);
+        uint16_t index = static_cast<uint16_t>(rand() % static_cast<int>(m_sizeX*m_sizeY));
         Tile& curr = m_tiles[index];
 
         if (curr.tileState & bomb ||
@@ -65,6 +67,103 @@ void MineSweeper::generateBombs(const uint16_t& innitClickX, const uint16_t& inn
             adjTile->adjBombs++;
         }
     }
+}
+
+void MineSweeper::generateTilesFromMap(std::string fileName)
+{
+    m_tiles.clear();
+    std::fstream file(fileName);
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Mine sweeper map file failed to open!");
+    }
+    std::string line = "";
+    uint16_t i = 0;
+    uint16_t x = 0;
+    uint16_t y = 0;
+    m_bombCount = 0;
+    m_sizeX = UINT16_MAX;
+    m_sizeY = 0;
+    m_outputMineSweeperMap = "";
+    m_isLost = false;
+    while (getline(file, line))
+    {
+        x = 0;
+        i = 0;
+        for (const char& character : line)
+        {
+            if (character == '$')
+            {
+                x = UINT16_MAX;
+                break;
+            }
+            else if (i % 2 == 1 && character == ' ')
+            {
+                i++;
+                continue;
+            }
+            m_tiles.push_back(Tile(x, y));
+            switch(character)
+            {
+                case '@':
+                    m_tiles.back().tileState = bomb;
+                    m_bombCount++;
+                break;
+                default:
+                    m_tiles.back().tileState = 0u;
+                break;
+            }
+            i++;
+            x++;
+        }
+        if (x == UINT16_MAX)
+        {
+            continue;
+        }
+        else if (m_sizeX == UINT16_MAX)
+        {
+            m_sizeX = x;
+        }
+        else if (m_sizeX != x)
+        {
+            throw std::runtime_error(fileName + " is in an invalid format!");
+        }
+        y++;
+    }
+    m_sizeY = y;
+    m_nonBombTilesRemaining = m_sizeX*m_sizeY - m_bombCount;
+    m_flagsRemaining = m_bombCount;
+    int16_t offsets[8][2] = {{-1,  1}, {0,  1}, {1,  1}, 
+                             {-1,  0},          {1,  0}, 
+                             {-1, -1}, {0, -1}, {1, -1}};
+
+    for (Tile& tile : m_tiles)
+    { 
+        const uint16_t& x = tile.x;
+        const uint16_t& y = tile.y;
+        for (uint16_t i = 0u; i < 8u; i++)
+        {
+            Tile* adjTile = searchTile(x+offsets[i][0], y+offsets[i][1]);
+            if (!adjTile)
+            {
+                continue;
+            }
+            tile.adjTiles.push_back(adjTile);
+        }
+    }
+
+    for (Tile& tile : m_tiles)
+    {
+        if (tile.tileState != bomb)
+        {
+            continue;
+        }
+        for (Tile* adjTile : tile.adjTiles)
+        {
+            adjTile->adjBombs++;
+        }
+    }
+    initializeOutputMineSweeperMap();
 }
 
 void MineSweeper::clickTile(const uint16_t& clickX, const uint16_t& clickY)
@@ -86,6 +185,11 @@ void MineSweeper::flagTile(const uint16_t& flagX, const uint16_t& flagY)
     if (!tilePtr || tilePtr->tileState & visible)
     {
         return;
+    }
+
+    if (!(tilePtr->tileState & bomb))
+    {
+        throw std::runtime_error("Flagged Non Bomb at: " + std::to_string(flagX) + " " + std::to_string(flagY));
     }
     
     if (tilePtr->tileState & flagged)
@@ -120,6 +224,21 @@ std::string MineSweeper::getOutputMineSweeperMap()
 int16_t MineSweeper::getFlagsRemaining()
 {
     return m_flagsRemaining;
+}
+
+uint16_t MineSweeper::getSizeX()
+{
+    return m_sizeX;
+}
+
+uint16_t MineSweeper::getSizeY()
+{
+    return m_sizeY;
+}
+
+uint16_t MineSweeper::getBombCount()
+{
+    return m_bombCount;
 }
 
 //
@@ -158,6 +277,11 @@ void MineSweeper::generateMap()
 
 void MineSweeper::reset()
 {
+    m_isLost = false;
+    m_outputMineSweeperMap = "";
+    m_flagsRemaining = m_bombCount;
+    m_nonBombTilesRemaining = m_sizeX*m_sizeY - m_bombCount;
+    initializeOutputMineSweeperMap();
     for (Tile& writeTile : m_tiles)
     {
         writeTile.adjBombs = 0u;
