@@ -1,0 +1,5 @@
+$ Shows that 1-1 pattern detections works
+- - -
+- - -
+1 1 1
+- @ -
