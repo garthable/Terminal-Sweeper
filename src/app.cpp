@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include "../include/app.h"
 
 App::App()
@@ -34,6 +35,7 @@ std::string spaceOutString(std::string inputString)
 
 void App::run()
 {
+    #ifndef TESTMODE
     while (true)
     {
         system("clear");
@@ -73,6 +75,9 @@ void App::run()
                 break;
         }
     }
+    #else
+    debugTestMineSweeperSolver();
+    #endif
 }
 
 void App::readSettings()
@@ -147,12 +152,12 @@ void App::readSettings()
     }
 }
 
-struct parsedInput
+struct ParsedInput
 {
     bool isFlag;
     uint8_t x;
     uint8_t y;
-    parsedInput(const bool& _isFlag, const uint8_t& _x, const uint8_t& _y)
+    ParsedInput(const bool& _isFlag, const uint8_t& _x, const uint8_t& _y)
     {
         isFlag = _isFlag;
         x = _x;
@@ -162,7 +167,7 @@ struct parsedInput
 
 // Purpose:
 // Temporary Parser used to get inputs
-parsedInput parser(std::string input)
+ParsedInput parser(std::string input)
 {
     bool isFlag = false;
     uint8_t x = 80;
@@ -195,7 +200,7 @@ parsedInput parser(std::string input)
 
     y = std::stoi(tempString);
 
-    return parsedInput(isFlag, x, y);
+    return ParsedInput(isFlag, x, y);
 }
 
 void App::playMineSweeper()
@@ -233,7 +238,7 @@ void App::playMineSweeper()
         std::string input = "";
         getline(std::cin, input);
 
-        parsedInput p = parser(input);
+        ParsedInput p = parser(input);
         clickX = p.x;
         clickY = p.y;
         isFlag = p.isFlag;
@@ -329,8 +334,149 @@ void App::watchMineSweeperSolver()
 
 void App::testMineSweeperSolver()
 {
+    MineSweeper _mineSweeper = MineSweeper(m_sizeX, m_sizeY, m_bombCount);
+    MineSweeperSolver _mineSweeperSolver = MineSweeperSolver(m_sizeX, m_sizeY, m_bombCount);
+    bool isFlag = false;
+    uint16_t clickX = 0;
+    uint16_t clickY = 0;
+
+    _mineSweeper.generateBombs(1, 1, 0);
+    _mineSweeper.clickTile(1, 1);
+    uint16_t wins = 0;
+    uint16_t loses = 0;
+    double startTime = time(0);
     while (true)
     {
-        break;
+        if (wins + loses >= 10000)
+        {
+            break;
+        }
+
+        // Win loss detection:
+        if (_mineSweeper.isLost())
+        {
+            loses++;
+            system("clear");
+            std::cout << wins + loses << std::endl;
+            _mineSweeperSolver.reset(m_bombCount);
+            _mineSweeper.generateBombs(1, 1, wins+loses);
+            _mineSweeper.clickTile(1, 1);
+            continue;
+        }
+        else if (_mineSweeper.isWon())
+        {
+            wins++;
+            system("clear");
+            std::cout << wins + loses << std::endl;
+            _mineSweeperSolver.reset(m_bombCount);
+            _mineSweeper.generateBombs(1, 1, wins+loses);
+            _mineSweeper.clickTile(1, 1);
+            continue;
+        }
+
+        // Get Input:
+        _mineSweeperSolver.update(_mineSweeper.getOutputMineSweeperMap());
+        isFlag = false;
+        Coordinate coord = _mineSweeperSolver.getReccomendedClick();
+        if (coord.x == UINT16_MAX)
+        {
+            isFlag = true;
+            coord = _mineSweeperSolver.getReccomendedFlag();
+        }
+        clickX = coord.x;
+        clickY = coord.y;
+        
+        if (clickX == UINT16_MAX)
+        {
+            std::cout << "Unable" << std::endl;
+            std::cin.get();
+            break;
+        }
+
+        if (isFlag)
+        {
+            _mineSweeper.flagTile(clickX, clickY);
+        }
+        else
+        {
+            _mineSweeper.clickTile(clickX, clickY);
+        }
+    }
+    double endTime = time(0);
+    std::cout << "Wins: " << wins << "\n" << "Loses: " << loses << "\n" << "Time: " << endTime - startTime << std::endl;
+    std::cin.get();
+}
+
+void App::debugTestMineSweeperSolver()
+{
+    MineSweeper mineSweeper = MineSweeper(0, 0, 0);
+    std::string path = "tests";
+    bool display = false;
+    for (const auto& entry : std::filesystem::directory_iterator(path))
+    {
+        START:
+        mineSweeper.generateTilesFromMap(entry.path());
+        mineSweeper.clickTile(1, 1);
+        MineSweeperSolver mineSweeperSolver = MineSweeperSolver(mineSweeper.getSizeX(), mineSweeper.getSizeY(), mineSweeper.getBombCount());
+        bool isFlag = false;
+        uint16_t clickX = 1;
+        uint16_t clickY = 1;
+        while (true)
+        {
+            if (display)
+            {
+                std::cout << "Flags: " << mineSweeper.getFlagsRemaining() << '\n'
+                << spaceOutString(mineSweeper.getOutputMineSweeperMap()) << std::endl;
+            }
+            // Win loss detection:
+            if (mineSweeper.isLost())
+            {
+                if (display)
+                {
+                    display = false;
+                    std::cout << "Lost: " << entry.path() << std::endl;
+                    std::cin.get();
+                }
+                else
+                {
+                    display = true;
+                    goto START;
+                }
+                break;
+            }
+            else if (mineSweeper.isWon())
+            {
+                std::cout << "Won: " << entry.path() << std::endl;
+                break;
+            }
+
+            // Get Input:
+            mineSweeperSolver.update(mineSweeper.getOutputMineSweeperMap());
+            isFlag = false;
+            Coordinate coord = mineSweeperSolver.getReccomendedClick();
+            if (coord.x == UINT16_MAX)
+            {
+                isFlag = true;
+                coord = mineSweeperSolver.getReccomendedFlag();
+            }
+            clickX = coord.x;
+            clickY = coord.y;
+            
+            if (clickX == UINT16_MAX)
+            {
+                std::cout << "Unable" << std::endl;
+                std::cin.get();
+                break;
+            }
+
+            if (isFlag)
+            {
+                mineSweeper.flagTile(clickX, clickY);
+            }
+            else
+            {
+                mineSweeper.clickTile(clickX, clickY);
+            }
+        }
     }
 }

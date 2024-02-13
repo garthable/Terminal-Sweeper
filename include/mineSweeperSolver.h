@@ -46,7 +46,7 @@ class MineSweeperSolver
 
         // Purpose:
         // Resets solver for new game
-        void reset();
+        void reset(const uint16_t& bombCount);
 
         // Returns:
         // A location with one of the lowest probabilities of being a bomb
@@ -183,9 +183,16 @@ class MineSweeperSolver
         // Gets every possible arrangement of mines.
         void getAllSolutions();
 
+        // Parameters:
+        // Solver Tile
+        //
+        // Returns:
+        // Probability that tile has zero adjacent bombs
+        float getProbOfHavingNoAdjBombs(const SolverTile& solverTile);
+
         // Purpose:
-        // Calculates probability of tile being a bomb, and probability of bomb having an n number of adjacent bombs.
-        void calculateProbabilities();
+        // Clicks unknown with lowest prob
+        void clickLowestProb();
     private:
         enum solverTileStates
         {
@@ -198,18 +205,17 @@ class MineSweeperSolver
         uint16_t m_sizeX;
         uint16_t m_sizeY;
         uint16_t m_bombCount;
+        uint16_t m_unknownTileCount;
 
         std::vector<SolverTile> m_solverTiles;
 
         std::vector<SolverTile*> m_reccomendedClicks;
         std::vector<SolverTile*> m_reccomendedFlags;
 
-        std::vector<std::vector<SolverTile*>> m_visibleGroupedSolverTiles;
-        std::vector<std::vector<SolverTile*>> m_unknownGroupedSolverTiles;
+        std::vector<std::vector<SolverTile*>> m_groupedVisibleSolverTiles;
+        std::vector<std::vector<SolverTile*>> m_groupedHiddenSolverTiles;
 
-        std::vector<uint16_t> m_bombCounts;
-
-        std::vector<uint16_t> m_tempIds;
+        MineSweeperSolutionFinder m_mineSweeperSolutionFinder;
 };
 
 #endif

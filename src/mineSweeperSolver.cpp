@@ -1,15 +1,19 @@
 #include "../include/mineSweeperSolver.h"
 #include <iostream>
 
+#define print(input) std::cout << input << std::endl
+
 //
 // Public
 //
 
 MineSweeperSolver::MineSweeperSolver(const uint16_t& sizeX, const uint16_t& sizeY, const uint16_t& bombCount)
 {
+    m_unknownTileCount = 0;
     m_sizeX = sizeX;
     m_sizeY = sizeY;
     m_bombCount = bombCount;
+    m_mineSweeperSolutionFinder = MineSweeperSolutionFinder();
 
     generateSolverTiles();
 }
@@ -36,7 +40,14 @@ void MineSweeperSolver::update(const std::string& mineSweeperMap)
         return;
     }
 
-    // exit(-1);
+    getAllSolutions();
+
+    if (hasReccomendedSolverTiles())
+    {
+        return;
+    }
+
+    clickLowestProb();
 }
 
 std::string MineSweeperSolver::getSolverMap()
@@ -67,8 +78,20 @@ std::string MineSweeperSolver::getSolverMap()
     return output;
 }
 
-void MineSweeperSolver::reset()
+void MineSweeperSolver::reset(const uint16_t& bombCount)
 {
+    m_mineSweeperSolutionFinder.reset();
+    m_bombCount = bombCount;
+    m_unknownTileCount = 0;
+    m_reccomendedClicks.clear();
+    m_reccomendedFlags.clear();
+    for (SolverTile& solverTile : m_solverTiles)
+    {
+        solverTile.visited = false;
+        solverTile.adjBombsAmount = 0;
+        solverTile.solverTileState = unknown;
+        solverTile.bombProbability = 0.0f;
+    }
 
 }
 
@@ -130,12 +153,21 @@ inline bool MineSweeperSolver::hasReccomendedSolverTiles()
 
 inline void MineSweeperSolver::flagSolverTile(SolverTile& solverTileOut)
 {
+    if (solverTileOut.solverTileState == flagged)
+    {
+        return;
+    }
+    m_bombCount--;
     solverTileOut.solverTileState = flagged;
     m_reccomendedFlags.push_back(&solverTileOut);
 }
 
 inline void MineSweeperSolver::clickSolverTile(SolverTile& solverTileOut)
 {
+    if (solverTileOut.solverTileState == clicked || solverTileOut.solverTileState == visible)
+    {
+        return;
+    }
     solverTileOut.solverTileState = clicked;
     m_reccomendedClicks.push_back(&solverTileOut);
 }
@@ -173,6 +205,7 @@ void MineSweeperSolver::generateSolverTiles()
 void MineSweeperSolver::readMineMap(const std::string& mineSweeperMap)
 {
     uint16_t index = 0;
+    m_unknownTileCount = 0;
     for (const char& character : mineSweeperMap)
     {
         switch (character)
@@ -182,6 +215,7 @@ void MineSweeperSolver::readMineMap(const std::string& mineSweeperMap)
         case '#':
             m_solverTiles[index].solverTileState = unknown;
             index++;
+            m_unknownTileCount++;
             break;
         case '@':
             m_solverTiles[index].solverTileState = flagged;
@@ -416,17 +450,17 @@ void MineSweeperSolver::patternBombFinder()
 
 void MineSweeperSolver::groupTiles()
 {
-    uint16_t currGroup = 0u;
-    uint16_t groupCount = m_unknownGroupedSolverTiles.size();
+    uint16_t groupCount = m_groupedHiddenSolverTiles.size();
     for (int group = 0; group < groupCount; group++)
     {
-        m_unknownGroupedSolverTiles[group].clear();
-        m_visibleGroupedSolverTiles[group].clear();
+        m_groupedHiddenSolverTiles[group].clear();
+        m_groupedVisibleSolverTiles[group].clear();
     }
     for (SolverTile& solverTileRef : m_solverTiles)
     {
         solverTileRef.visited = false;
     }
+    uint16_t currGroup = 0u;
     for (SolverTile& solverTileRef : m_solverTiles)
     {
         if (solverTileRef.solverTileState != visible || solverTileRef.visited)
@@ -452,8 +486,8 @@ void MineSweeperSolver::groupTiles()
 
         if (currGroup == groupCount)
         {
-            m_unknownGroupedSolverTiles.push_back(std::vector<SolverTile*>());
-            m_visibleGroupedSolverTiles.push_back(std::vector<SolverTile*>());
+            m_groupedHiddenSolverTiles.push_back(std::vector<SolverTile*>());
+            m_groupedVisibleSolverTiles.push_back(std::vector<SolverTile*>());
             groupCount++;
         }
 
@@ -467,17 +501,18 @@ void MineSweeperSolver::groupTilesReccursion(SolverTile* currTilePtr, const uint
     currTilePtr->visited = true;
     if (currTilePtr->solverTileState == visible)
     {
-        m_visibleGroupedSolverTiles[group].push_back(currTilePtr);
+        m_groupedVisibleSolverTiles[group].push_back(currTilePtr);
     }
     else
     {
-        m_unknownGroupedSolverTiles[group].push_back(currTilePtr);
+        m_groupedHiddenSolverTiles[group].push_back(currTilePtr);
     }
 
     for (SolverTile* adjTile : currTilePtr->adjSolverTiles)
     {
-        if (adjTile->visited || adjTile->solverTileState == flagged || (adjTile->solverTileState == visible && adjTile->adjBombsAmount == 0) ||
-           (currTilePtr->solverTileState == unknown && adjTile->solverTileState == unknown && !shareSameNumbered(currTilePtr, adjTile)))
+        if (adjTile->visited || adjTile->solverTileState == flagged || 
+        (adjTile->solverTileState == visible && getEffectiveBombCount(*adjTile) == 0) ||
+        (currTilePtr->solverTileState == unknown && adjTile->solverTileState == unknown && !shareSameNumbered(currTilePtr, adjTile)))
         {
             continue;
         }
@@ -512,5 +547,111 @@ bool MineSweeperSolver::shareSameNumbered(const SolverTile* solverTilePtrA, cons
 
 void MineSweeperSolver::getAllSolutions()
 {
+    groupTiles();
+    float unknownIsolatedTiles = static_cast<float>(m_unknownTileCount);
+    for (std::vector<SolverTile*> hiddenSolverTiles : m_groupedHiddenSolverTiles)
+    {
+        unknownIsolatedTiles -= static_cast<float>(hiddenSolverTiles.size());
+    }
+    int16_t minBombCount = m_bombCount - static_cast<uint16_t>(unknownIsolatedTiles);
+    if (minBombCount < 0)
+    {
+        minBombCount = 0;
+    }
+    for (SolverTile& solverTile : m_solverTiles)
+    {
+        solverTile.bombProbability = -1;
+    }
+    m_mineSweeperSolutionFinder.applyProbabilities(m_groupedVisibleSolverTiles, m_groupedHiddenSolverTiles, m_bombCount, minBombCount);
+    float bombsRemaining = static_cast<float>(m_bombCount) - m_mineSweeperSolutionFinder.getAverageBombsUsed();
+    float isolatedTileBombProb = bombsRemaining/unknownIsolatedTiles;
+    for (SolverTile& solverTile : m_solverTiles)
+    {
+        if (solverTile.solverTileState != unknown)
+        {
+            continue;
+        }
+        else if (solverTile.bombProbability == -1)
+        {
+            solverTile.bombProbability = isolatedTileBombProb;
+        }
+    }
+    for (SolverTile& solverTile : m_solverTiles)
+    {
+        if (solverTile.solverTileState != unknown)
+        {
+            continue;
+        }
+        else if (solverTile.bombProbability == 0)
+        {
+            clickSolverTile(solverTile);
+        }
+        else if (solverTile.bombProbability == 1)
+        {
+            flagSolverTile(solverTile);
+        }
+    }
+}
 
+float MineSweeperSolver::getProbOfHavingNoAdjBombs(const SolverTile& solverTile)
+{
+    float probability = 1;
+    for (const SolverTile* adjSolverTile : solverTile.adjSolverTiles)
+    {
+        if (adjSolverTile->solverTileState == flagged)
+        {
+            return 0;
+        }
+        else if (adjSolverTile->solverTileState == visible)
+        {
+            continue;
+        }
+        probability *= (1.0f - adjSolverTile->bombProbability);
+    }
+    return probability;
+}
+
+void MineSweeperSolver::clickLowestProb()
+{
+    int16_t lowestIndex = -1;
+    float lowestProbability = 1.0f;
+    float lowestZeroProb = 0.0f;
+    uint16_t size = m_solverTiles.size();
+    uint16_t amountCheck = 0;
+    for (int16_t i = 0; i < size; i++)
+    {
+        SolverTile& solverTile = m_solverTiles[i];
+        if (solverTile.solverTileState != unknown)
+        {
+            continue;
+        }
+        else if (solverTile.bombProbability < lowestProbability)
+        {
+            lowestIndex = i;
+            lowestProbability = solverTile.bombProbability;
+            lowestZeroProb = getProbOfHavingNoAdjBombs(solverTile);
+        }
+        else if (solverTile.bombProbability == lowestProbability)
+        {
+            float otherZeroProb = getProbOfHavingNoAdjBombs(solverTile);
+            if (otherZeroProb > lowestZeroProb)
+            {
+                lowestIndex = i;
+                lowestProbability = solverTile.bombProbability;
+                lowestZeroProb = otherZeroProb;
+            }
+        }
+        else if (lowestIndex == -1)
+        {
+            lowestIndex = i;
+            lowestProbability = solverTile.bombProbability;
+            lowestZeroProb = getProbOfHavingNoAdjBombs(solverTile);
+        }
+    }
+    if (lowestIndex != -1)
+    {
+        clickSolverTile(m_solverTiles[lowestIndex]);
+        return;
+    }
+    throw std::runtime_error("Guess could not find anything! " + std::to_string(amountCheck));
 }
