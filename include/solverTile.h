@@ -7,8 +7,6 @@
 struct SolverTile
 {
     std::vector<SolverTile*> adjSolverTiles;
-    std::array<float, 9u> probabilityOfHavingNAdjBombs;
-    std::vector<bool> bombBackTracking;
     float bombProbability;
     uint16_t x;
     uint16_t y;

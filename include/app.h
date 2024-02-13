@@ -29,6 +29,10 @@ class App
         // Purpose:
         // Tests solver against a predetermined number of mine sweeper maps to determine its overall effectiveness.
         void testMineSweeperSolver();
+
+        // Purpose:
+        // Runs specially made maps to test capabilities of minesweeper solver
+        void debugTestMineSweeperSolver();
     private:
         uint8_t m_sizeX;
         uint8_t m_sizeY;

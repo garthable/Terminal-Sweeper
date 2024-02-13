@@ -5,6 +5,9 @@
 #include <iterator>
 #include <stdint.h>
 #include <string>
+#include <iostream>
+
+#define print(input) std::cout << input << std::endl
 
 #include "solverTile.h"
 
@@ -27,6 +30,13 @@ struct HiddenTile
         this->isBomb = isBomb;
         claimed = false;
     }
+
+    HiddenTile(const HiddenTile& other)
+    {
+        this->originalTile = other.originalTile;
+        this->claimed = other.claimed;
+        this->isBomb = other.isBomb;
+    }
 };
 
 struct VisibleTile
@@ -38,6 +48,13 @@ struct VisibleTile
     VisibleTile(uint16_t bombCount)
     {
         this->bombCount = bombCount;
+    }
+
+    VisibleTile(const VisibleTile& other)
+    {
+        this->bombCount = other.bombCount;
+        this->ownedHiddenTiles = other.ownedHiddenTiles;
+        this->adjHiddenTiles = other.adjHiddenTiles;
     }
 };
 
@@ -58,6 +75,24 @@ struct SolutionSet
     {
         bombCount = 0;
     }
+    SolutionSet(const SolutionSet& other)
+    {
+        this->bombCount = other.bombCount;
+        this->hiddenTiles = other.hiddenTiles;
+    }
+};
+
+struct SizeFrequency
+{
+    uint32_t size;
+    uint32_t frequencyInGroup;
+    uint32_t frequencyInCombinations;
+    SizeFrequency(uint32_t size, uint32_t frequencyInGroup)
+    {
+        this->size = size;
+        this->frequencyInGroup = frequencyInGroup;
+        frequencyInCombinations = 0;
+    }
 };
 
 class MineSweeperSolutionFinder
@@ -74,11 +109,15 @@ class MineSweeperSolutionFinder
         // Gathers data for future calculations, applies probability of being a bomb to all hiddenTiles passed.
         void applyProbabilities(const std::vector<std::vector<SolverTile*>>& groupedVisibleTiles,
                                 std::vector<std::vector<SolverTile*>>& outGroupedHiddenTiles,
-                                uint16_t maxBombs);
+                                uint16_t maxBombs, uint16_t minBombs);
         
         // Purpose:
         // Resets all member values.
         void reset();
+
+        // Returns:
+        // Average amount of bombs used, important for calculating probability that isolated hidden tiles are bombs.
+        float getAverageBombsUsed();
     private:
         // Parameters:
         // Grouped hidden tiles
@@ -94,7 +133,7 @@ class MineSweeperSolutionFinder
         // Converts visible tiles into format used by class
         void getVisibles(const std::vector<std::vector<SolverTile*>>& groupedVisibleTiles);
 
-        inline int16_t searchHidden(const SolverTile* _solverTile);
+        inline int16_t searchHidden(const SolverTile* solverTile, const uint16_t& group);
 
         // Parameters:
         // The size of the adjacents list
@@ -138,7 +177,7 @@ class MineSweeperSolutionFinder
         //
         // Purpose:
         // Finds all possible solutions.
-        void getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, SolutionSet& currSolutionSet);
+        void getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, const uint16_t currSolutionSetIndex);
 
         // Parameters:
         // Group number
@@ -155,24 +194,37 @@ class MineSweeperSolutionFinder
         // The number of bombs in the solutionSet with the highest amount of bombs.
         uint16_t findMaxBombSet(const std::vector<SolutionSet>& solutionSets);
 
+        // Parameters:
+        // Vector of solution sets
+        //
+        // Returns:
+        // The number of bombs in the solutionSet with the lowest amount of bombs.
+        uint16_t findMinBombSet(const std::vector<SolutionSet>& solutionSets);
+
         // Returns:
         // Whether its possible to exceed to max bomb count specified.
         bool canSurpassMaxBombs();
 
-        // Parameters:
-        // Out to grouped hiddenTiles
-        //
+        // Returns:
+        // Whether its possible to go below the min bomb count specified.
+        bool canUndercutMinBombs();
+
         // Purpose:
         // If its possible to surpass the max bomb count combine all solution sets such that they dont surpass the
         // max bomb count and use that to get probability. After this apply this to all tiles.
-        void applyProbabilitiesCombined(std::vector<std::vector<SolverTile*>>& outGroupedHiddenTiles);
+        void applyProbabilitiesCombined();
 
         // Parameters:
-        // Out to grouped hiddenTiles
+        // Current index of SizeFrequencies
+        // Current group of SizeFrequencies
         //
         // Purpose:
+        // Find how many different valid ways each size of solutionGroup can be combined.
+        void getSizeFrequencies(const uint32_t& currIndex, const uint32_t& currGroup);
+
+        // Purpose:
         // Find the probabilty that each tile is a bomb based off the solutions set
-        void applyProbabilitiesSeperate(std::vector<std::vector<SolverTile*>>& outGroupedHiddenTiles);
+        void applyProbabilitiesSeperate();
 
         // Parameters:
         // Visible tile reference
@@ -190,11 +242,16 @@ class MineSweeperSolutionFinder
             clicked = 4u
         };
         uint16_t m_maxBombs;
+        uint16_t m_minBombs;
 
         std::vector<std::vector<VisibleTile>> m_groupedVisibleTiles; // Redo with singular vector OR figure out how to implement without deleting less vectors
         std::vector<std::vector<SolutionSet>> m_groupedIncompleteSolutions; // Redo with singular vector
         std::vector<std::vector<SolutionSet>> m_groupedCompleteSolutions;
         std::vector<float> m_probabilities;
+        std::vector<uint32_t> m_iterators;
+        std::vector<std::vector<SizeFrequency>> m_sizeFrequencys;
+
+        float m_averageBombsUsed;
 
         std::vector<std::vector<std::vector<uint16_t>>> m_hardcodedCombinations;
 };

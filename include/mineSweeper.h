@@ -57,6 +57,13 @@ class MineSweeper
         void generateBombs(const uint16_t& innitClickX, const uint16_t& innitClickY, const unsigned int& seed);
 
         // Parameters:
+        // Name of file countaining data for function to generate map off of.
+        //
+        // Purpose:
+        // Generates customly made map for testing.
+        void generateTilesFromMap(std::string fileName);
+
+        // Parameters:
         // The x coordinate of the click
         // The y coordinate of the click
         //
@@ -101,6 +108,27 @@ class MineSweeper
         // Purpose:
         // Used by the app inform the player of how many flags have been used.
         int16_t getFlagsRemaining();
+
+        // Returns:
+        // m_sizeX
+        //
+        // Purpose:
+        // Used by testing
+        uint16_t getSizeX();
+        
+        // Returns:
+        // m_sizeY
+        //
+        // Purpose:
+        // Used by testing
+        uint16_t getSizeY();
+
+        // Returns:
+        // Bombcount
+        //
+        // Purpose:
+        // Used by testing
+        uint16_t getBombCount();
 
     private:
         // Parameters:
