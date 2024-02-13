@@ -220,7 +220,7 @@ class MineSweeperSolutionFinder
         //
         // Purpose:
         // Find how many different valid ways each size of solutionGroup can be combined.
-        void getSizeFrequencies(const uint32_t& currIndex, const uint32_t& currGroup);
+        void getSizeFrequenciesReccursive(const uint32_t& currIndex, const uint32_t& currGroup);
 
         // Purpose:
         // Find the probabilty that each tile is a bomb based off the solutions set
