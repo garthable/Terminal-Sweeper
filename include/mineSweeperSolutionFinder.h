@@ -82,14 +82,14 @@ struct SolutionSet
     }
 };
 
-struct SizeFrequency
+struct BombCountFrequency
 {
-    uint32_t size;
+    uint32_t bombCount;
     uint32_t frequencyInGroup;
     uint32_t frequencyInCombinations;
-    SizeFrequency(uint32_t size, uint32_t frequencyInGroup)
+    BombCountFrequency(uint32_t bombCount, uint32_t frequencyInGroup)
     {
-        this->size = size;
+        this->bombCount = bombCount;
         this->frequencyInGroup = frequencyInGroup;
         frequencyInCombinations = 0;
     }
@@ -218,9 +218,12 @@ class MineSweeperSolutionFinder
         // Current index of SizeFrequencies
         // Current group of SizeFrequencies
         //
+        // Returns:
+        // Frequency for valid bombCout combinations.
+        //
         // Purpose:
-        // Find how many different valid ways each size of solutionGroup can be combined.
-        void getSizeFrequenciesReccursive(const uint32_t& currIndex, const uint32_t& currGroup);
+        // Find how many different valid ways each bombCount of solutionGroup can be combined.
+        uint32_t getBombCountFrequenciesReccursive(const uint32_t& index, const uint32_t& group, uint32_t bombCount, uint32_t combinationCount);
 
         // Purpose:
         // Find the probabilty that each tile is a bomb based off the solutions set
@@ -247,9 +250,7 @@ class MineSweeperSolutionFinder
         std::vector<std::vector<VisibleTile>> m_groupedVisibleTiles; // Redo with singular vector OR figure out how to implement without deleting less vectors
         std::vector<std::vector<SolutionSet>> m_groupedIncompleteSolutions; // Redo with singular vector
         std::vector<std::vector<SolutionSet>> m_groupedCompleteSolutions;
-        std::vector<float> m_probabilities;
-        std::vector<uint32_t> m_iterators;
-        std::vector<std::vector<SizeFrequency>> m_sizeFrequencys;
+        std::vector<std::vector<BombCountFrequency>> m_groupedBombCountFrequencies;
 
         float m_averageBombsUsed;
 

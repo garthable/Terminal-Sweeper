@@ -74,8 +74,6 @@ void MineSweeperSolutionFinder::reset()
 {
     m_maxBombs = 0;
     m_averageBombsUsed = 0;
-    m_iterators.clear();
-    m_probabilities.clear();
     m_groupedVisibleTiles.clear();
     m_groupedIncompleteSolutions.clear();
     m_groupedCompleteSolutions.clear();
@@ -376,87 +374,112 @@ uint16_t MineSweeperSolutionFinder::findMinBombSet(const std::vector<SolutionSet
 
 void MineSweeperSolutionFinder::applyProbabilitiesCombined()
 {
-    m_averageBombsUsed = 0;
-    m_iterators.clear();
-    for (std::vector<SolutionSet>& SolutionSets : m_groupedCompleteSolutions)
+    m_groupedBombCountFrequencies.clear();
+    for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
     {
-        m_iterators.push_back(0);
-    }
-    for (std::vector<SolutionSet>& solutionSets : m_groupedCompleteSolutions)
-    {
-        for (HiddenTile& hiddenTile : solutionSets[0].hiddenTiles)
+        m_groupedBombCountFrequencies.push_back(std::vector<BombCountFrequency>());
+        std::vector<BombCountFrequency>& bombCountFrequencies = m_groupedBombCountFrequencies.back();
+        std::vector<SolutionSet>& solutionSets = m_groupedCompleteSolutions[group];
+        for (SolutionSet& solutionSet : solutionSets)
         {
-            hiddenTile.originalTile->bombProbability = 0;
-        }
-    }
-    uint16_t amountOfGroups = m_groupedCompleteSolutions.size();
-    uint32_t combinationCount = 0;
-    while (true)
-    {
-        uint16_t bombCount = 0;
-        bool exceedsCount = false;
-        for (uint16_t group = 0; group < amountOfGroups; group++)
-        {
-            uint16_t iterator = m_iterators[group];
-            SolutionSet& currSolutionSet = m_groupedCompleteSolutions[group][iterator];
-            bombCount += currSolutionSet.bombCount;
-            if (bombCount > m_maxBombs)
+            bool foundBombCountFrequency = false;
+            for (BombCountFrequency& bombCountFrequency : bombCountFrequencies)
             {
-                exceedsCount = true;
-                break;
-            }
-        }
-        if (!exceedsCount && !(bombCount < m_minBombs))
-        {
-            combinationCount++;
-            for (uint16_t group = 0; group < amountOfGroups; group++)
-            {
-                uint16_t iterator = m_iterators[group];
-                SolutionSet& currSolutionSet = m_groupedCompleteSolutions[group][iterator];
-                m_averageBombsUsed += currSolutionSet.bombCount;
-                for (HiddenTile& hiddenTile : currSolutionSet.hiddenTiles)
+                if (solutionSet.bombCount == bombCountFrequency.bombCount)
                 {
-                    hiddenTile.originalTile->bombProbability += hiddenTile.isBomb;
-                }
-            }
-        }
-        bool incremented = false;
-        bool exit = false;
-        uint32_t group = 0;
-        do
-        {
-            incremented = false;
-            m_iterators[group]++;
-            if (m_iterators[group] == m_groupedCompleteSolutions[group].size())
-            {
-                m_iterators[group] = 0;
-                group++;
-                if (group == amountOfGroups)
-                {
-                    exit = true;
+                    foundBombCountFrequency = true;
+                    bombCountFrequency.frequencyInGroup++;
                     break;
                 }
-                incremented = true;
             }
-        } 
-        while(incremented);
-        if (exit)
-        {
-            break;
+            if (!foundBombCountFrequency)
+            {
+                bombCountFrequencies.push_back(BombCountFrequency(solutionSet.bombCount, 1));
+            }
         }
     }
-    m_averageBombsUsed /= combinationCount;
-    if (combinationCount == 0)
+
+    uint32_t firstGroupSize = m_groupedBombCountFrequencies[0].size();
+    for (uint32_t index = 0; index < firstGroupSize; index++)
     {
-        m_averageBombsUsed = 0;
+        getBombCountFrequenciesReccursive(index, 0, 0, 1);
     }
-    for (std::vector<SolutionSet>& solutionSets : m_groupedCompleteSolutions)
+
+    m_averageBombsUsed = 0;
+    uint32_t amountOfCombinations = 0;
+    for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
     {
-        for (HiddenTile& hiddenTile : solutionSets[0].hiddenTiles)
+        for (BombCountFrequency& bombCountFrequency : m_groupedBombCountFrequencies[group])
         {
-            hiddenTile.originalTile->bombProbability /= combinationCount;
-        }  
+            amountOfCombinations += bombCountFrequency.frequencyInCombinations;
+            print(amountOfCombinations);
+        }
     }
+    std::cin.get();
+    for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
+    {
+        std::vector<BombCountFrequency>& bombCountFrequencies = m_groupedBombCountFrequencies[group];
+        std::vector<SolutionSet>& solutionSets = m_groupedCompleteSolutions[group];
+        for (SolutionSet& solutionSet : solutionSets)
+        {
+            for (BombCountFrequency& bombCountFrequency : bombCountFrequencies)
+            {
+                if (solutionSet.bombCount == bombCountFrequency.bombCount)
+                {
+                    float frequency = static_cast<float>(bombCountFrequency.frequencyInCombinations)
+                                      /static_cast<float>(bombCountFrequency.frequencyInGroup);
+                    for (HiddenTile& hiddenTile : solutionSet.hiddenTiles)
+                    {
+                        float frequencyOfBomb = hiddenTile.isBomb*frequency;
+                        m_averageBombsUsed += frequencyOfBomb;
+                        hiddenTile.originalTile->bombProbability += frequencyOfBomb;
+                    }
+                }
+            }
+        }
+    }
+    float totalProb = 0;
+    m_averageBombsUsed /= static_cast<float>(amountOfCombinations);
+    for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
+    {
+        SolutionSet& solutionSet = m_groupedCompleteSolutions[group][0];
+        for (HiddenTile& hiddenTile : solutionSet.hiddenTiles)
+        {
+            hiddenTile.originalTile->bombProbability /= static_cast<float>(amountOfCombinations);
+            totalProb += hiddenTile.originalTile->bombProbability;
+            print(hiddenTile.originalTile->bombProbability);
+        }
+    }
+    print(totalProb << " " << m_averageBombsUsed);
+    std::cin.get();
+}
+
+uint32_t MineSweeperSolutionFinder::getBombCountFrequenciesReccursive(const uint32_t& index, const uint32_t& group, uint32_t bombCount, uint32_t combinationCount)
+{
+    BombCountFrequency& currBombCountFrequency = m_groupedBombCountFrequencies[group][index];
+    bombCount += currBombCountFrequency.bombCount;
+    combinationCount *= currBombCountFrequency.frequencyInGroup;
+    if (group + 1 == m_groupedBombCountFrequencies.size())
+    {
+        if (bombCount < m_minBombs)
+        {
+            return 0;
+        }
+        currBombCountFrequency.frequencyInCombinations += combinationCount;
+        return combinationCount;
+    }
+    uint32_t nextGroupSize = m_groupedBombCountFrequencies[group+1].size();
+    uint32_t combinationSum = 0;
+    for (uint32_t nextIndex = 0; nextIndex < nextGroupSize; nextIndex++)
+    {
+        if (bombCount > m_maxBombs)
+        {
+            return 0;
+        }
+        combinationSum += getBombCountFrequenciesReccursive(nextIndex, group+1, bombCount, combinationCount);
+    }
+    currBombCountFrequency.frequencyInCombinations += combinationSum;
+    return combinationSum;
 }
 
 void MineSweeperSolutionFinder::applyProbabilitiesSeperate()

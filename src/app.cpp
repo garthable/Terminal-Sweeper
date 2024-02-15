@@ -328,7 +328,7 @@ void App::watchMineSweeperSolver()
         {
             _mineSweeper.clickTile(clickX, clickY);
         }
-        system("clear");
+        // system("clear");
     }
 }
 
