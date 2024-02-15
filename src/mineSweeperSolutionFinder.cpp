@@ -79,7 +79,7 @@ void MineSweeperSolutionFinder::reset()
     m_groupedCompleteSolutions.clear();
 }
 
-float MineSweeperSolutionFinder::getAverageBombsUsed()
+double MineSweeperSolutionFinder::getAverageBombsUsed()
 {
     return m_averageBombsUsed;
 }
@@ -374,6 +374,13 @@ uint16_t MineSweeperSolutionFinder::findMinBombSet(const std::vector<SolutionSet
 
 void MineSweeperSolutionFinder::applyProbabilitiesCombined()
 {
+    for (std::vector<SolutionSet>& solutionSets : m_groupedCompleteSolutions)
+    {
+        for (HiddenTile& hiddenTile : solutionSets[0].hiddenTiles)
+        {
+            hiddenTile.originalTile->bombProbability = 0;
+        }
+    }
     m_groupedBombCountFrequencies.clear();
     for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
     {
@@ -400,22 +407,12 @@ void MineSweeperSolutionFinder::applyProbabilitiesCombined()
     }
 
     uint32_t firstGroupSize = m_groupedBombCountFrequencies[0].size();
+    uint64_t amountOfCombinations = 0;
     for (uint32_t index = 0; index < firstGroupSize; index++)
     {
-        getBombCountFrequenciesReccursive(index, 0, 0, 1);
+        getBombCountFrequenciesReccursive(index, 0, 0, 1, amountOfCombinations);
     }
-
     m_averageBombsUsed = 0;
-    uint32_t amountOfCombinations = 0;
-    for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
-    {
-        for (BombCountFrequency& bombCountFrequency : m_groupedBombCountFrequencies[group])
-        {
-            amountOfCombinations += bombCountFrequency.frequencyInCombinations;
-            print(amountOfCombinations);
-        }
-    }
-    std::cin.get();
     for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
     {
         std::vector<BombCountFrequency>& bombCountFrequencies = m_groupedBombCountFrequencies[group];
@@ -426,11 +423,11 @@ void MineSweeperSolutionFinder::applyProbabilitiesCombined()
             {
                 if (solutionSet.bombCount == bombCountFrequency.bombCount)
                 {
-                    float frequency = static_cast<float>(bombCountFrequency.frequencyInCombinations)
-                                      /static_cast<float>(bombCountFrequency.frequencyInGroup);
+                    double frequency = static_cast<double>(bombCountFrequency.frequencyInCombinations)
+                                      /static_cast<double>(bombCountFrequency.frequencyInGroup);
                     for (HiddenTile& hiddenTile : solutionSet.hiddenTiles)
                     {
-                        float frequencyOfBomb = hiddenTile.isBomb*frequency;
+                        double frequencyOfBomb = hiddenTile.isBomb*frequency;
                         m_averageBombsUsed += frequencyOfBomb;
                         hiddenTile.originalTile->bombProbability += frequencyOfBomb;
                     }
@@ -438,23 +435,20 @@ void MineSweeperSolutionFinder::applyProbabilitiesCombined()
             }
         }
     }
-    float totalProb = 0;
-    m_averageBombsUsed /= static_cast<float>(amountOfCombinations);
+    double totalProb = 0;
+    m_averageBombsUsed /= static_cast<double>(amountOfCombinations);
     for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
     {
         SolutionSet& solutionSet = m_groupedCompleteSolutions[group][0];
         for (HiddenTile& hiddenTile : solutionSet.hiddenTiles)
         {
-            hiddenTile.originalTile->bombProbability /= static_cast<float>(amountOfCombinations);
+            hiddenTile.originalTile->bombProbability /= static_cast<double>(amountOfCombinations);
             totalProb += hiddenTile.originalTile->bombProbability;
-            print(hiddenTile.originalTile->bombProbability);
         }
     }
-    print(totalProb << " " << m_averageBombsUsed);
-    std::cin.get();
 }
 
-uint32_t MineSweeperSolutionFinder::getBombCountFrequenciesReccursive(const uint32_t& index, const uint32_t& group, uint32_t bombCount, uint32_t combinationCount)
+uint32_t MineSweeperSolutionFinder::getBombCountFrequenciesReccursive(const uint32_t& index, const uint32_t& group, uint32_t bombCount, uint64_t combinationCount, uint64_t& totalCombinations)
 {
     BombCountFrequency& currBombCountFrequency = m_groupedBombCountFrequencies[group][index];
     bombCount += currBombCountFrequency.bombCount;
@@ -466,6 +460,7 @@ uint32_t MineSweeperSolutionFinder::getBombCountFrequenciesReccursive(const uint
             return 0;
         }
         currBombCountFrequency.frequencyInCombinations += combinationCount;
+        totalCombinations += combinationCount;
         return combinationCount;
     }
     uint32_t nextGroupSize = m_groupedBombCountFrequencies[group+1].size();
@@ -476,7 +471,7 @@ uint32_t MineSweeperSolutionFinder::getBombCountFrequenciesReccursive(const uint
         {
             return 0;
         }
-        combinationSum += getBombCountFrequenciesReccursive(nextIndex, group+1, bombCount, combinationCount);
+        combinationSum += getBombCountFrequenciesReccursive(nextIndex, group+1, bombCount, combinationCount, totalCombinations);
     }
     currBombCountFrequency.frequencyInCombinations += combinationSum;
     return combinationSum;
@@ -487,7 +482,7 @@ void MineSweeperSolutionFinder::applyProbabilitiesSeperate()
     m_averageBombsUsed = 0;
     for (std::vector<SolutionSet>& solutionSets : m_groupedCompleteSolutions)
     {
-        float bombsInGroup = 0;
+        double bombsInGroup = 0;
         for (HiddenTile& hiddenTile : solutionSets[0].hiddenTiles)
         {
             hiddenTile.originalTile->bombProbability = 0;
@@ -495,7 +490,7 @@ void MineSweeperSolutionFinder::applyProbabilitiesSeperate()
 
         for (SolutionSet& solutionSet : solutionSets)
         {
-            bombsInGroup += static_cast<float>(solutionSet.bombCount);
+            bombsInGroup += static_cast<double>(solutionSet.bombCount);
             for (HiddenTile& hiddenTile : solutionSet.hiddenTiles)
             {
                 hiddenTile.originalTile->bombProbability += hiddenTile.isBomb;
@@ -504,7 +499,7 @@ void MineSweeperSolutionFinder::applyProbabilitiesSeperate()
 
         if (solutionSets.size() != 0)
         {
-            m_averageBombsUsed += (bombsInGroup/static_cast<float>(solutionSets.size()));
+            m_averageBombsUsed += (bombsInGroup/static_cast<double>(solutionSets.size()));
         }
         
         for (HiddenTile& hiddenTile : solutionSets[0].hiddenTiles)

@@ -86,8 +86,8 @@ struct BombCountFrequency
 {
     uint32_t bombCount;
     uint32_t frequencyInGroup;
-    uint32_t frequencyInCombinations;
-    BombCountFrequency(uint32_t bombCount, uint32_t frequencyInGroup)
+    uint64_t frequencyInCombinations;
+    BombCountFrequency(uint32_t bombCount, uint64_t frequencyInGroup)
     {
         this->bombCount = bombCount;
         this->frequencyInGroup = frequencyInGroup;
@@ -117,7 +117,7 @@ class MineSweeperSolutionFinder
 
         // Returns:
         // Average amount of bombs used, important for calculating probability that isolated hidden tiles are bombs.
-        float getAverageBombsUsed();
+        double getAverageBombsUsed();
     private:
         // Parameters:
         // Grouped hidden tiles
@@ -223,7 +223,7 @@ class MineSweeperSolutionFinder
         //
         // Purpose:
         // Find how many different valid ways each bombCount of solutionGroup can be combined.
-        uint32_t getBombCountFrequenciesReccursive(const uint32_t& index, const uint32_t& group, uint32_t bombCount, uint32_t combinationCount);
+        uint32_t getBombCountFrequenciesReccursive(const uint32_t& index, const uint32_t& group, uint32_t bombCount, uint64_t combinationCount, uint64_t& totalCombinations);
 
         // Purpose:
         // Find the probabilty that each tile is a bomb based off the solutions set
@@ -252,7 +252,7 @@ class MineSweeperSolutionFinder
         std::vector<std::vector<SolutionSet>> m_groupedCompleteSolutions;
         std::vector<std::vector<BombCountFrequency>> m_groupedBombCountFrequencies;
 
-        float m_averageBombsUsed;
+        double m_averageBombsUsed;
 
         std::vector<std::vector<std::vector<uint16_t>>> m_hardcodedCombinations;
 };

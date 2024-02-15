@@ -548,10 +548,10 @@ bool MineSweeperSolver::shareSameNumbered(const SolverTile* solverTilePtrA, cons
 void MineSweeperSolver::getAllSolutions()
 {
     groupTiles();
-    float unknownIsolatedTiles = static_cast<float>(m_unknownTileCount);
+    double unknownIsolatedTiles = static_cast<double>(m_unknownTileCount);
     for (std::vector<SolverTile*> hiddenSolverTiles : m_groupedHiddenSolverTiles)
     {
-        unknownIsolatedTiles -= static_cast<float>(hiddenSolverTiles.size());
+        unknownIsolatedTiles -= static_cast<double>(hiddenSolverTiles.size());
     }
     int16_t minBombCount = m_bombCount - static_cast<uint16_t>(unknownIsolatedTiles);
     if (minBombCount < 0)
@@ -563,8 +563,8 @@ void MineSweeperSolver::getAllSolutions()
         solverTile.bombProbability = -1;
     }
     m_mineSweeperSolutionFinder.applyProbabilities(m_groupedVisibleSolverTiles, m_groupedHiddenSolverTiles, m_bombCount, minBombCount);
-    float bombsRemaining = static_cast<float>(m_bombCount) - m_mineSweeperSolutionFinder.getAverageBombsUsed();
-    float isolatedTileBombProb = bombsRemaining/unknownIsolatedTiles;
+    double bombsRemaining = static_cast<double>(m_bombCount) - m_mineSweeperSolutionFinder.getAverageBombsUsed();
+    double isolatedTileBombProb = bombsRemaining/unknownIsolatedTiles;
     for (SolverTile& solverTile : m_solverTiles)
     {
         if (solverTile.solverTileState != unknown)
@@ -593,9 +593,9 @@ void MineSweeperSolver::getAllSolutions()
     }
 }
 
-float MineSweeperSolver::getProbOfHavingNoAdjBombs(const SolverTile& solverTile)
+double MineSweeperSolver::getProbOfHavingNoAdjBombs(const SolverTile& solverTile)
 {
-    float probability = 1;
+    double probability = 1;
     for (const SolverTile* adjSolverTile : solverTile.adjSolverTiles)
     {
         if (adjSolverTile->solverTileState == flagged)
@@ -614,8 +614,8 @@ float MineSweeperSolver::getProbOfHavingNoAdjBombs(const SolverTile& solverTile)
 void MineSweeperSolver::clickLowestProb()
 {
     int16_t lowestIndex = -1;
-    float lowestProbability = 1.0f;
-    float lowestZeroProb = 0.0f;
+    double lowestProbability = 1.0f;
+    double lowestZeroProb = 0.0f;
     uint16_t size = m_solverTiles.size();
     uint16_t amountCheck = 0;
     for (int16_t i = 0; i < size; i++)
@@ -633,7 +633,7 @@ void MineSweeperSolver::clickLowestProb()
         }
         else if (solverTile.bombProbability == lowestProbability)
         {
-            float otherZeroProb = getProbOfHavingNoAdjBombs(solverTile);
+            double otherZeroProb = getProbOfHavingNoAdjBombs(solverTile);
             if (otherZeroProb > lowestZeroProb)
             {
                 lowestIndex = i;

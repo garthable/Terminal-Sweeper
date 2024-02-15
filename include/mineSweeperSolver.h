@@ -188,7 +188,7 @@ class MineSweeperSolver
         //
         // Returns:
         // Probability that tile has zero adjacent bombs
-        float getProbOfHavingNoAdjBombs(const SolverTile& solverTile);
+        double getProbOfHavingNoAdjBombs(const SolverTile& solverTile);
 
         // Purpose:
         // Clicks unknown with lowest prob
