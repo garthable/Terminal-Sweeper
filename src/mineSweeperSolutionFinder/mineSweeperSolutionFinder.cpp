@@ -1,4 +1,4 @@
-#include "../include/mineSweeperSolutionFinder.h"
+#include "mineSweeperSolutionFinder.hpp"
 #include <iostream>
 
 MineSweeperSolutionFinder::MineSweeperSolutionFinder()

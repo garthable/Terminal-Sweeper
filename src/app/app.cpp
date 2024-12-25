@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-#include "../include/app.h"
+#include "src/app/app.hpp"
 
 App::App()
 {
@@ -415,7 +415,7 @@ void App::debugTestMineSweeperSolver()
     for (const auto& entry : std::filesystem::directory_iterator(path))
     {
         START:
-        mineSweeper.generateTilesFromMap(entry.path());
+        mineSweeper.generateTilesFromMap(entry.path().string());
         mineSweeper.clickTile(1, 1);
         MineSweeperSolver mineSweeperSolver = MineSweeperSolver(mineSweeper.getSizeX(), mineSweeper.getSizeY(), mineSweeper.getBombCount());
         bool isFlag = false;

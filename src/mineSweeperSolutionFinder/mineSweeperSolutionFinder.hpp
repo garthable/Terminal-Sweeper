@@ -9,7 +9,7 @@
 
 #define print(input) std::cout << input << std::endl
 
-#include "solverTile.h"
+#include "src/mineSweeperSolver/solverTile.hpp"
 
 struct HiddenTile
 {

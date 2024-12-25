@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
-#include "../include/mineSweeper.h"
+#include "src/mineSweeper/mineSweeper.hpp"
 
 //
 // Public
