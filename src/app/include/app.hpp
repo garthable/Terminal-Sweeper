@@ -3,10 +3,14 @@
 
 #include <stdint.h>
 
-#include "src/mineSweeperSolver/mineSweeperSolver.hpp"
-#include "src/mineSweeper/mineSweeper.hpp"
+#include "app.hpp"
 
-#define SETTINGSFILE "doc/settings.txt"
+#ifndef SETTINGSFILE
+    #define SETTINGSFILE "SET MACRO DURING COMPILE!"
+#endif
+#ifndef TESTDIRECTORY
+    #define TESTDIRECTORY "SET MACRO DURING COMPILE!"
+#endif
 
 // Handles UI, user input and program state.
 class App

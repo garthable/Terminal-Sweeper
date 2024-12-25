@@ -1,0 +1,2 @@
+add_library(mineSweeperSolver STATIC src/mineSweeperSolver.cpp src/mineSweeperSolutionFinder.cpp)
+target_include_directories(mineSweeperSolver PUBLIC include)

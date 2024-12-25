@@ -1,7 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-#include "src/app/app.hpp"
+#include "app.hpp"
+#include "mineSweeper.hpp"
+#include "mineSweeperSolver.hpp"
 
 App::App()
 {
@@ -35,15 +37,18 @@ std::string spaceOutString(std::string inputString)
 
 void App::run()
 {
-    #ifndef TESTMODE
     while (true)
     {
-        system("clear");
+        #if defined(__APPLE__) || defined(__linux__) 
+            system("clear");
+        #endif
+        #ifdef __WIN32__
+            system("cls");
+        #endif
         std::string input = "";
 
         std::cout << 
-        "Type 'p' to play minesweeper.\nType 'w' to watch minesweeper solver.\nType 't' to test minesweeper solver.\nType 'q' to quit" 
-        << std::endl;
+        "Type 'p' to play minesweeper.\nType 'w' to watch minesweeper solver.\nType 't' to test minesweeper solver performance.\nType 'r' to run tests on minesweeper solver\nType 'q' to quit\n";
 
         getline(std::cin, input);
 
@@ -68,6 +73,10 @@ void App::run()
                 readSettings();
                 testMineSweeperSolver();
                 break;
+            case 'r':
+                readSettings();
+                debugTestMineSweeperSolver();
+                break;
             case 'q':
                 return;
                 break;
@@ -75,9 +84,6 @@ void App::run()
                 break;
         }
     }
-    #else
-    debugTestMineSweeperSolver();
-    #endif
 }
 
 void App::readSettings()
@@ -87,8 +93,8 @@ void App::readSettings()
 
     if (!settingsFileRead.is_open())
     {
-        throw std::runtime_error("Failed to open settings file!");
-        return;
+        std::string report = "Failed to open: " + std::string(SETTINGSFILE);
+        throw std::runtime_error(report);
     }
 
     while (getline(settingsFileRead, line))
@@ -217,20 +223,26 @@ void App::playMineSweeper()
     }
     while (true)
     {
+    #if defined(__APPLE__) || defined(__linux__) 
         system("clear");
+    #endif
+    #ifdef __WIN32__
+        system("cls");
+    #endif
+
         // Get Output:
         std::cout << "Flags: " << _mineSweeper.getFlagsRemaining() << '\n'
-        << spaceOutString(_mineSweeper.getOutputMineSweeperMap()) << std::endl;
+        << spaceOutString(_mineSweeper.getOutputMineSweeperMap()) << '\n';
 
         // Win loss detection:
         if (_mineSweeper.isLost())
         {
-            std::cout << "KABOOM" << std::endl;
+            std::cout << "KABOOM\n";
             break;
         }
         else if (_mineSweeper.isWon())
         {
-            std::cout << "VICTORY" << std::endl;
+            std::cout << "VICTORY\n";
             break;
         }
 
@@ -285,18 +297,18 @@ void App::watchMineSweeperSolver()
     {
         // Get Output:
         std::cout << "Flags: " << _mineSweeper.getFlagsRemaining() << '\n'
-        << spaceOutString(_mineSweeper.getOutputMineSweeperMap()) << std::endl;
+        << spaceOutString(_mineSweeper.getOutputMineSweeperMap()) << '\n';
 
         // Win loss detection:
         if (_mineSweeper.isLost())
         {
-            std::cout << "KABOOM" << std::endl;
+            std::cout << "KABOOM" << '\n';
             std::cin.get();
             break;
         }
         else if (_mineSweeper.isWon())
         {
-            std::cout << "VICTORY" << std::endl;
+            std::cout << "VICTORY" << '\n';
             std::cin.get();
             break;
         }
@@ -315,7 +327,7 @@ void App::watchMineSweeperSolver()
         
         if (clickX == UINT16_MAX)
         {
-            std::cout << "Unable" << std::endl;
+            std::cout << "Unable" << '\n';
             std::cin.get();
             break;
         }
@@ -328,7 +340,6 @@ void App::watchMineSweeperSolver()
         {
             _mineSweeper.clickTile(clickX, clickY);
         }
-        // system("clear");
     }
 }
 
@@ -347,7 +358,7 @@ void App::testMineSweeperSolver()
     double startTime = time(0);
     while (true)
     {
-        if (wins + loses >= 10000)
+        if (wins + loses >= 1000)
         {
             break;
         }
@@ -356,8 +367,13 @@ void App::testMineSweeperSolver()
         if (_mineSweeper.isLost())
         {
             loses++;
-            system("clear");
-            std::cout << wins + loses << std::endl;
+            #if defined(__APPLE__) || defined(__linux__) 
+                system("clear");
+            #endif
+            #ifdef __WIN32__
+                system("cls");
+            #endif
+            std::cout << wins + loses << '\n';
             _mineSweeperSolver.reset(m_bombCount);
             _mineSweeper.generateBombs(1, 1, wins+loses);
             _mineSweeper.clickTile(1, 1);
@@ -366,8 +382,13 @@ void App::testMineSweeperSolver()
         else if (_mineSweeper.isWon())
         {
             wins++;
-            system("clear");
-            std::cout << wins + loses << std::endl;
+            #if defined(__APPLE__) || defined(__linux__) 
+                system("clear");
+            #endif
+            #ifdef __WIN32__
+                system("cls");
+            #endif
+            std::cout << wins + loses << '\n';
             _mineSweeperSolver.reset(m_bombCount);
             _mineSweeper.generateBombs(1, 1, wins+loses);
             _mineSweeper.clickTile(1, 1);
@@ -388,7 +409,7 @@ void App::testMineSweeperSolver()
         
         if (clickX == UINT16_MAX)
         {
-            std::cout << "Unable" << std::endl;
+            std::cout << "Unable" << '\n';
             std::cin.get();
             break;
         }
@@ -403,16 +424,15 @@ void App::testMineSweeperSolver()
         }
     }
     double endTime = time(0);
-    std::cout << "Wins: " << wins << "\n" << "Loses: " << loses << "\n" << "Time: " << endTime - startTime << std::endl;
+    std::cout << "Wins: " << wins << "\n" << "Loses: " << loses << "\n" << "Time: " << endTime - startTime << '\n';
     std::cin.get();
 }
 
 void App::debugTestMineSweeperSolver()
 {
     MineSweeper mineSweeper = MineSweeper(0, 0, 0);
-    std::string path = "tests";
     bool display = false;
-    for (const auto& entry : std::filesystem::directory_iterator(path))
+    for (const auto& entry : std::filesystem::directory_iterator(TESTDIRECTORY))
     {
         START:
         mineSweeper.generateTilesFromMap(entry.path().string());
@@ -426,7 +446,7 @@ void App::debugTestMineSweeperSolver()
             if (display)
             {
                 std::cout << "Flags: " << mineSweeper.getFlagsRemaining() << '\n'
-                << spaceOutString(mineSweeper.getOutputMineSweeperMap()) << std::endl;
+                << spaceOutString(mineSweeper.getOutputMineSweeperMap()) << '\n';
             }
             // Win loss detection:
             if (mineSweeper.isLost())
@@ -434,7 +454,7 @@ void App::debugTestMineSweeperSolver()
                 if (display)
                 {
                     display = false;
-                    std::cout << "Lost: " << entry.path() << std::endl;
+                    std::cout << "Lost: " << entry.path() << '\n';
                     std::cin.get();
                 }
                 else
@@ -446,7 +466,7 @@ void App::debugTestMineSweeperSolver()
             }
             else if (mineSweeper.isWon())
             {
-                std::cout << "Won: " << entry.path() << std::endl;
+                std::cout << "Won: " << entry.path() << '\n';
                 break;
             }
 
@@ -464,7 +484,7 @@ void App::debugTestMineSweeperSolver()
             
             if (clickX == UINT16_MAX)
             {
-                std::cout << "Unable" << std::endl;
+                std::cout << "Unable" << '\n';
                 std::cin.get();
                 break;
             }
@@ -479,4 +499,6 @@ void App::debugTestMineSweeperSolver()
             }
         }
     }
+    std::cout << "DONE!\n";
+    std::cin.get();
 }
