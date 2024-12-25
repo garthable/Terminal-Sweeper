@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-#include "mineSweeperSolver.h"
-#include "mineSweeper.h"
+#include "src/mineSweeperSolver/mineSweeperSolver.hpp"
+#include "src/mineSweeper/mineSweeper.hpp"
 
 #define SETTINGSFILE "doc/settings.txt"
 

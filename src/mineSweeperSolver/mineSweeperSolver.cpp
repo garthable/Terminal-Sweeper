@@ -1,4 +1,4 @@
-#include "../include/mineSweeperSolver.h"
+#include "mineSweeperSolver.hpp"
 #include <iostream>
 
 #define print(input) std::cout << input << std::endl

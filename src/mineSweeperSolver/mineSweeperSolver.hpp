@@ -6,7 +6,7 @@
 #include <array>
 #include <vector>
 
-#include "mineSweeperSolutionFinder.h"
+#include "src/mineSweeperSolutionFinder/mineSweeperSolutionFinder.hpp"
 
 struct Coordinate
 {
