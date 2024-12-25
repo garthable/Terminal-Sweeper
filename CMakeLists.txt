@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(MineSweeperSolver CXX)
+project(MineSweeperSolver VERSION 1.0 LANGUAGES CXX)
 
 add_subdirectory(src/mineSweeper)
 add_subdirectory(src/mineSweeperSolver)
