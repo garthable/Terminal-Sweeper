@@ -225,11 +225,11 @@ void MineSweeperSolutionFinder::getSolutions()
             hiddenTileRef.claimed = false;
         }
         sortVisibleTilesByCombinationSize(group);
-        getSolutionOfGroupReccursion(group, 0, 0);
+        getSolutionOfGroupReccursion(group, 0, m_groupedIncompleteSolutions[group][0]);
     }
 }
 
-void MineSweeperSolutionFinder::getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, const uint16_t currSolutionSetIndex)
+void MineSweeperSolutionFinder::getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, SolutionSet& solutionSet)
 {
     if (currVisibleTileIndex == m_groupedVisibleTiles[group].size()) // Base case
     {
@@ -237,21 +237,19 @@ void MineSweeperSolutionFinder::getSolutionOfGroupReccursion(const uint16_t& gro
         {
             m_groupedCompleteSolutions.push_back(std::vector<SolutionSet>());
         }
-        m_groupedCompleteSolutions[group].push_back(m_groupedIncompleteSolutions[group][currSolutionSetIndex]);
-        m_groupedIncompleteSolutions[group].pop_back();
+        m_groupedCompleteSolutions[group].push_back(solutionSet);
         return;
     }
     VisibleTile& currVisibleTile = m_groupedVisibleTiles[group][currVisibleTileIndex];
-    uint16_t bombCount = getEffectiveBombCount(currVisibleTile, m_groupedIncompleteSolutions[group][currSolutionSetIndex]);
+    uint16_t bombCount = getEffectiveBombCount(currVisibleTile, solutionSet);
     int16_t claimedTilesSize = currVisibleTile.ownedHiddenTiles.size();
     if (claimedTilesSize < bombCount)
     {
-        m_groupedIncompleteSolutions[group].pop_back();
         return;
     }
     if (claimedTilesSize == 0 || bombCount == 0)
     {
-        getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, m_groupedIncompleteSolutions[group].size() - 1);
+        getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, solutionSet);
         return;
     }
     uint8_t* combinations = getHardcodedCombinations(bombCount);
@@ -262,24 +260,25 @@ void MineSweeperSolutionFinder::getSolutionOfGroupReccursion(const uint16_t& gro
             break;
         }
 
-        std::vector<SolutionSet>& incompleteSolutions = m_groupedIncompleteSolutions[group];
-        incompleteSolutions.push_back(m_groupedIncompleteSolutions[group][currSolutionSetIndex]);
-        SolutionSet& copySolutionSet = incompleteSolutions.back();
-
+        uint8_t* combinationsStart = combinations;
+        // Apply solution
         for (uint8_t i = 0; i < bombCount; i++)
         {
             const uint16_t index = currVisibleTile.ownedHiddenTiles[*combinations];
-            copySolutionSet.hiddenTiles[index].isBomb = true;
-            copySolutionSet.bombCount++;
+            solutionSet.hiddenTiles[index].isBomb = true;
             combinations++;
         }
-        getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, m_groupedIncompleteSolutions[group].size() - 1);
+        solutionSet.bombCount += bombCount;
+        getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, solutionSet);
+        // Remove solution
+        for (uint8_t i = 0; i < bombCount; i++)
+        {
+            const uint16_t index = currVisibleTile.ownedHiddenTiles[*combinationsStart];
+            solutionSet.hiddenTiles[index].isBomb = false;
+            combinationsStart++;
+        }
+        solutionSet.bombCount -= bombCount;
     }
-    if (m_groupedIncompleteSolutions[group].size() == 0)
-    {
-        throw std::runtime_error("Empty incomplete group end iteration " + std::to_string(currVisibleTileIndex));
-    }
-    m_groupedIncompleteSolutions[group].pop_back();
 }
 
 bool MineSweeperSolutionFinder::isValid(const uint16_t& group, const SolutionSet& currSolutionSet)

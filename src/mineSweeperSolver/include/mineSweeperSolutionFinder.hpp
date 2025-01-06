@@ -185,7 +185,7 @@ class MineSweeperSolutionFinder
         //
         // Purpose:
         // Finds all possible solutions.
-        void getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, const uint16_t currSolutionSetIndex);
+        void getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, SolutionSet& solutionSet);
 
         // Parameters:
         // Group number
