@@ -5,15 +5,34 @@
 #include <string>
 #include <cstdint>
 
+#include "sVector.hpp"
+
+#define MAX_TILE_COUNT 720
+
 struct Tile
 {
-    std::vector<Tile*> adjTiles;
+    svec::SVector<Tile*, 8> adjTiles;
 
     uint16_t x;
     uint16_t y;
 
     uint8_t adjBombs;
     uint8_t tileState;
+
+    Tile()
+    {
+
+    }
+
+    Tile(Tile&& tile) :
+        adjTiles{std::move(adjTiles)},
+        x{std::move(tile.x)},
+        y{std::move(tile.y)},
+        adjBombs{std::move(tile.adjBombs)},
+        tileState{std::move(tile.tileState)}
+    {
+
+    }
 
     Tile(const uint16_t& _x, const uint16_t& _y)
     {
@@ -22,6 +41,15 @@ struct Tile
 
         adjBombs = 0u;
         tileState = 0u;
+    }
+
+    void operator=(const Tile& tile)
+    {
+        adjTiles = tile.adjTiles;
+        x = tile.x;
+        y = tile.y;
+        adjBombs = tile.adjBombs;
+        tileState = tile.tileState;
     }
 };
 
@@ -173,7 +201,7 @@ class MineSweeper
             bomb = 4u
         };
 
-        std::vector<Tile> m_tiles;
+        svec::SVector<Tile, MAX_TILE_COUNT> m_tiles;
         std::string m_outputMineSweeperMap;
         uint16_t m_sizeX;
         uint16_t m_sizeY;
