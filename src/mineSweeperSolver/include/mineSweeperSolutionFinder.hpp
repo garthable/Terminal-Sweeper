@@ -95,6 +95,22 @@ struct BombCountFrequency
     }
 };
 
+// Parameters:
+// The size of the adjacents list
+// The number of bombs in the adjacents list
+//
+// Returns:
+// Index of set of combinations in hardCodedCombinations
+inline uint8_t* getHardcodedCombinations(uint8_t r);
+
+// Parameters:
+// The size of the adjacents list
+// The number of bombs in the adjacents list
+//
+// Returns:
+// Index of set of combinations in hardCodedCombinations
+inline uint8_t getHardcodedCombinationsSize(uint8_t n, uint8_t r);
+
 class MineSweeperSolutionFinder
 {
     public:
@@ -134,14 +150,6 @@ class MineSweeperSolutionFinder
         void getVisibles(const std::vector<std::vector<SolverTile*>>& groupedVisibleTiles);
 
         inline int16_t searchHidden(const SolverTile* solverTile, const uint16_t& group);
-
-        // Parameters:
-        // The size of the adjacents list
-        // The number of bombs in the adjacents list
-        //
-        // Returns:
-        // Index of set of combinations in hardCodedCombinations
-        inline std::vector<std::vector<uint16_t>>& getHardcodedCombinations(uint16_t n, uint16_t r);
 
         // Parameters:
         // List of visibleTiles:
@@ -253,8 +261,6 @@ class MineSweeperSolutionFinder
         std::vector<std::vector<BombCountFrequency>> m_groupedBombCountFrequencies;
 
         double m_averageBombsUsed;
-
-        std::vector<std::vector<std::vector<uint16_t>>> m_hardcodedCombinations;
 };
 
 #endif
