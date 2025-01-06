@@ -10,6 +10,9 @@ add_subdirectory(src/app)
 
 add_executable(MineSweeperSolver src/main.cpp)
 
+target_compile_options(mineSweeperSolver PUBLIC -std=c++20 -Wall -Wextra -O3)
+target_compile_options(mineSweeper PUBLIC -std=c++20 -Wall -Wextra -O3)
+target_compile_options(app PUBLIC -std=c++20 -Wall -Wextra -O3)
 target_compile_options(MineSweeperSolver PUBLIC -std=c++20 -Wall -Wextra -O3)
 
 message(STATUS "${CMAKE_SOURCE_DIR}")
