@@ -50,7 +50,7 @@ void MineSweeperSolutionFinder::reset()
     m_maxBombs = 0;
     m_averageBombsUsed = 0;
     m_groupedVisibleTiles.clear();
-    m_groupedIncompleteSolutions.clear();
+    m_incompleteSolutions.clear();
     m_groupedCompleteSolutions.clear();
 }
 
@@ -81,8 +81,7 @@ void MineSweeperSolutionFinder::getHidden(const std::vector<std::vector<SolverTi
             tempSolutionSet.hiddenTiles.push_back(hiddenTile);
         }
 
-        m_groupedIncompleteSolutions.push_back(std::vector<SolutionSet>());
-        m_groupedIncompleteSolutions[group].push_back(tempSolutionSet);
+        m_incompleteSolutions.push_back(tempSolutionSet);
     }
 }
 
@@ -128,11 +127,11 @@ void MineSweeperSolutionFinder::getVisibles(const std::vector<std::vector<Solver
 
 inline int16_t MineSweeperSolutionFinder::searchHidden(const SolverTile* solverTile, const uint16_t& group)
 {
-    const std::vector<SolutionSet>& incompleteSolutions = m_groupedIncompleteSolutions[group];
-    uint16_t incompleteSolutionsLength = incompleteSolutions[0].hiddenTiles.size();
+    const SolutionSet& incompleteSolution = m_incompleteSolutions[group];
+    uint16_t incompleteSolutionsLength = incompleteSolution.hiddenTiles.size();
     for (int i = 0; i < incompleteSolutionsLength; i++)
     {
-        const HiddenTile& hiddenTile = incompleteSolutions[0].hiddenTiles[i];
+        const HiddenTile& hiddenTile = incompleteSolution.hiddenTiles[i];
         if (hiddenTile.originalTile == solverTile)
         {
             return i;
@@ -152,7 +151,7 @@ void swap(std::vector<VisibleTile>& visibleTiles, uint16_t a, uint16_t b)
 
 void MineSweeperSolutionFinder::sortVisibleTilesByCombinationSize(const uint16_t& group)
 {
-    SolutionSet& currSolutionSet = m_groupedIncompleteSolutions[group][0];
+    SolutionSet& currSolutionSet = m_incompleteSolutions[group];
     currSolutionSet.reset();
     std::vector<VisibleTile>& visibleTiles = m_groupedVisibleTiles[group];
     
@@ -219,13 +218,13 @@ void MineSweeperSolutionFinder::getSolutions()
 {
     for (int group = 0; group < m_groupedVisibleTiles.size(); group++)
     {
-        SolutionSet& currSolutionSet = m_groupedIncompleteSolutions[group][0];
+        SolutionSet& currSolutionSet = m_incompleteSolutions[group];
         for (HiddenTile& hiddenTileRef : currSolutionSet.hiddenTiles)
         {
             hiddenTileRef.claimed = false;
         }
         sortVisibleTilesByCombinationSize(group);
-        getSolutionOfGroupReccursion(group, 0, m_groupedIncompleteSolutions[group][0]);
+        getSolutionOfGroupReccursion(group, 0, currSolutionSet);
     }
 }
 
