@@ -256,7 +256,7 @@ class MineSweeperSolutionFinder
         uint16_t m_minBombs;
 
         std::vector<std::vector<VisibleTile>> m_groupedVisibleTiles; // Redo with singular vector OR figure out how to implement without deleting less vectors
-        std::vector<std::vector<SolutionSet>> m_groupedIncompleteSolutions; // Redo with singular vector
+        std::vector<SolutionSet> m_incompleteSolutions; // Redo with singular vector
         std::vector<std::vector<SolutionSet>> m_groupedCompleteSolutions;
         std::vector<std::vector<BombCountFrequency>> m_groupedBombCountFrequencies;
 
