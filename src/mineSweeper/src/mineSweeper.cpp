@@ -102,7 +102,7 @@ void MineSweeper::generateTilesFromMap(std::string fileName)
                 i++;
                 continue;
             }
-            m_tiles.push_back(Tile(x, y));
+            m_tiles.emplaceBack(x, y);
             switch(character)
             {
                 case '@':
@@ -148,7 +148,7 @@ void MineSweeper::generateTilesFromMap(std::string fileName)
             {
                 continue;
             }
-            tile.adjTiles.push_back(adjTile);
+            tile.adjTiles.pushBack(adjTile);
         }
     }
 
@@ -251,7 +251,7 @@ void MineSweeper::generateMap()
     {
         for (uint16_t x = 0u; x < m_sizeX; x++)
         {
-            m_tiles.push_back(Tile(x, y));
+            m_tiles.emplaceBack(x, y);
         }
     }
 
@@ -270,7 +270,7 @@ void MineSweeper::generateMap()
             {
                 continue;
             }
-            refTile.adjTiles.push_back(adjTile);
+            refTile.adjTiles.pushBack(adjTile);
         }
     }
 }
