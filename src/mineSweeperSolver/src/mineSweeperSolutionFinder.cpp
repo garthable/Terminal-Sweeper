@@ -21,8 +21,8 @@ MineSweeperSolutionFinder::MineSweeperSolutionFinder()
     m_averageBombsUsed = 0;
 }
 
-void MineSweeperSolutionFinder::applyProbabilities(const std::vector<std::vector<SolverTile*>>& groupedVisibleTiles,
-                                std::vector<std::vector<SolverTile*>>& outGroupedHiddenTiles,
+void MineSweeperSolutionFinder::applyProbabilities(const GroupedSolverTiles& groupedVisibleTiles,
+                                GroupedSolverTiles& outGroupedHiddenTiles,
                                 uint16_t maxBombs, uint16_t minBombs)
 {
     if (groupedVisibleTiles.size() != outGroupedHiddenTiles.size())
@@ -63,12 +63,12 @@ double MineSweeperSolutionFinder::getAverageBombsUsed()
 // Private:
 //
 
-void MineSweeperSolutionFinder::getHidden(const std::vector<std::vector<SolverTile*>>& groupedHiddenTiles)
+void MineSweeperSolutionFinder::getHidden(const GroupedSolverTiles& groupedHiddenTiles)
 {
     uint16_t groupSize = groupedHiddenTiles.size();
     for (int group = 0; group < groupSize; group++)
     {
-        const std::vector<SolverTile*>& hiddenTiles = groupedHiddenTiles[group];
+        const auto& hiddenTiles = groupedHiddenTiles[group];
         if (hiddenTiles.size() == 0)
         {
             continue;
@@ -85,12 +85,12 @@ void MineSweeperSolutionFinder::getHidden(const std::vector<std::vector<SolverTi
     }
 }
 
-void MineSweeperSolutionFinder::getVisibles(const std::vector<std::vector<SolverTile*>>& groupedVisibleTiles) // MASSIVE readabilty issues here
+void MineSweeperSolutionFinder::getVisibles(const GroupedSolverTiles& groupedVisibleTiles) // MASSIVE readabilty issues here
 {
     uint16_t groupSize = groupedVisibleTiles.size();
     for (int group = 0; group < groupSize; group++)
     {
-        const std::vector<SolverTile*>& visibleTiles = groupedVisibleTiles[group];
+        const auto& visibleTiles = groupedVisibleTiles[group];
         if (visibleTiles.size() == 0)
         {
             continue;

@@ -558,7 +558,7 @@ public:
      */
     void operator=(SVector<T, CAPACITY>&& other)
     {
-        m_array = std::move(other.m_array);
+        std::copy(other.begin(), other.end(), begin());
         m_size = std::move(other.m_size);
     }
     /**
@@ -1014,6 +1014,17 @@ public:
     inline void clear()
     {
         m_size = 0;
+    }
+
+    /**
+     * @brief Returns whether or not the SVector is empty
+     * 
+     * @return true 
+     * @return false 
+     */
+    inline bool empty()
+    {
+        return m_size == 0;
     }
 private:
     /**

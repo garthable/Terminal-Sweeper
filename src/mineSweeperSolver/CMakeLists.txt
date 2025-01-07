@@ -1,3 +1,4 @@
 add_library(mineSweeperSolver STATIC src/mineSweeperSolver.cpp src/mineSweeperSolutionFinder.cpp)
 target_include_directories(mineSweeperSolver PUBLIC include)
 
+target_link_libraries(mineSweeperSolver PUBLIC sVector mineSweeper)

@@ -207,13 +207,13 @@ class MineSweeperSolver
         uint16_t m_bombCount;
         uint16_t m_unknownTileCount;
 
-        std::vector<SolverTile> m_solverTiles;
+        svec::SVector<SolverTile, MAX_TILE_COUNT> m_solverTiles;
 
-        std::vector<SolverTile*> m_reccomendedClicks;
-        std::vector<SolverTile*> m_reccomendedFlags;
+        svec::SVector<SolverTile*, MAX_RECCOMENDED> m_reccomendedClicks;
+        svec::SVector<SolverTile*, MAX_RECCOMENDED> m_reccomendedFlags;
 
-        std::vector<std::vector<SolverTile*>> m_groupedVisibleSolverTiles;
-        std::vector<std::vector<SolverTile*>> m_groupedHiddenSolverTiles;
+        GroupedSolverTiles m_groupedVisibleSolverTiles;
+        GroupedSolverTiles m_groupedHiddenSolverTiles;
 
         MineSweeperSolutionFinder m_mineSweeperSolutionFinder;
 };
