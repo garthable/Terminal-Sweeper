@@ -101,9 +101,9 @@ Coordinate MineSweeperSolver::getReccomendedClick()
 
     if (!m_reccomendedClicks.empty())
     {
-        SolverTile* solverTilePtr = m_reccomendedClicks[m_reccomendedClicks.size() - 1];
+        SolverTile* solverTilePtr = m_reccomendedClicks.back();
         reccomendedClick = Coordinate(solverTilePtr->x, solverTilePtr->y);
-        m_reccomendedClicks.erase(m_reccomendedClicks.begin() + (m_reccomendedClicks.size() - 1));
+        m_reccomendedClicks.popBack();
     }
 
     return reccomendedClick;
@@ -115,9 +115,9 @@ Coordinate MineSweeperSolver::getReccomendedFlag()
 
     if (!m_reccomendedFlags.empty())
     {
-        SolverTile* solverTilePtr = m_reccomendedFlags[m_reccomendedFlags.size() - 1];
+        SolverTile* solverTilePtr = m_reccomendedFlags.back();
         reccomendedFlag = Coordinate(solverTilePtr->x, solverTilePtr->y);
-        m_reccomendedFlags.erase(m_reccomendedFlags.begin() + (m_reccomendedFlags.size() - 1));
+        m_reccomendedFlags.popBack();
     }
 
     return reccomendedFlag;
@@ -159,7 +159,7 @@ inline void MineSweeperSolver::flagSolverTile(SolverTile& solverTileOut)
     }
     m_bombCount--;
     solverTileOut.solverTileState = flagged;
-    m_reccomendedFlags.push_back(&solverTileOut);
+    m_reccomendedFlags.pushBack(&solverTileOut);
 }
 
 inline void MineSweeperSolver::clickSolverTile(SolverTile& solverTileOut)
@@ -169,7 +169,7 @@ inline void MineSweeperSolver::clickSolverTile(SolverTile& solverTileOut)
         return;
     }
     solverTileOut.solverTileState = clicked;
-    m_reccomendedClicks.push_back(&solverTileOut);
+    m_reccomendedClicks.pushBack(&solverTileOut);
 }
 
 void MineSweeperSolver::generateSolverTiles()
@@ -178,7 +178,7 @@ void MineSweeperSolver::generateSolverTiles()
     {
         for (uint16_t x = 0; x < m_sizeX; x++)
         {
-            m_solverTiles.push_back(SolverTile(x, y));
+            m_solverTiles.emplaceBack(x, y);
         }
     }
 
@@ -197,7 +197,7 @@ void MineSweeperSolver::generateSolverTiles()
             {
                 continue;
             }
-            refSolverTile.adjSolverTiles.push_back(adjSolverTile);
+            refSolverTile.adjSolverTiles.pushBack(adjSolverTile);
         }
     }
 }
@@ -486,8 +486,8 @@ void MineSweeperSolver::groupTiles()
 
         if (currGroup == groupCount)
         {
-            m_groupedHiddenSolverTiles.push_back(std::vector<SolverTile*>());
-            m_groupedVisibleSolverTiles.push_back(std::vector<SolverTile*>());
+            m_groupedHiddenSolverTiles.emplaceBack();
+            m_groupedVisibleSolverTiles.emplaceBack();
             groupCount++;
         }
 
@@ -501,11 +501,11 @@ void MineSweeperSolver::groupTilesReccursion(SolverTile* currTilePtr, const uint
     currTilePtr->visited = true;
     if (currTilePtr->solverTileState == visible)
     {
-        m_groupedVisibleSolverTiles[group].push_back(currTilePtr);
+        m_groupedVisibleSolverTiles[group].pushBack(currTilePtr);
     }
     else
     {
-        m_groupedHiddenSolverTiles[group].push_back(currTilePtr);
+        m_groupedHiddenSolverTiles[group].pushBack(currTilePtr);
     }
 
     for (SolverTile* adjTile : currTilePtr->adjSolverTiles)
@@ -549,7 +549,7 @@ void MineSweeperSolver::getAllSolutions()
 {
     groupTiles();
     double unknownIsolatedTiles = static_cast<double>(m_unknownTileCount);
-    for (std::vector<SolverTile*> hiddenSolverTiles : m_groupedHiddenSolverTiles)
+    for (auto hiddenSolverTiles : m_groupedHiddenSolverTiles)
     {
         unknownIsolatedTiles -= static_cast<double>(hiddenSolverTiles.size());
     }

@@ -123,8 +123,8 @@ class MineSweeperSolutionFinder
         //
         // Purpose:
         // Gathers data for future calculations, applies probability of being a bomb to all hiddenTiles passed.
-        void applyProbabilities(const std::vector<std::vector<SolverTile*>>& groupedVisibleTiles,
-                                std::vector<std::vector<SolverTile*>>& outGroupedHiddenTiles,
+        void applyProbabilities(const GroupedSolverTiles& groupedVisibleTiles,
+                                GroupedSolverTiles& outGroupedHiddenTiles,
                                 uint16_t maxBombs, uint16_t minBombs);
         
         // Purpose:
@@ -140,14 +140,14 @@ class MineSweeperSolutionFinder
         // 
         // Purpose:
         // Converts hidden tiles into format used by class
-        void getHidden(const std::vector<std::vector<SolverTile*>>& groupedHiddenTiles);
+        void getHidden(const GroupedSolverTiles& groupedHiddenTiles);
 
         // Parameters:
         // Grouped visible tiles
         // 
         // Purpose:
         // Converts visible tiles into format used by class
-        void getVisibles(const std::vector<std::vector<SolverTile*>>& groupedVisibleTiles);
+        void getVisibles(const GroupedSolverTiles& groupedVisibleTiles);
 
         inline int16_t searchHidden(const SolverTile* solverTile, const uint16_t& group);
 
