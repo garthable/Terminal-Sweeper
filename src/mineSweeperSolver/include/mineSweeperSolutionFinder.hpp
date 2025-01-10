@@ -41,9 +41,14 @@ struct HiddenTile
 
 struct VisibleTile
 {
-    std::vector<uint16_t> adjHiddenTiles;
-    std::vector<uint16_t> ownedHiddenTiles;
+    svec::SVector<uint16_t, 8> adjHiddenTiles;
+    svec::SVector<uint16_t, 8> ownedHiddenTiles;
     uint16_t bombCount;
+
+    VisibleTile()
+    {
+
+    }
 
     VisibleTile(uint16_t bombCount)
     {
@@ -255,10 +260,10 @@ class MineSweeperSolutionFinder
         uint16_t m_maxBombs;
         uint16_t m_minBombs;
 
-        std::vector<std::vector<VisibleTile>> m_groupedVisibleTiles; // Redo with singular vector OR figure out how to implement without deleting less vectors
-        std::vector<SolutionSet> m_incompleteSolutions; // Redo with singular vector
-        std::vector<std::vector<SolutionSet>> m_groupedCompleteSolutions;
-        std::vector<std::vector<BombCountFrequency>> m_groupedBombCountFrequencies;
+        svec::SVector<std::vector<VisibleTile>, MAX_AMOUNT_OF_GROUPS> m_groupedVisibleTiles;
+        svec::SVector<SolutionSet, MAX_AMOUNT_OF_GROUPS> m_incompleteSolutions;
+        svec::SVector<std::vector<SolutionSet>, MAX_AMOUNT_OF_GROUPS> m_groupedCompleteSolutions;
+        svec::SVector<std::vector<BombCountFrequency>, MAX_AMOUNT_OF_GROUPS> m_groupedBombCountFrequencies;
 
         double m_averageBombsUsed;
 };

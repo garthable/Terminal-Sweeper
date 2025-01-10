@@ -81,7 +81,7 @@ void MineSweeperSolutionFinder::getHidden(const GroupedSolverTiles& groupedHidde
             tempSolutionSet.hiddenTiles.push_back(hiddenTile);
         }
 
-        m_incompleteSolutions.push_back(tempSolutionSet);
+        m_incompleteSolutions.pushBack(tempSolutionSet);
     }
 }
 
@@ -95,7 +95,7 @@ void MineSweeperSolutionFinder::getVisibles(const GroupedSolverTiles& groupedVis
         {
             continue;
         }
-        m_groupedVisibleTiles.push_back(std::vector<VisibleTile>());
+        m_groupedVisibleTiles.emplaceBack();
         for (const SolverTile* visibleTilePtr : visibleTiles)
         {
             uint16_t effectiveBombCount = visibleTilePtr->adjBombsAmount;
@@ -119,7 +119,7 @@ void MineSweeperSolutionFinder::getVisibles(const GroupedSolverTiles& groupedVis
                 {
                     continue;
                 }
-                mostRecentlyAddedVisibleTile.adjHiddenTiles.push_back(hiddenTileIndex);
+                mostRecentlyAddedVisibleTile.adjHiddenTiles.pushBack(hiddenTileIndex);
             }
         }
     }
@@ -210,7 +210,7 @@ void MineSweeperSolutionFinder::claimUnclaimedAdjTiles(VisibleTile& outCurrVisib
             continue;
         }
         outCurrHiddenTile.claimed = true;
-        outCurrVisibleTile.ownedHiddenTiles.push_back(adjIndex);
+        outCurrVisibleTile.ownedHiddenTiles.pushBack(adjIndex);
     }
 }
 
@@ -234,7 +234,7 @@ void MineSweeperSolutionFinder::getSolutionOfGroupReccursion(const uint16_t& gro
     {
         while (m_groupedCompleteSolutions.size() < group + 1)
         {
-            m_groupedCompleteSolutions.push_back(std::vector<SolutionSet>());
+            m_groupedCompleteSolutions.emplaceBack();
         }
         m_groupedCompleteSolutions[group].push_back(solutionSet);
         return;
@@ -356,7 +356,7 @@ void MineSweeperSolutionFinder::applyProbabilitiesCombined()
     m_groupedBombCountFrequencies.clear();
     for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
     {
-        m_groupedBombCountFrequencies.push_back(std::vector<BombCountFrequency>());
+        m_groupedBombCountFrequencies.emplaceBack();
         std::vector<BombCountFrequency>& bombCountFrequencies = m_groupedBombCountFrequencies.back();
         std::vector<SolutionSet>& solutionSets = m_groupedCompleteSolutions[group];
         for (SolutionSet& solutionSet : solutionSets)

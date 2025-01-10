@@ -515,7 +515,7 @@ public:
      * 
      * @param initList array of T values
      */
-    SVector(std::initializer_list<T>&& initList) :
+    SVector(std::initializer_list<T>&& initList) noexcept :
         m_size{initList.size()}
     {
         std::copy(initList.begin(), initList.end(), m_array);
@@ -535,7 +535,7 @@ public:
      * 
      * @param other 
      */
-    SVector(SVector<T, CAPACITY>&& other) :
+    SVector(SVector<T, CAPACITY>&& other) noexcept :
         m_array{*std::move(other.m_array)},
         m_size{std::move(other.m_size)}
     {
