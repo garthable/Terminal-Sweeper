@@ -7,7 +7,10 @@
 
 #include "sVector.hpp"
 
-#define MAX_TILE_COUNT 720
+#define MAX_X_SIZE 30
+#define MAX_Y_SIZE 18
+#define MAX_BOMB_COUNT 99
+#define MAX_TILE_COUNT MAX_X_SIZE*MAX_Y_SIZE
 
 struct Tile
 {

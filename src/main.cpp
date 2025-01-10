@@ -2,7 +2,7 @@
 
 int main()
 {
-    App mineSweeperApplication = App();
+    App mineSweeperApplication;
     mineSweeperApplication.run();
     return 0;
 }
