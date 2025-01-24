@@ -214,8 +214,6 @@ class MineSweeperSolver
 
         GroupedSolverTiles m_groupedVisibleSolverTiles;
         GroupedSolverTiles m_groupedHiddenSolverTiles;
-
-        MineSweeperSolutionFinder m_mineSweeperSolutionFinder;
 };
 
 #endif

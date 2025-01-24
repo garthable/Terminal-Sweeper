@@ -13,7 +13,6 @@ MineSweeperSolver::MineSweeperSolver(const uint16_t& sizeX, const uint16_t& size
     m_sizeX = sizeX;
     m_sizeY = sizeY;
     m_bombCount = bombCount;
-    m_mineSweeperSolutionFinder = MineSweeperSolutionFinder();
 
     generateSolverTiles();
 }
@@ -80,7 +79,6 @@ std::string MineSweeperSolver::getSolverMap()
 
 void MineSweeperSolver::reset(const uint16_t& bombCount)
 {
-    m_mineSweeperSolutionFinder.reset();
     m_bombCount = bombCount;
     m_unknownTileCount = 0;
     m_reccomendedClicks.clear();
@@ -562,8 +560,8 @@ void MineSweeperSolver::getAllSolutions()
     {
         solverTile.bombProbability = -1;
     }
-    m_mineSweeperSolutionFinder.applyProbabilities(m_groupedVisibleSolverTiles, m_groupedHiddenSolverTiles, m_bombCount, minBombCount);
-    double bombsRemaining = static_cast<double>(m_bombCount) - m_mineSweeperSolutionFinder.getAverageBombsUsed();
+    double bombsRemaining;
+    applyProbabilities(m_groupedVisibleSolverTiles, m_groupedHiddenSolverTiles, m_bombCount, minBombCount, bombsRemaining);
     double isolatedTileBombProb = bombsRemaining/unknownIsolatedTiles;
     for (SolverTile& solverTile : m_solverTiles)
     {

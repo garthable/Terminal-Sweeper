@@ -67,7 +67,13 @@ struct SolverTile
         adjBombsAmount = other.adjBombsAmount;
         solverTileState = other.solverTileState;
     }
-    
+    enum SolverTileStates
+    {
+        unknown = 0u,
+        visible = 1u,
+        flagged = 2u,
+        clicked = 4u
+    };
 };
 
 typedef svec::SVector<svec::SVector<SolverTile*, MAX_SIZE_OF_GROUP>, MAX_AMOUNT_OF_GROUPS> GroupedSolverTiles;

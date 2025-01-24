@@ -16,54 +16,41 @@ inline uint8_t getHardcodedCombinationsSize(uint8_t n, uint8_t r)
     return hardCodedSize[k];
 }
 
-MineSweeperSolutionFinder::MineSweeperSolutionFinder()
+void applyProbabilities(const GroupedSolverTiles& groupedSolverTiles,
+                        GroupedSolverTiles& outGroupedHiddenTiles,
+                        uint16_t maxBombs, uint16_t minBombs, 
+                        double& averageBombsUsedOut)
 {
-    m_averageBombsUsed = 0;
-}
-
-void MineSweeperSolutionFinder::applyProbabilities(const GroupedSolverTiles& groupedVisibleTiles,
-                                GroupedSolverTiles& outGroupedHiddenTiles,
-                                uint16_t maxBombs, uint16_t minBombs)
-{
-    if (groupedVisibleTiles.size() != outGroupedHiddenTiles.size())
+    if (groupedSolverTiles.size() != outGroupedHiddenTiles.size())
     {
         throw std::runtime_error("Visible and hidden are not the same size!");
     }
-    reset();
-    getHidden(outGroupedHiddenTiles);
-    getVisibles(groupedVisibleTiles);
-    m_maxBombs = maxBombs;
-    m_minBombs = minBombs;
+    static svec::SVector<std::vector<VisibleTile>, MAX_AMOUNT_OF_GROUPS> groupedVisibleTiles;
+    static svec::SVector<SolutionSet, MAX_AMOUNT_OF_GROUPS> incompleteSolutions;
+    static svec::SVector<std::vector<SolutionSet>, MAX_AMOUNT_OF_GROUPS> groupedCompleteSolutions;
+    static svec::SVector<std::vector<BombCountFrequency>, MAX_AMOUNT_OF_GROUPS> groupedBombCountFrequencies;
+    
+    incompleteSolutions.clear();
+    groupedVisibleTiles.clear();
+    groupedCompleteSolutions.clear();
+    groupedBombCountFrequencies.clear();
 
-    getSolutions();
+    double averageBombsUsed = 0;
 
-    if (canSurpassMaxBombs() || canUndercutMinBombs())
+    getHidden(outGroupedHiddenTiles, incompleteSolutions);
+    getVisibles(groupedSolverTiles, incompleteSolutions, groupedVisibleTiles);
+
+    getSolutions(incompleteSolutions, groupedVisibleTiles, groupedCompleteSolutions);
+
+    if (canSurpassMaxBombs(maxBombs, groupedCompleteSolutions) || canUndercutMinBombs(minBombs, groupedCompleteSolutions))
     {
-        applyProbabilitiesCombined();
+        applyProbabilitiesCombined(minBombs, maxBombs, groupedCompleteSolutions, groupedBombCountFrequencies, averageBombsUsed);
         return;
     }
-    applyProbabilitiesSeperate();
+    applyProbabilitiesSeperate(groupedCompleteSolutions, averageBombsUsed);
 }
 
-void MineSweeperSolutionFinder::reset()
-{
-    m_maxBombs = 0;
-    m_averageBombsUsed = 0;
-    m_groupedVisibleTiles.clear();
-    m_incompleteSolutions.clear();
-    m_groupedCompleteSolutions.clear();
-}
-
-double MineSweeperSolutionFinder::getAverageBombsUsed()
-{
-    return m_averageBombsUsed;
-}
-
-//
-// Private:
-//
-
-void MineSweeperSolutionFinder::getHidden(const GroupedSolverTiles& groupedHiddenTiles)
+void getHidden(const GroupedSolverTiles& groupedHiddenTiles, svec::SVector<SolutionSet, MAX_AMOUNT_OF_GROUPS>& incompleteSolutionsOut)
 {
     uint16_t groupSize = groupedHiddenTiles.size();
     for (int group = 0; group < groupSize; group++)
@@ -81,11 +68,11 @@ void MineSweeperSolutionFinder::getHidden(const GroupedSolverTiles& groupedHidde
             tempSolutionSet.hiddenTiles.push_back(hiddenTile);
         }
 
-        m_incompleteSolutions.pushBack(tempSolutionSet);
+        incompleteSolutionsOut.pushBack(tempSolutionSet);
     }
 }
 
-void MineSweeperSolutionFinder::getVisibles(const GroupedSolverTiles& groupedVisibleTiles) // MASSIVE readabilty issues here
+void getVisibles(const GroupedSolverTiles& groupedVisibleTiles, const svec::SVector<SolutionSet, MAX_AMOUNT_OF_GROUPS>& incompleteSolutions, svec::SVector<std::vector<VisibleTile>, MAX_AMOUNT_OF_GROUPS>& groupedVisibleTilesOut)
 {
     uint16_t groupSize = groupedVisibleTiles.size();
     for (int group = 0; group < groupSize; group++)
@@ -95,25 +82,25 @@ void MineSweeperSolutionFinder::getVisibles(const GroupedSolverTiles& groupedVis
         {
             continue;
         }
-        m_groupedVisibleTiles.emplaceBack();
+        groupedVisibleTilesOut.emplaceBack();
         for (const SolverTile* visibleTilePtr : visibleTiles)
         {
             uint16_t effectiveBombCount = visibleTilePtr->adjBombsAmount;
             for (SolverTile* adjSolverTile : visibleTilePtr->adjSolverTiles)
             {
-                effectiveBombCount -= (adjSolverTile->solverTileState == flagged);
+                effectiveBombCount -= (adjSolverTile->solverTileState == SolverTile::flagged);
             }
-            m_groupedVisibleTiles[group].push_back(VisibleTile(effectiveBombCount));
-            VisibleTile& mostRecentlyAddedVisibleTile = m_groupedVisibleTiles[group].back();
+            groupedVisibleTilesOut[group].push_back(VisibleTile(effectiveBombCount));
+            VisibleTile& mostRecentlyAddedVisibleTile = groupedVisibleTilesOut[group].back();
 
             for (SolverTile* adjHiddenTilePtr : visibleTilePtr->adjSolverTiles)
             {
-                if (adjHiddenTilePtr->solverTileState != unknown) 
+                if (adjHiddenTilePtr->solverTileState != SolverTile::unknown) 
                 {
                     continue;
                 }
                 
-                int16_t hiddenTileIndex = searchHidden(adjHiddenTilePtr, group);
+                int16_t hiddenTileIndex = searchHidden(adjHiddenTilePtr, group, incompleteSolutions);
 
                 if (hiddenTileIndex == -1)
                 {
@@ -125,9 +112,9 @@ void MineSweeperSolutionFinder::getVisibles(const GroupedSolverTiles& groupedVis
     }
 }
 
-inline int16_t MineSweeperSolutionFinder::searchHidden(const SolverTile* solverTile, const uint16_t& group)
+inline int16_t searchHidden(const SolverTile* solverTile, const uint16_t& group, const svec::SVector<SolutionSet, MAX_AMOUNT_OF_GROUPS>& incompleteSolutions)
 {
-    const SolutionSet& incompleteSolution = m_incompleteSolutions[group];
+    const SolutionSet& incompleteSolution = incompleteSolutions[group];
     uint16_t incompleteSolutionsLength = incompleteSolution.hiddenTiles.size();
     for (int i = 0; i < incompleteSolutionsLength; i++)
     {
@@ -149,11 +136,11 @@ void swap(std::vector<VisibleTile>& visibleTiles, uint16_t a, uint16_t b)
     visibleTiles[b] = visibleTileA;
 }
 
-void MineSweeperSolutionFinder::sortVisibleTilesByCombinationSize(const uint16_t& group)
+void sortVisibleTilesByCombinationSize(const uint16_t& group, svec::SVector<SolutionSet, MAX_AMOUNT_OF_GROUPS>& incompleteSolutionsOut, svec::SVector<std::vector<VisibleTile>, MAX_AMOUNT_OF_GROUPS>& groupedVisibleTilesOut)
 {
-    SolutionSet& currSolutionSet = m_incompleteSolutions[group];
+    SolutionSet& currSolutionSet = incompleteSolutionsOut[group];
     currSolutionSet.reset();
-    std::vector<VisibleTile>& visibleTiles = m_groupedVisibleTiles[group];
+    std::vector<VisibleTile>& visibleTiles = groupedVisibleTilesOut[group];
     
     int visibleTilesSize = visibleTiles.size();
 
@@ -176,7 +163,7 @@ void MineSweeperSolutionFinder::sortVisibleTilesByCombinationSize(const uint16_t
     }
 }
 
-uint16_t MineSweeperSolutionFinder::getCombinationSize(const VisibleTile& currVisibleTile, const SolutionSet& currSolutionSet)
+uint16_t getCombinationSize(const VisibleTile& currVisibleTile, const SolutionSet& currSolutionSet)
 {
     uint8_t n = 0;
     for (const uint16_t& adjIndex : currVisibleTile.adjHiddenTiles)
@@ -200,7 +187,7 @@ uint16_t MineSweeperSolutionFinder::getCombinationSize(const VisibleTile& currVi
     return getHardcodedCombinationsSize(n, r);
 }
 
-void MineSweeperSolutionFinder::claimUnclaimedAdjTiles(VisibleTile& outCurrVisibleTile, SolutionSet& outCurrSolutionSet)
+void claimUnclaimedAdjTiles(VisibleTile& outCurrVisibleTile, SolutionSet& outCurrSolutionSet)
 {
     for (const uint16_t& adjIndex : outCurrVisibleTile.adjHiddenTiles)
     {
@@ -214,32 +201,32 @@ void MineSweeperSolutionFinder::claimUnclaimedAdjTiles(VisibleTile& outCurrVisib
     }
 }
 
-void MineSweeperSolutionFinder::getSolutions()
+void getSolutions(svec::SVector<SolutionSet, MAX_AMOUNT_OF_GROUPS>& incompleteSolutionsOut, svec::SVector<std::vector<VisibleTile>, MAX_AMOUNT_OF_GROUPS>& groupedVisibleTilesOut, svec::SVector<std::vector<SolutionSet>, MAX_AMOUNT_OF_GROUPS>& groupedCompleteSolutionsOut)
 {
-    for (int group = 0; group < m_groupedVisibleTiles.size(); group++)
+    for (int group = 0; group < groupedVisibleTilesOut.size(); group++)
     {
-        SolutionSet& currSolutionSet = m_incompleteSolutions[group];
+        SolutionSet& currSolutionSet = incompleteSolutionsOut[group];
         for (HiddenTile& hiddenTileRef : currSolutionSet.hiddenTiles)
         {
             hiddenTileRef.claimed = false;
         }
-        sortVisibleTilesByCombinationSize(group);
-        getSolutionOfGroupReccursion(group, 0, currSolutionSet);
+        sortVisibleTilesByCombinationSize(group, incompleteSolutionsOut, groupedVisibleTilesOut);
+        getSolutionOfGroupReccursion(group, 0, currSolutionSet, groupedVisibleTilesOut, groupedCompleteSolutionsOut);
     }
 }
 
-void MineSweeperSolutionFinder::getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, SolutionSet& solutionSet)
+void getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, SolutionSet& solutionSet, svec::SVector<std::vector<VisibleTile>, MAX_AMOUNT_OF_GROUPS>& groupedVisibleTilesOut, svec::SVector<std::vector<SolutionSet>, MAX_AMOUNT_OF_GROUPS>& groupedCompleteSolutionsOut)
 {
-    if (currVisibleTileIndex == m_groupedVisibleTiles[group].size()) // Base case
+    if (currVisibleTileIndex == groupedVisibleTilesOut[group].size()) // Base case
     {
-        while (m_groupedCompleteSolutions.size() < group + 1)
+        while (groupedCompleteSolutionsOut.size() < group + 1)
         {
-            m_groupedCompleteSolutions.emplaceBack();
+            groupedCompleteSolutionsOut.emplaceBack();
         }
-        m_groupedCompleteSolutions[group].push_back(solutionSet);
+        groupedCompleteSolutionsOut[group].push_back(solutionSet);
         return;
     }
-    VisibleTile& currVisibleTile = m_groupedVisibleTiles[group][currVisibleTileIndex];
+    VisibleTile& currVisibleTile = groupedVisibleTilesOut[group][currVisibleTileIndex];
     uint16_t bombCount = getEffectiveBombCount(currVisibleTile, solutionSet);
     int16_t claimedTilesSize = currVisibleTile.ownedHiddenTiles.size();
     if (claimedTilesSize < bombCount)
@@ -248,7 +235,7 @@ void MineSweeperSolutionFinder::getSolutionOfGroupReccursion(const uint16_t& gro
     }
     if (claimedTilesSize == 0 || bombCount == 0)
     {
-        getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, solutionSet);
+        getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, solutionSet, groupedVisibleTilesOut, groupedCompleteSolutionsOut);
         return;
     }
     uint8_t* combinations = getHardcodedCombinations(bombCount);
@@ -268,7 +255,7 @@ void MineSweeperSolutionFinder::getSolutionOfGroupReccursion(const uint16_t& gro
             combinations++;
         }
         solutionSet.bombCount += bombCount;
-        getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, solutionSet);
+        getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, solutionSet, groupedVisibleTilesOut, groupedCompleteSolutionsOut);
         // Remove solution
         for (uint8_t i = 0; i < bombCount; i++)
         {
@@ -280,9 +267,9 @@ void MineSweeperSolutionFinder::getSolutionOfGroupReccursion(const uint16_t& gro
     }
 }
 
-bool MineSweeperSolutionFinder::isValid(const uint16_t& group, const SolutionSet& currSolutionSet)
+bool isValid(const uint16_t& group, const SolutionSet& currSolutionSet, svec::SVector<std::vector<VisibleTile>, MAX_AMOUNT_OF_GROUPS>& groupedVisibleTilesOut)
 {
-    for (const VisibleTile& visibleTileRef : m_groupedVisibleTiles[group])
+    for (const VisibleTile& visibleTileRef : groupedVisibleTilesOut[group])
     {
         uint16_t bombCount = 0;
         for (const uint16_t& adjIndex : visibleTileRef.adjHiddenTiles)
@@ -298,27 +285,27 @@ bool MineSweeperSolutionFinder::isValid(const uint16_t& group, const SolutionSet
 }
 
 
-bool MineSweeperSolutionFinder::canSurpassMaxBombs()
+bool canSurpassMaxBombs(uint16_t maxBombs, const svec::SVector<std::vector<SolutionSet>, MAX_AMOUNT_OF_GROUPS>& groupedCompleteSolutions)
 {
-    uint16_t maxBombs = 0;
-    for (const std::vector<SolutionSet>& solutionSets : m_groupedCompleteSolutions)
+    uint16_t bombs = 0;
+    for (const std::vector<SolutionSet>& solutionSets : groupedCompleteSolutions)
     {
-        maxBombs += findMaxBombSet(solutionSets);
+        bombs += findMaxBombSet(solutionSets);
     }
-    return maxBombs > m_maxBombs;
+    return bombs > maxBombs;
 }
 
-bool MineSweeperSolutionFinder::canUndercutMinBombs()
+bool canUndercutMinBombs(uint16_t minBombs, const svec::SVector<std::vector<SolutionSet>, MAX_AMOUNT_OF_GROUPS>& groupedCompleteSolutions)
 {
-    uint16_t minBombs = 0;
-    for (const std::vector<SolutionSet>& solutionSets : m_groupedCompleteSolutions)
+    uint16_t bombs = 0;
+    for (const std::vector<SolutionSet>& solutionSets : groupedCompleteSolutions)
     {
-        minBombs += findMinBombSet(solutionSets);
+        bombs += findMinBombSet(solutionSets);
     }
-    return minBombs < m_minBombs;
+    return bombs < minBombs;
 }
 
-uint16_t MineSweeperSolutionFinder::findMaxBombSet(const std::vector<SolutionSet>& solutionSets)
+uint16_t findMaxBombSet(const std::vector<SolutionSet>& solutionSets)
 {
     uint16_t maxAmountOfBombs = 0;
     for (const SolutionSet& currSolutionSet : solutionSets)
@@ -331,7 +318,7 @@ uint16_t MineSweeperSolutionFinder::findMaxBombSet(const std::vector<SolutionSet
     return maxAmountOfBombs;
 }   
 
-uint16_t MineSweeperSolutionFinder::findMinBombSet(const std::vector<SolutionSet>& solutionSets)
+uint16_t findMinBombSet(const std::vector<SolutionSet>& solutionSets)
 {
     uint16_t minBombCount = UINT16_MAX;
     for (const SolutionSet& currSolutionSet : solutionSets)
@@ -344,21 +331,26 @@ uint16_t MineSweeperSolutionFinder::findMinBombSet(const std::vector<SolutionSet
     return minBombCount;
 }
 
-void MineSweeperSolutionFinder::applyProbabilitiesCombined()
+void resetSolutionSets(svec::SVector<std::vector<SolutionSet>, MAX_AMOUNT_OF_GROUPS>& groupedCompleteSolutionsOut)
 {
-    for (std::vector<SolutionSet>& solutionSets : m_groupedCompleteSolutions)
+    for (std::vector<SolutionSet>& solutionSets : groupedCompleteSolutionsOut)
     {
         for (HiddenTile& hiddenTile : solutionSets[0].hiddenTiles)
         {
             hiddenTile.originalTile->bombProbability = 0;
         }
     }
-    m_groupedBombCountFrequencies.clear();
-    for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
+}
+
+void applyProbabilitiesCombined(uint32_t minBombs, uint32_t maxBombs, svec::SVector<std::vector<SolutionSet>, MAX_AMOUNT_OF_GROUPS>& groupedCompleteSolutionsOut, svec::SVector<std::vector<BombCountFrequency>, MAX_AMOUNT_OF_GROUPS>& groupedBombCountFrequenciesOut, double& averageBombsUsedOut)
+{
+    resetSolutionSets(groupedCompleteSolutionsOut);
+    groupedBombCountFrequenciesOut.clear();
+    for (uint16_t group = 0; group < groupedCompleteSolutionsOut.size(); group++)
     {
-        m_groupedBombCountFrequencies.emplaceBack();
-        std::vector<BombCountFrequency>& bombCountFrequencies = m_groupedBombCountFrequencies.back();
-        std::vector<SolutionSet>& solutionSets = m_groupedCompleteSolutions[group];
+        groupedBombCountFrequenciesOut.emplaceBack();
+        std::vector<BombCountFrequency>& bombCountFrequencies = groupedBombCountFrequenciesOut.back();
+        std::vector<SolutionSet>& solutionSets = groupedCompleteSolutionsOut[group];
         for (SolutionSet& solutionSet : solutionSets)
         {
             bool foundBombCountFrequency = false;
@@ -377,17 +369,17 @@ void MineSweeperSolutionFinder::applyProbabilitiesCombined()
             }
         }
     }
-    uint32_t firstGroupSize = m_groupedBombCountFrequencies[0].size();
+    uint32_t firstGroupSize = groupedBombCountFrequenciesOut[0].size();
     uint64_t amountOfCombinations = 0;
     for (uint32_t index = 0; index < firstGroupSize; index++)
     {
-        getBombCountFrequenciesReccursive(index, 0, 0, 1, amountOfCombinations);
+        getBombCountFrequenciesReccursive(index, 0, 0, 1, minBombs, maxBombs, groupedBombCountFrequenciesOut, amountOfCombinations);
     }
-    m_averageBombsUsed = 0;
-    for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
+    averageBombsUsedOut = 0;
+    for (uint16_t group = 0; group < groupedCompleteSolutionsOut.size(); group++)
     {
-        std::vector<BombCountFrequency>& bombCountFrequencies = m_groupedBombCountFrequencies[group];
-        std::vector<SolutionSet>& solutionSets = m_groupedCompleteSolutions[group];
+        std::vector<BombCountFrequency>& bombCountFrequencies = groupedBombCountFrequenciesOut[group];
+        std::vector<SolutionSet>& solutionSets = groupedCompleteSolutionsOut[group];
         for (SolutionSet& solutionSet : solutionSets)
         {
             for (BombCountFrequency& bombCountFrequency : bombCountFrequencies)
@@ -399,7 +391,7 @@ void MineSweeperSolutionFinder::applyProbabilitiesCombined()
                     for (HiddenTile& hiddenTile : solutionSet.hiddenTiles)
                     {
                         double frequencyOfBomb = hiddenTile.isBomb*frequency;
-                        m_averageBombsUsed += frequencyOfBomb;
+                        averageBombsUsedOut += frequencyOfBomb;
                         hiddenTile.originalTile->bombProbability += frequencyOfBomb;
                     }
                 }
@@ -407,10 +399,10 @@ void MineSweeperSolutionFinder::applyProbabilitiesCombined()
         }
     }
     double totalProb = 0;
-    m_averageBombsUsed /= static_cast<double>(amountOfCombinations);
-    for (uint16_t group = 0; group < m_groupedCompleteSolutions.size(); group++)
+    averageBombsUsedOut /= static_cast<double>(amountOfCombinations);
+    for (uint16_t group = 0; group < groupedCompleteSolutionsOut.size(); group++)
     {
-        SolutionSet& solutionSet = m_groupedCompleteSolutions[group][0];
+        SolutionSet& solutionSet = groupedCompleteSolutionsOut[group][0];
         for (HiddenTile& hiddenTile : solutionSet.hiddenTiles)
         {
             hiddenTile.originalTile->bombProbability /= static_cast<double>(amountOfCombinations);
@@ -419,39 +411,39 @@ void MineSweeperSolutionFinder::applyProbabilitiesCombined()
     }
 }
 
-uint32_t MineSweeperSolutionFinder::getBombCountFrequenciesReccursive(const uint32_t& index, const uint32_t& group, uint32_t bombCount, uint64_t combinationCount, uint64_t& totalCombinations)
+uint32_t getBombCountFrequenciesReccursive(uint32_t index, uint32_t group, uint32_t bombCount, uint32_t minBombs, uint32_t maxBombs, uint64_t combinationCount, svec::SVector<std::vector<BombCountFrequency>, MAX_AMOUNT_OF_GROUPS>& groupedBombCountFrequencyOut, uint64_t& totalCombinationsOut)
 {
-    BombCountFrequency& currBombCountFrequency = m_groupedBombCountFrequencies[group][index];
+    BombCountFrequency& currBombCountFrequency = groupedBombCountFrequencyOut[group][index];
     bombCount += currBombCountFrequency.bombCount;
     combinationCount *= currBombCountFrequency.frequencyInGroup;
-    if (group + 1 == m_groupedBombCountFrequencies.size())
+    if (group + 1 == groupedBombCountFrequencyOut.size())
     {
-        if (bombCount < m_minBombs)
+        if (bombCount < minBombs)
         {
             return 0;
         }
         currBombCountFrequency.frequencyInCombinations += combinationCount;
-        totalCombinations += combinationCount;
+        totalCombinationsOut += combinationCount;
         return combinationCount;
     }
-    uint32_t nextGroupSize = m_groupedBombCountFrequencies[group+1].size();
+    uint32_t nextGroupSize = groupedBombCountFrequencyOut[group+1].size();
     uint32_t combinationSum = 0;
     for (uint32_t nextIndex = 0; nextIndex < nextGroupSize; nextIndex++)
     {
-        if (bombCount > m_maxBombs)
+        if (bombCount > maxBombs)
         {
             return 0;
         }
-        combinationSum += getBombCountFrequenciesReccursive(nextIndex, group+1, bombCount, combinationCount, totalCombinations);
+        combinationSum += getBombCountFrequenciesReccursive(nextIndex, group+1, bombCount, minBombs, maxBombs, combinationCount, groupedBombCountFrequencyOut, totalCombinationsOut);
     }
     currBombCountFrequency.frequencyInCombinations += combinationSum;
     return combinationSum;
 }
 
-void MineSweeperSolutionFinder::applyProbabilitiesSeperate()
+void applyProbabilitiesSeperate(svec::SVector<std::vector<SolutionSet>, MAX_AMOUNT_OF_GROUPS>& groupedCompleteSolutionsOut, double& averageBombsUsedOut)
 {
-    m_averageBombsUsed = 0;
-    for (std::vector<SolutionSet>& solutionSets : m_groupedCompleteSolutions)
+    averageBombsUsedOut = 0;
+    for (std::vector<SolutionSet>& solutionSets : groupedCompleteSolutionsOut)
     {
         double bombsInGroup = 0;
         for (HiddenTile& hiddenTile : solutionSets[0].hiddenTiles)
@@ -470,7 +462,7 @@ void MineSweeperSolutionFinder::applyProbabilitiesSeperate()
 
         if (solutionSets.size() != 0)
         {
-            m_averageBombsUsed += (bombsInGroup/static_cast<double>(solutionSets.size()));
+            averageBombsUsedOut += (bombsInGroup/static_cast<double>(solutionSets.size()));
         }
         
         for (HiddenTile& hiddenTile : solutionSets[0].hiddenTiles)
@@ -479,13 +471,13 @@ void MineSweeperSolutionFinder::applyProbabilitiesSeperate()
         }  
     }
     uint16_t totalTiles = 0;
-    for (std::vector<SolutionSet>& solutionSets : m_groupedCompleteSolutions)
+    for (std::vector<SolutionSet>& solutionSets : groupedCompleteSolutionsOut)
     {
         totalTiles += solutionSets[0].hiddenTiles.size();
     }
 }
 
-inline uint16_t MineSweeperSolutionFinder::getEffectiveBombCount(VisibleTile& visibleTileRef, SolutionSet& solutionSetRef)
+inline uint16_t getEffectiveBombCount(VisibleTile& visibleTileRef, SolutionSet& solutionSetRef)
 {
     uint16_t effectiveBombCount = visibleTileRef.bombCount;
 
