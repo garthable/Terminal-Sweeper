@@ -1,4 +1,0 @@
-# valid entries: baby, beginner, intermediate, expert
-difficulty: expert
-# type "t" to make seed time based.
-seed: 2823
