@@ -1,47 +1,90 @@
 #pragma once
 
-#include "mine_sweeper_tile.hpp"
-#include "stack_vector.hpp"
+#include <array>
 
-#define MSWP_MAX_WIDTH 30
-#define MSWP_MAX_HEIGHT 16
-#define MSWP_MAX_TILES MSWP_MAX_WIDTH*MSWP_MAX_HEIGHT
+#include "mine_sweeper_constants.hpp"
+#include "mine_sweeper_tile.hpp"
+#include "tile_string.hpp"
 
 namespace mswp
 {
 
-typedef svec::SVector<MineSweeperTile, MSWP_MAX_TILES> MineSweeperTiles;
-typedef svec::SVector<MineSweeperTileExport, MSWP_MAX_TILES/2> MineSweeperTileExports;
+typedef std::array<Tile, MSWP_MAX_TILES> Tiles;
 
-enum MineSweeperGameState : uint8_t 
-{
-    IN_PROGRESS = 0,
-    WON = 1,
-    LOST = 2
-};
+typedef uint16_t BoardSize;
+typedef uint8_t BoardWidth;
+typedef uint8_t BoardHeight;
+typedef uint8_t BombCount;
+typedef uint32_t BoardSeed;
+typedef int8_t FlagsRemaining;
+
+typedef BoardSize BoardIndex;
+typedef BoardWidth BoardXPos;
+typedef BoardHeight BoardYPos;
+
+typedef std::initializer_list<Tile> BoardInitList;
 
 class MineSweeper
 {
 public:
-    MineSweeper(uint8_t width, uint8_t height);
+    enum GameState : uint8_t 
+    {
+        START = 0,
+        IN_PROGRESS = 1,
+        WON = 2,
+        LOST = 3
+    };
+    MineSweeper(BoardWidth width, BoardHeight height, BombCount bombCount, BoardSeed boardSeed);
+    MineSweeper(BoardWidth width, BoardInitList&& boardInitList);
+    MineSweeper(BoardWidth width, const BoardInitList& boardInitList);
 
-    void click(uint8_t x, uint8_t y);
-    void flag(uint8_t x, uint8_t y);
+    bool click(BoardXPos x, BoardYPos y);
+    bool flag(BoardXPos x, BoardYPos y);
 
-    void exportTiles(MineSweeperTileExports& outMineSweeperTileExports);
+    const Tiles& tiles() const; 
+    const TileString& tileString() const;
+    BoardSize size() const;
+    BoardSize remainingTile() const;
+    BoardWidth width() const;
+    GameState gameState() const;
+    FlagsRemaining flagsRemaining() const;
 
     void reset();
 
-    MineSweeperGameState getGameState();
+    bool operator==(const MineSweeper& other) const;
+    bool operator==(const BoardInitList& other) const;
 
-    inline MineSweeperTile& operator[](uint16_t index);
-    inline MineSweeperTile& operator()(uint8_t x, uint8_t y);
+    inline Tile operator[](BoardHeight index) const
+    {
+        return m_Tiles[index];
+    }
+    inline Tile operator()(BoardXPos x, BoardYPos y) const
+    {
+        return m_Tiles[x + y*m_Width];
+    }
 
 private:
-    MineSweeperTiles m_Tiles;
-    uint16_t m_Size;
-    uint16_t m_RemainingTiles;
-    uint8_t m_Width;
+    inline Tile& operator[](BoardHeight index)
+    {
+        return m_Tiles[index];
+    }
+    inline Tile& operator()(BoardXPos x, BoardYPos y)
+    {
+        return m_Tiles[x + y*m_Width];
+    }
+    
+private:
+    const BoardSize m_Size;
+    const BoardWidth m_Width;
+    const BombCount m_BombCount;
+    const BoardSeed m_BoardSeed;
+    
+    BoardSize m_RemainingTiles;
+    GameState m_GameState;
+    FlagsRemaining m_FlagsRemaining;
+
+    Tiles m_Tiles;
+    TileString m_TileString;
 };
 
 std::ostream& operator<<(std::ostream &out, const MineSweeper& mineSweeper);

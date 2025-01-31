@@ -21,7 +21,6 @@ set(LIBRARIES
     Mine_Sweeper
 )
 
-add_subdirectory(stack_vector)
 add_subdirectory(mine_sweeper)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")

@@ -24,8 +24,9 @@ set(TEST_LIBRARIES
 )
 set(TEST_SOURCE
     mine_sweeper_tests/mine_sweeper_test.cpp
-    mine_sweeper_tests/mine_sweeper_tile_test.cpp
 )
+
+enable_testing()
 
 # Installs google test
 include(FetchContent)
@@ -37,4 +38,4 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_executable(Mine_Sweeper_Test ${TEST_SOURCE})
-target_link_libraries(Mine_Sweeper_Test PUBLIC ${TEST_LIBRARIES})
+target_link_libraries(Mine_Sweeper_Test ${TEST_LIBRARIES})

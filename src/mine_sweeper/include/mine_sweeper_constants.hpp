@@ -1,0 +1,5 @@
+#pragma once
+
+#define MSWP_MAX_WIDTH 30
+#define MSWP_MAX_HEIGHT 16
+#define MSWP_MAX_TILES MSWP_MAX_WIDTH*MSWP_MAX_HEIGHT

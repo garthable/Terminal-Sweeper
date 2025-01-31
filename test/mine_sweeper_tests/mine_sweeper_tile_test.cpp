@@ -1,12 +1,13 @@
 #include "gtest/gtest.h"
 #include "mine_sweeper_tile.hpp"
+#include "tile_string.hpp"
 
-TEST(MineSweeperTile_Tests, MineSweeperTile_Size)
+TEST(MineSweeperTileTests, Size)
 {
-    ASSERT_EQ(sizeof(mswp::MineSweeperTile), 1);
+    ASSERT_EQ(sizeof(mswp::Tile), 1);
 }
 
-TEST(MineSweeperTile_Tests, MineSweeperTileExport_Size)
+TEST(MineSweeperTileCharTests, Size)
 {
-    ASSERT_EQ(sizeof(mswp::MineSweeperTileExport), 1);
+    ASSERT_EQ(sizeof(mswp::TileChar), 1);
 }
