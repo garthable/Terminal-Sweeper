@@ -28,8 +28,8 @@ struct SolverTile
     }
 
     SolverTile(SolverTile&& other) :
-        adjSolverTiles{std::move(adjSolverTiles)},
-        bombProbability{std::move(bombProbability)},
+        adjSolverTiles{std::move(other.adjSolverTiles)},
+        bombProbability{std::move(other.bombProbability)},
         x{std::move(other.x)},
         y{std::move(other.y)},
         adjBombsAmount{std::move(other.adjBombsAmount)},
@@ -50,8 +50,8 @@ struct SolverTile
 
     void operator=(const SolverTile& other)
     {
-        adjSolverTiles = adjSolverTiles;
-        bombProbability = bombProbability;
+        adjSolverTiles = other.adjSolverTiles;
+        bombProbability = other.bombProbability;
         x = other.x;
         y = other.y;
         adjBombsAmount = other.adjBombsAmount;
@@ -60,8 +60,8 @@ struct SolverTile
 
     void operator=(SolverTile&& other)
     {
-        adjSolverTiles = adjSolverTiles;
-        bombProbability = bombProbability;
+        adjSolverTiles = other.adjSolverTiles;
+        bombProbability = other.bombProbability;
         x = other.x;
         y = other.y;
         adjBombsAmount = other.adjBombsAmount;

@@ -124,14 +124,13 @@ Example of test results on expert set to 10000 runs:
 ######################################################
 Total Games: 10000
 
-Wins:        4266
-Losses:      5734
+Wins:        4193
+Loses:       5807
 
-Win Rate:    42.66%
-
+Win Rate:    0.4193
 ######################################################
-Time Taken:         46 secs
-Time Taken per run: 4.6 millisecs per run
+Time Taken:         42.9377 secs
+Time Taken Per Run: 4.29377 millisecs per run
 
 ######################################################
 ```

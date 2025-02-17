@@ -28,7 +28,7 @@ struct Tile
     }
 
     Tile(Tile&& tile) :
-        adjTiles{std::move(adjTiles)},
+        adjTiles{std::move(tile.adjTiles)},
         x{std::move(tile.x)},
         y{std::move(tile.y)},
         adjBombs{std::move(tile.adjBombs)},

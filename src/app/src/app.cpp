@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <chrono>
+
 #include "app.hpp"
 #include "mineSweeper.hpp"
 #include "mineSweeperSolver.hpp"
@@ -345,6 +347,7 @@ void App::watchMineSweeperSolver()
 
 void App::testMineSweeperSolver()
 {
+    const uint16_t totalGames = 10000;
     MineSweeper _mineSweeper = MineSweeper(m_sizeX, m_sizeY, m_bombCount);
     MineSweeperSolver _mineSweeperSolver = MineSweeperSolver(m_sizeX, m_sizeY, m_bombCount);
     bool isFlag = false;
@@ -355,10 +358,10 @@ void App::testMineSweeperSolver()
     _mineSweeper.clickTile(1, 1);
     uint16_t wins = 0;
     uint16_t loses = 0;
-    double startTime = time(0);
+    auto startTime = std::chrono::high_resolution_clock::now();
     while (true)
     {
-        if (wins + loses >= 1000)
+        if (wins + loses >= totalGames)
         {
             break;
         }
@@ -423,8 +426,24 @@ void App::testMineSweeperSolver()
             _mineSweeper.clickTile(clickX, clickY);
         }
     }
-    double endTime = time(0);
-    std::cout << "Wins: " << wins << "\n" << "Loses: " << loses << "\n" << "Time: " << endTime - startTime << '\n';
+    #if defined(__APPLE__) || defined(__linux__) 
+        system("clear");
+    #endif
+    #ifdef __WIN32__
+        system("cls");
+    #endif
+    auto endTime = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> timeMs = endTime - startTime;
+    std::cout 
+        << "######################################################" << "\n"
+        << "Total Games: " << totalGames << "\n\n"
+        << "Wins:        " << wins << "\n" 
+        << "Loses:       " << loses << "\n\n" 
+        << "Win Rate:    " << (static_cast<double>(wins)/totalGames)*100 << "%\n"
+        << "######################################################" << "\n"
+        << "Time Taken:         " << timeMs.count() / 1000 << " secs\n"
+        << "Time Taken Per Run: " << timeMs.count() / totalGames << " millisecs per run\n\n"
+        << "######################################################\n";
     std::cin.get();
 }
 
