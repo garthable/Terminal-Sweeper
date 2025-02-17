@@ -127,10 +127,10 @@ Total Games: 10000
 Wins:        4193
 Loses:       5807
 
-Win Rate:    0.4193
+Win Rate:    41.93%
 ######################################################
-Time Taken:         42.9377 secs
-Time Taken Per Run: 4.29377 millisecs per run
+Time Taken:         42.7533 secs
+Time Taken Per Run: 4.27533 millisecs per run
 
 ######################################################
 ```
