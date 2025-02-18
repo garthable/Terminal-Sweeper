@@ -151,5 +151,5 @@ TEST(MineSweeperTests, unflag)
 
     ASSERT_EQ(board, boardPostClick);
     ASSERT_EQ(board.tileString(), tileStringPostClick);
-    ASSERT_EQ(board.flagsRemaining(), 1);
+    ASSERT_EQ(board.flagsRemaining(), 2);
 }

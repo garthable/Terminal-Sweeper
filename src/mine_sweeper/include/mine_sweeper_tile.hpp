@@ -33,4 +33,14 @@ constexpr Tile::State operator|(Tile::State a, Tile::State b)
     return static_cast<Tile::State>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
 }
 
+constexpr Tile::State operator^(Tile::State a, Tile::State b)
+{
+    return static_cast<Tile::State>(static_cast<uint8_t>(a) ^ static_cast<uint8_t>(b));
+}
+
+constexpr Tile::State operator&(Tile::State a, Tile::State b)
+{
+    return static_cast<Tile::State>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+}
+
 } // mswp end
