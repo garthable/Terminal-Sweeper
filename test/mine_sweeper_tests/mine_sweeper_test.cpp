@@ -2,6 +2,8 @@
 #include "mine_sweeper.hpp"
 #include "mine_sweeper_tile_aliases.hpp"
 
+#include "log.hpp"
+
 TEST(MineSweeperTests, click0)
 {
     using namespace mswpalias;
@@ -25,11 +27,10 @@ TEST(MineSweeperTests, click0)
     };
 
     mswp::MineSweeper boardPostClick(5, postClick);
-    mswp::TileString tileStringPostClick(postClick);
+    mswp::TileString tileStringPostClick(5, postClick);
 
-    bool b = board == boardPostClick;
-    ASSERT_TRUE(b);
-    ASSERT_TRUE(board.tileString() == tileStringPostClick);
+    ASSERT_EQ(board, boardPostClick);
+    ASSERT_EQ(board.tileString(), tileStringPostClick);
     ASSERT_EQ(board.remainingTile(), 0);
 }
 
@@ -56,7 +57,7 @@ TEST(MineSweeperTests, click1)
     };
 
     mswp::MineSweeper boardPostClick(5, postClick);
-    mswp::TileString tileStringPostClick(postClick);
+    mswp::TileString tileStringPostClick(5, postClick);
 
     ASSERT_EQ(board, boardPostClick);
     ASSERT_EQ(board.tileString(), tileStringPostClick);
@@ -86,7 +87,7 @@ TEST(MineSweeperTests, click2)
     };
 
     mswp::MineSweeper boardPostClick(5, postClick);
-    mswp::TileString tileStringPostClick(postClick);
+    mswp::TileString tileStringPostClick(5, postClick);
 
     ASSERT_EQ(board, boardPostClick);
     ASSERT_EQ(board.tileString(), tileStringPostClick);
@@ -116,7 +117,7 @@ TEST(MineSweeperTests, flag)
     };
 
     mswp::MineSweeper boardPostClick(5, postClick);
-    mswp::TileString tileStringPostClick(postClick);
+    mswp::TileString tileStringPostClick(5, postClick);
 
     ASSERT_EQ(board, boardPostClick);
     ASSERT_EQ(board.tileString(), tileStringPostClick);
@@ -146,7 +147,7 @@ TEST(MineSweeperTests, unflag)
     };
 
     mswp::MineSweeper boardPostClick(5, postClick);
-    mswp::TileString tileStringPostClick(postClick);
+    mswp::TileString tileStringPostClick(5, postClick);
 
     ASSERT_EQ(board, boardPostClick);
     ASSERT_EQ(board.tileString(), tileStringPostClick);

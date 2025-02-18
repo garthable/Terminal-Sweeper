@@ -24,3 +24,4 @@ set(SOURCE
 
 add_library(Mine_Sweeper STATIC ${SOURCE})
 target_include_directories(Mine_Sweeper PUBLIC include)
+target_link_libraries(Mine_Sweeper Util)

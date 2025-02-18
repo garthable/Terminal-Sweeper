@@ -1,6 +1,7 @@
 #include <random>
 
 #include "mine_sweeper.hpp"
+#include "log.hpp"
 
 namespace mswp
 {
@@ -78,7 +79,7 @@ MineSweeper::MineSweeper(BoardWidth width, BoardHeight height, BombCount bombCou
     m_RemainingTiles{m_Size},
     m_GameState{START},
     m_FlagsRemaining{m_BombCount},
-    m_TileString{TileStringSize(m_Size)}
+    m_TileString{TileString(m_Size, m_Width)}
 {
     resetTiles(m_Size, m_Tiles);
     generateBombs(m_Size, m_Width, m_BombCount, m_BoardSeed, m_Tiles);
@@ -92,7 +93,7 @@ MineSweeper::MineSweeper(BoardWidth width, BoardInitList&& boardInitList) :
     m_RemainingTiles{m_Size},
     m_GameState{START},
     m_FlagsRemaining{m_BombCount},
-    m_TileString{TileStringSize(m_Size)}
+    m_TileString{TileString(m_Width, boardInitList)}
 {
     std::copy(boardInitList.begin(), boardInitList.begin() + m_Size, m_Tiles.begin());
 }
@@ -105,15 +106,76 @@ MineSweeper::MineSweeper(BoardWidth width, const BoardInitList& boardInitList) :
     m_RemainingTiles{m_Size},
     m_GameState{START},
     m_FlagsRemaining{m_BombCount},
-    m_TileString{TileStringSize(m_Size)}
+    m_TileString{TileString(m_Width, boardInitList)}
 {
     std::copy(boardInitList.begin(), boardInitList.begin() + m_Size, m_Tiles.begin());
 }
 
+void reccursiveClick(const BoardIndex i, const BoardSize size, const BoardWidth width, BoardSize& outRemainingTiles, Tiles& outTiles, TileString& outTileString)
+{
+    if (outTiles[i].state & Tile::VISIBLE)
+    {
+        return;
+    }
+    outTiles[i].state = outTiles[i].state | Tile::VISIBLE;
+    outTileString.set(i, tileToTileChar(outTiles[i]));
+    outRemainingTiles--;
+    if (outTiles[i].adjBombs)
+    {
+        return;
+    }
+    static constexpr BoardIndex offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const BoardIndex offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    BoardIndex x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        BoardIndex newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            continue;
+        }
+        BoardIndex offset = offsetsX[j] + offsetsY[j];
+        BoardIndex newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            continue;
+        }
+        reccursiveClick(newI, size, width, outRemainingTiles, outTiles, outTileString);
+    }
+}
+
 bool MineSweeper::click(BoardXPos x, BoardYPos y)
-{}
+{
+    BoardIndex i = static_cast<BoardIndex>(x) + static_cast<BoardIndex>(y)*m_Width;
+    reccursiveClick(i, m_Size, m_Width, m_RemainingTiles, m_Tiles, m_TileString);
+    if (m_Tiles[i].state & Tile::BOMB)
+    {
+        m_GameState = LOST;
+        return true;
+    }
+    if (m_RemainingTiles == m_BombCount)
+    {
+        m_GameState = WON;
+        return true;
+    }
+    return false;
+}
 bool MineSweeper::flag(BoardXPos x, BoardYPos y)
-{}
+{
+    return false;
+}
 
 const Tiles& MineSweeper::tiles() const
 {
@@ -177,6 +239,7 @@ bool MineSweeper::operator==(const BoardInitList& other) const
 
 std::ostream& operator<<(std::ostream &out, const MineSweeper& mineSweeper)
 {
+    out << mineSweeper.tileString();
     return out;
 }
 

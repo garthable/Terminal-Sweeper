@@ -11,7 +11,7 @@ namespace mswp
 
 typedef std::array<Tile, MSWP_MAX_TILES> Tiles;
 
-typedef uint16_t BoardSize;
+typedef int16_t BoardSize;
 typedef uint8_t BoardWidth;
 typedef uint8_t BoardHeight;
 typedef uint8_t BombCount;

@@ -3,33 +3,19 @@
 namespace mswp 
 {
 
-inline TileChar::TileCharEnum tileToTileChar(Tile tile)
-{
-    if (tile.state & Tile::VISIBLE)
-    {
-        if (tile.state & Tile::BOMB)
-        {
-            return TileChar::VISIBLE_BOMB;
-        }
-        return static_cast<TileChar::TileCharEnum>(tile.adjBombs);
-    }
-    if (tile.state & Tile::FLAGGED)
-    {
-        return TileChar::FLAGGED;
-    }
-    return TileChar::HIDDEN;
-}
-
 TileString::TileString() :
-    m_Size{0}
+    m_Size{0},
+    m_Width{1}
 {}
-TileString::TileString(TileStringSize size) :
-    m_Size{size}
+TileString::TileString(TileStringSize size, TileStringWidth width) :
+    m_Size{size},
+    m_Width{width}
 {
     fill(TileChar::HIDDEN);
 }
-TileString::TileString(TileStringInitList&& tiles) :
-    m_Size{tiles.size()}
+TileString::TileString(TileStringWidth width, TileStringInitList&& tiles) :
+    m_Size{tiles.size()},
+    m_Width{width}
 {
     for (TileStringIndex i = 0; i < m_Size; i++)
     {
@@ -38,8 +24,9 @@ TileString::TileString(TileStringInitList&& tiles) :
         set(i, tileChar);
     }
 }
-TileString::TileString(const TileStringInitList& tiles) :
-    m_Size{tiles.size()}
+TileString::TileString(TileStringWidth width, const TileStringInitList& tiles) :
+    m_Size{tiles.size()},
+    m_Width{width}
 {
     for (TileStringIndex i = 0; i < m_Size; i++)
     {
@@ -83,7 +70,7 @@ bool TileString::operator==(const TileString& tileChars) const
 {
     for (TileStringSize i = 0; i < m_Size; i++)
     {
-        if ((*this)[i] == tileChars[i])
+        if ((*this)[i] != tileChars[i])
         {
             return false;
         }
@@ -111,6 +98,10 @@ TileStringSize TileString::size() const
 {
     return m_Size;
 }
+TileStringWidth TileString::width() const
+{
+    return m_Width;
+}
 const TileChars& TileString::tileChars() const
 {
     return m_TileChars;
@@ -123,6 +114,15 @@ void TileString::reset()
 
 std::ostream& operator<<(std::ostream &out, const TileString& tileString)
 {
+    out << "Board:\n";
+    for (TileStringIndex i = 0; i < tileString.size(); i++)
+    {
+        out << tileCharToChar(tileString[i]) << ' ';
+        if (i % tileString.width() == tileString.width() - 1)
+        {
+            out << '\n';
+        }
+    }
     return out;
 }
 
