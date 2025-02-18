@@ -125,5 +125,10 @@ std::ostream& operator<<(std::ostream &out, const TileString& tileString)
     }
     return out;
 }
+std::ostream& operator<<(std::ostream &out, const Tile& tile)
+{
+    out << tileCharToChar(tileToTileChar(tile));
+    return out;
+}
 
 } // mswp end

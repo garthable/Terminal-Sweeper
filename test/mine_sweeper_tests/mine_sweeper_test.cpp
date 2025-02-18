@@ -97,6 +97,23 @@ TEST(MineSweeperTests, click2)
     ASSERT_FALSE(res);
 }
 
+TEST(MineSweeperTests, clickMoveBomb)
+{
+    using namespace mswpalias;
+
+    mswp::MineSweeper board(5, 
+    {
+        BO, H1, H0, H0, H0,
+        H1, H1, H0, H0, H0,
+        H0, H0, H0, H0, H0,
+        H0, H0, H0, H0, H0
+    });
+
+    bool res = board.click(0, 0);
+
+    ASSERT_EQ(board(0, 0), V0);
+}
+
 TEST(MineSweeperTests, flag)
 {
     using namespace mswpalias;

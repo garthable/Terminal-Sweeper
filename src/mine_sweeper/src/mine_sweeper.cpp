@@ -1,10 +1,117 @@
 #include <random>
+#include <array>
+#include <functional>
 
 #include "mine_sweeper.hpp"
 #include "log.hpp"
 
 namespace mswp
 {
+
+inline void applyFuncToAdjTiles(const BoardIndex i, const BoardWidth width, const BoardSize size, Tiles& outTiles, std::function<void(Tile& tile)> func)
+{
+    static constexpr BoardIndex offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const BoardIndex offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    const BoardIndex x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        BoardIndex newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            continue;
+        }
+        BoardIndex offset = offsetsX[j] + offsetsY[j];
+        BoardIndex newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            continue;
+        }
+        func(outTiles[newI]);
+    }
+}
+
+inline void applyFuncToAdjTiles(const BoardIndex i, const BoardWidth width, const BoardSize size, const Tiles& tiles, std::function<bool(Tile tile)> func)
+{
+    static constexpr BoardIndex offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const BoardIndex offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    const BoardIndex x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        BoardIndex newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            continue;
+        }
+        BoardIndex offset = offsetsX[j] + offsetsY[j];
+        BoardIndex newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            continue;
+        }
+        if (func(tiles[newI]))
+        {
+            break;
+        }
+    }
+}
+
+inline void applyFuncToAdjTiles(const BoardIndex i, const BoardWidth width, const BoardSize size, Tiles& outTiles, std::function<void(BoardIndex i, Tile& tile)> func)
+{
+    static constexpr BoardIndex offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const BoardIndex offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    const BoardIndex x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        BoardIndex newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            continue;
+        }
+        BoardIndex offset = offsetsX[j] + offsetsY[j];
+        BoardIndex newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            continue;
+        }
+        func(newI, outTiles[newI]);
+    }
+}
 
 inline BoardSize getSize(BoardWidth width, BoardHeight height)
 {
@@ -31,13 +138,6 @@ void generateBombs(BoardSize size, BoardWidth width, BombCount bombCount, BoardS
     BoardIndex y = static_cast<BoardIndex>(width);
     BoardIndex x = static_cast<BoardIndex>(1);
 
-    BoardIndex offsets[8] =
-    {
-         y - x,  y,  y + x,
-        -x,              x,
-        -y - x, -y, -y + x,
-    };
-
     while(currBombCount != bombCount)
     {
         BoardIndex index = rand() % size;
@@ -46,16 +146,11 @@ void generateBombs(BoardSize size, BoardWidth width, BombCount bombCount, BoardS
         {
             continue;
         }
-        for (BoardIndex offset : offsets)
+        applyFuncToAdjTiles(index, width, size, outTiles, 
+        [](Tile& tile) 
         {
-            BoardIndex otherIndex = index + offset;
-            if (otherIndex >= size)
-            {
-                continue;
-            }
-            Tile& otherTile = outTiles[otherIndex];
-            otherTile.adjBombs += 1;
-        }
+            tile.adjBombs += 1;
+        });
         tile.state = static_cast<Tile::State>(tile.state | Tile::BOMB);
         currBombCount += 1;
     }
@@ -78,7 +173,7 @@ MineSweeper::MineSweeper(BoardWidth width, BoardHeight height, BombCount bombCou
     m_BoardSeed{boardSeed},
     m_RemainingTiles{m_Size},
     m_GameState{START},
-    m_FlagsRemaining{m_BombCount},
+    m_FlagsRemaining{static_cast<FlagsRemaining>(m_BombCount)},
     m_TileString{TileString(m_Size, m_Width)}
 {
     resetTiles(m_Size, m_Tiles);
@@ -86,26 +181,26 @@ MineSweeper::MineSweeper(BoardWidth width, BoardHeight height, BombCount bombCou
 }
 
 MineSweeper::MineSweeper(BoardWidth width, BoardInitList&& boardInitList) :
-    m_Size{boardInitList.size()},
+    m_Size{static_cast<BoardSize>(boardInitList.size())},
     m_Width{width},
     m_BombCount{getBombCount(boardInitList)},
     m_BoardSeed{0},
     m_RemainingTiles{m_Size},
     m_GameState{START},
-    m_FlagsRemaining{m_BombCount},
+    m_FlagsRemaining{static_cast<FlagsRemaining>(m_BombCount)},
     m_TileString{TileString(m_Width, boardInitList)}
 {
     std::copy(boardInitList.begin(), boardInitList.begin() + m_Size, m_Tiles.begin());
 }
 
 MineSweeper::MineSweeper(BoardWidth width, const BoardInitList& boardInitList) :
-    m_Size{boardInitList.size()},
+    m_Size{static_cast<BoardSize>(boardInitList.size())},
     m_Width{width},
     m_BombCount{getBombCount(boardInitList)},
     m_BoardSeed{0},
     m_RemainingTiles{m_Size},
     m_GameState{START},
-    m_FlagsRemaining{m_BombCount},
+    m_FlagsRemaining{static_cast<FlagsRemaining>(m_BombCount)},
     m_TileString{TileString(m_Width, boardInitList)}
 {
     std::copy(boardInitList.begin(), boardInitList.begin() + m_Size, m_Tiles.begin());
@@ -124,41 +219,92 @@ void reccursiveClick(const BoardIndex i, const BoardSize size, const BoardWidth 
     {
         return;
     }
-    static constexpr BoardIndex offsetsX[8] =
-    {
-        -1,  0, 1,
-        -1,     1,
-        -1, -0, 1
-    };
-    const BoardIndex offsetsY[8] =
-    {
-         width,  width,  width,
-         0,              0,
-        -width, -width, -width
-    };
 
-    BoardIndex x = i % width;
-
-    for (uint8_t j = 0; j < 8; j++)
+    applyFuncToAdjTiles(i, width, size, outTiles, 
+    [&](BoardIndex newI, Tile& tile) 
     {
-        BoardIndex newX = x + offsetsX[j];
-        if (newX >= width || newX < 0)
-        {
-            continue;
-        }
-        BoardIndex offset = offsetsX[j] + offsetsY[j];
-        BoardIndex newI = i + offset;
-        if (newI >= size || newI < 0)
-        {
-            continue;
-        }
         reccursiveClick(newI, size, width, outRemainingTiles, outTiles, outTileString);
+    });
+}
+
+inline bool removeBombsInArea(BoardIndex i, BoardWidth width, BoardSize size, Tiles& outTiles, BombCount& outBombCounts)
+{
+    bool bombInArea = false;
+    if (outTiles[i].state & Tile::BOMB)
+    {
+        bombInArea = true;
+        outTiles[i].state = outTiles[i].state ^ Tile::BOMB;
+        outBombCounts--;
+        applyFuncToAdjTiles(i, width, size, outTiles,
+        [](Tile& tile)
+        {
+            tile.adjBombs--;
+        });
+    }
+    applyFuncToAdjTiles(i, width, size, outTiles, 
+    [&](Tile& tile)
+    {
+        if (tile.state & Tile::BOMB)
+        {
+            bombInArea = true;
+            tile.state = tile.state ^ Tile::BOMB;
+            outBombCounts--;
+            applyFuncToAdjTiles(i, width, size, outTiles,
+            [](Tile& tile)
+            {
+                tile.adjBombs--;
+            });
+        }
+    });
+    return bombInArea;
+}
+
+inline bool isIndexNear(BoardWidth width, BoardIndex center, BoardIndex i)
+{
+    BoardIndex centerX = center % width;
+    BoardIndex centerY = center / width;
+    BoardIndex indexX = i % width;
+    BoardIndex indexY = i / width;
+
+    BoardIndex diffX = abs(centerX - indexX);
+    BoardIndex diffY = abs(centerY - indexY);
+
+    return diffX <= 1 && diffY <= 1;
+}
+
+inline void moveBombsAway(const BoardIndex i, const BoardSeed boardSeed, const BoardWidth width, const BoardSize size, const BombCount bombCount, Tiles& outTiles)
+{
+    BombCount currBombCount = bombCount;
+    if (!removeBombsInArea(i, width, size, outTiles, currBombCount))
+    {
+        return;
+    }
+    std:: minstd_rand rand;
+    rand.seed(boardSeed + 1);
+    while(currBombCount != bombCount)
+    {
+        const BoardIndex randI = rand() % size;
+        if (outTiles[randI].state & Tile::BOMB || isIndexNear(width, i, randI))
+        {
+            continue;
+        }
+        outTiles[randI].state = outTiles[randI].state | Tile::BOMB;
+        currBombCount++;
+        applyFuncToAdjTiles(randI, width, size, outTiles, 
+        [](Tile& tile) 
+        {
+            tile.adjBombs += 1;
+        });
     }
 }
 
 bool MineSweeper::click(BoardXPos x, BoardYPos y)
 {
     BoardIndex i = static_cast<BoardIndex>(x) + static_cast<BoardIndex>(y)*m_Width;
+    if (m_GameState & MineSweeper::START && m_Tiles[i].state & Tile::BOMB)
+    {
+        moveBombsAway(i, m_BoardSeed, m_Width, m_Size, m_BombCount, m_Tiles);
+    }
     reccursiveClick(i, m_Size, m_Width, m_RemainingTiles, m_Tiles, m_TileString);
     if (m_Tiles[i].state & Tile::BOMB)
     {

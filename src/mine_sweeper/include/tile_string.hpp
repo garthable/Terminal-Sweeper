@@ -120,5 +120,6 @@ private:
 };
 
 std::ostream& operator<<(std::ostream &out, const TileString& tileString);
+std::ostream& operator<<(std::ostream &out, const Tile& tile);
 
 } // mswp end

@@ -22,6 +22,10 @@ struct Tile
         adjBombs{adjBombs},
         state{state}
     {}
+    bool operator==(const Tile other) const
+    {
+        return state == other.state && adjBombs == other.adjBombs;
+    }
     uint8_t adjBombs : 4;
     State state : 4;
 };

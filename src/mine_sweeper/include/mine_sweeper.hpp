@@ -29,10 +29,10 @@ class MineSweeper
 public:
     enum GameState : uint8_t 
     {
-        START = 0,
-        IN_PROGRESS = 1,
-        WON = 2,
-        LOST = 3
+        START = 1,
+        IN_PROGRESS = 2,
+        WON = 4,
+        LOST = 8
     };
     MineSweeper(BoardWidth width, BoardHeight height, BombCount bombCount, BoardSeed boardSeed);
     MineSweeper(BoardWidth width, BoardInitList&& boardInitList);
@@ -54,7 +54,7 @@ public:
     bool operator==(const MineSweeper& other) const;
     bool operator==(const BoardInitList& other) const;
 
-    inline Tile operator[](BoardHeight index) const
+    inline Tile operator[](BoardIndex index) const
     {
         return m_Tiles[index];
     }
@@ -62,9 +62,7 @@ public:
     {
         return m_Tiles[x + y*m_Width];
     }
-
-private:
-    inline Tile& operator[](BoardHeight index)
+    inline Tile& operator[](BoardIndex index)
     {
         return m_Tiles[index];
     }
