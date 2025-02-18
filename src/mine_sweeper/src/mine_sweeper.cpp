@@ -4,114 +4,10 @@
 
 #include "mine_sweeper.hpp"
 #include "log.hpp"
+#include "util.hpp"
 
 namespace mswp
 {
-
-inline void applyFuncToAdjTiles(const BoardIndex i, const BoardWidth width, const BoardSize size, Tiles& outTiles, std::function<void(Tile& tile)> func)
-{
-    static constexpr BoardIndex offsetsX[8] =
-    {
-        -1,  0, 1,
-        -1,     1,
-        -1, -0, 1
-    };
-    const BoardIndex offsetsY[8] =
-    {
-         width,  width,  width,
-         0,              0,
-        -width, -width, -width
-    };
-
-    const BoardIndex x = i % width;
-
-    for (uint8_t j = 0; j < 8; j++)
-    {
-        BoardIndex newX = x + offsetsX[j];
-        if (newX >= width || newX < 0)
-        {
-            continue;
-        }
-        BoardIndex offset = offsetsX[j] + offsetsY[j];
-        BoardIndex newI = i + offset;
-        if (newI >= size || newI < 0)
-        {
-            continue;
-        }
-        func(outTiles[newI]);
-    }
-}
-
-inline void applyFuncToAdjTiles(const BoardIndex i, const BoardWidth width, const BoardSize size, const Tiles& tiles, std::function<bool(Tile tile)> func)
-{
-    static constexpr BoardIndex offsetsX[8] =
-    {
-        -1,  0, 1,
-        -1,     1,
-        -1, -0, 1
-    };
-    const BoardIndex offsetsY[8] =
-    {
-         width,  width,  width,
-         0,              0,
-        -width, -width, -width
-    };
-
-    const BoardIndex x = i % width;
-
-    for (uint8_t j = 0; j < 8; j++)
-    {
-        BoardIndex newX = x + offsetsX[j];
-        if (newX >= width || newX < 0)
-        {
-            continue;
-        }
-        BoardIndex offset = offsetsX[j] + offsetsY[j];
-        BoardIndex newI = i + offset;
-        if (newI >= size || newI < 0)
-        {
-            continue;
-        }
-        if (func(tiles[newI]))
-        {
-            break;
-        }
-    }
-}
-
-inline void applyFuncToAdjTiles(const BoardIndex i, const BoardWidth width, const BoardSize size, Tiles& outTiles, std::function<void(BoardIndex i, Tile& tile)> func)
-{
-    static constexpr BoardIndex offsetsX[8] =
-    {
-        -1,  0, 1,
-        -1,     1,
-        -1, -0, 1
-    };
-    const BoardIndex offsetsY[8] =
-    {
-         width,  width,  width,
-         0,              0,
-        -width, -width, -width
-    };
-
-    const BoardIndex x = i % width;
-
-    for (uint8_t j = 0; j < 8; j++)
-    {
-        BoardIndex newX = x + offsetsX[j];
-        if (newX >= width || newX < 0)
-        {
-            continue;
-        }
-        BoardIndex offset = offsetsX[j] + offsetsY[j];
-        BoardIndex newI = i + offset;
-        if (newI >= size || newI < 0)
-        {
-            continue;
-        }
-        func(newI, outTiles[newI]);
-    }
-}
 
 inline BoardSize getSize(BoardWidth width, BoardHeight height)
 {
@@ -146,7 +42,7 @@ void generateBombs(BoardSize size, BoardWidth width, BombCount bombCount, BoardS
         {
             continue;
         }
-        applyFuncToAdjTiles(index, width, size, outTiles, 
+        applyFuncToAdjObjects<Tiles, Tile>(index, width, size, outTiles, 
         [](Tile& tile) 
         {
             tile.adjBombs += 1;
@@ -220,7 +116,7 @@ void reccursiveClick(const BoardIndex i, const BoardSize size, const BoardWidth 
         return;
     }
 
-    applyFuncToAdjTiles(i, width, size, outTiles, 
+    applyFuncToAdjObjects<Tiles, Tile>(i, width, size, outTiles, 
     [&](BoardIndex newI, Tile& tile) 
     {
         reccursiveClick(newI, size, width, outRemainingTiles, outTiles, outTileString);
@@ -235,13 +131,13 @@ inline bool removeBombsInArea(BoardIndex i, BoardWidth width, BoardSize size, Ti
         bombInArea = true;
         outTiles[i].state = outTiles[i].state ^ Tile::BOMB;
         outBombCounts--;
-        applyFuncToAdjTiles(i, width, size, outTiles,
+        applyFuncToAdjObjects<Tiles, Tile>(i, width, size, outTiles,
         [](Tile& tile)
         {
             tile.adjBombs--;
         });
     }
-    applyFuncToAdjTiles(i, width, size, outTiles, 
+    applyFuncToAdjObjects<Tiles, Tile>(i, width, size, outTiles, 
     [&](BoardIndex j, Tile& tile)
     {
         if (tile.state & Tile::BOMB)
@@ -249,7 +145,7 @@ inline bool removeBombsInArea(BoardIndex i, BoardWidth width, BoardSize size, Ti
             bombInArea = true;
             tile.state = tile.state ^ Tile::BOMB;
             outBombCounts--;
-            applyFuncToAdjTiles(j, width, size, outTiles,
+            applyFuncToAdjObjects<Tiles, Tile>(j, width, size, outTiles,
             [](Tile& tile)
             {
                 tile.adjBombs--;
@@ -290,7 +186,7 @@ inline void moveBombsAway(const BoardIndex i, const BoardSeed boardSeed, const B
         }
         outTiles[randI].state = outTiles[randI].state | Tile::BOMB;
         currBombCount++;
-        applyFuncToAdjTiles(randI, width, size, outTiles, 
+        applyFuncToAdjObjects<Tiles, Tile>(randI, width, size, outTiles, 
         [](Tile& tile) 
         {
             tile.adjBombs += 1;
