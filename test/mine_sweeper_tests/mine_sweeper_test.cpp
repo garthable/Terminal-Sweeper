@@ -16,7 +16,7 @@ TEST(MineSweeperTests, click0)
         H0, H0, H0, H0, H0
     });
 
-    board.click(0, 0);
+    bool res = board.click(0, 0);
 
     mswp::BoardInitList postClick = 
     {
@@ -32,6 +32,7 @@ TEST(MineSweeperTests, click0)
     ASSERT_EQ(board, boardPostClick);
     ASSERT_EQ(board.tileString(), tileStringPostClick);
     ASSERT_EQ(board.remainingTile(), 0);
+    ASSERT_TRUE(res);
 }
 
 TEST(MineSweeperTests, click1)
@@ -46,7 +47,7 @@ TEST(MineSweeperTests, click1)
         H0, H0, H0, H0, H0
     });
 
-    board.click(0, 0);
+    bool res = board.click(0, 0);
 
     mswp::BoardInitList postClick =
     {
@@ -62,6 +63,7 @@ TEST(MineSweeperTests, click1)
     ASSERT_EQ(board, boardPostClick);
     ASSERT_EQ(board.tileString(), tileStringPostClick);
     ASSERT_EQ(board.remainingTile(), 19);
+    ASSERT_FALSE(res);
 }
 
 TEST(MineSweeperTests, click2)
@@ -76,7 +78,7 @@ TEST(MineSweeperTests, click2)
         H0, H0, H0, H0, H0
     });
 
-    board.click(4, 3);
+    bool res = board.click(4, 3);
 
     mswp::BoardInitList postClick = 
     {
@@ -92,6 +94,7 @@ TEST(MineSweeperTests, click2)
     ASSERT_EQ(board, boardPostClick);
     ASSERT_EQ(board.tileString(), tileStringPostClick);
     ASSERT_EQ(board.remainingTile(), 4);
+    ASSERT_FALSE(res);
 }
 
 TEST(MineSweeperTests, flag)
@@ -106,7 +109,7 @@ TEST(MineSweeperTests, flag)
         H0, H0, H0, H0, H0
     });
 
-    board.flag(2, 2);
+    bool res = board.flag(2, 2);
 
     mswp::BoardInitList postClick = 
     {
@@ -122,6 +125,7 @@ TEST(MineSweeperTests, flag)
     ASSERT_EQ(board, boardPostClick);
     ASSERT_EQ(board.tileString(), tileStringPostClick);
     ASSERT_EQ(board.flagsRemaining(), 0);
+    ASSERT_TRUE(res);
 }
 
 TEST(MineSweeperTests, unflag)
@@ -136,7 +140,7 @@ TEST(MineSweeperTests, unflag)
         H0, H0, H0, H0, H0
     });
 
-    board.flag(2, 2);
+    bool res = board.flag(2, 2);
 
     mswp::BoardInitList postClick = 
     {
@@ -152,4 +156,5 @@ TEST(MineSweeperTests, unflag)
     ASSERT_EQ(board, boardPostClick);
     ASSERT_EQ(board.tileString(), tileStringPostClick);
     ASSERT_EQ(board.flagsRemaining(), 2);
+    ASSERT_TRUE(res);
 }
