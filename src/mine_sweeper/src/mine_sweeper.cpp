@@ -155,19 +155,6 @@ inline bool removeBombsInArea(BoardIndex i, BoardWidth width, BoardSize size, Ti
     return bombInArea;
 }
 
-inline bool isIndexNear(BoardWidth width, BoardIndex center, BoardIndex i)
-{
-    BoardIndex centerX = center % width;
-    BoardIndex centerY = center / width;
-    BoardIndex indexX = i % width;
-    BoardIndex indexY = i / width;
-
-    BoardIndex diffX = abs(centerX - indexX);
-    BoardIndex diffY = abs(centerY - indexY);
-
-    return diffX <= 1 && diffY <= 1;
-}
-
 inline void moveBombsAway(const BoardIndex i, const BoardSeed boardSeed, const BoardWidth width, const BoardSize size, const BombCount bombCount, Tiles& outTiles)
 {
     BombCount currBombCount = bombCount;

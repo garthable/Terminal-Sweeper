@@ -70,3 +70,16 @@ inline void applyFuncToAdjObjects(const int32_t i, const int32_t width, const in
         func(newI, out[newI]);
     }
 }
+
+inline bool isIndexNear(int32_t width, int32_t center, int32_t i)
+{
+    int32_t centerX = center % width;
+    int32_t centerY = center / width;
+    int32_t indexX = i % width;
+    int32_t indexY = i / width;
+
+    int32_t diffX = abs(centerX - indexX);
+    int32_t diffY = abs(centerY - indexY);
+
+    return diffX <= 1 && diffY <= 1;
+}
