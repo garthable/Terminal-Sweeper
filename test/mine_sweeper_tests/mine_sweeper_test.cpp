@@ -42,7 +42,7 @@ TEST(MineSweeperTests, click1)
     mswp::MineSweeper board(5, 
     {
         H1, H1, H1, H0, H0,
-        H1, BO, H1, H0, H0,
+        H1, B0, H1, H0, H0,
         H1, H1, H1, H0, H0,
         H0, H0, H0, H0, H0
     });
@@ -52,7 +52,7 @@ TEST(MineSweeperTests, click1)
     mswp::BoardInitList postClick =
     {
         V1, H1, H1, H0, H0,
-        H1, BO, H1, H0, H0,
+        H1, B0, H1, H0, H0,
         H1, H1, H1, H0, H0,
         H0, H0, H0, H0, H0
     };
@@ -73,7 +73,7 @@ TEST(MineSweeperTests, click2)
     mswp::MineSweeper board(5, 
     {
         H1, H1, H1, H0, H0,
-        H1, BO, H1, H0, H0,
+        H1, B0, H1, H0, H0,
         H1, H1, H1, H0, H0,
         H0, H0, H0, H0, H0
     });
@@ -83,7 +83,7 @@ TEST(MineSweeperTests, click2)
     mswp::BoardInitList postClick = 
     {
         H1, H1, V1, V0, V0,
-        H1, BO, V1, V0, V0,
+        H1, B0, V1, V0, V0,
         V1, V1, V1, V0, V0,
         V0, V0, V0, V0, V0
     };
@@ -97,13 +97,13 @@ TEST(MineSweeperTests, click2)
     ASSERT_FALSE(res);
 }
 
-TEST(MineSweeperTests, clickMoveBomb)
+TEST(MineSweeperTests, clickMoveBomb0)
 {
     using namespace mswpalias;
 
     mswp::MineSweeper board(5, 
     {
-        BO, H1, H0, H0, H0,
+        B0, H1, H0, H0, H0,
         H1, H1, H0, H0, H0,
         H0, H0, H0, H0, H0,
         H0, H0, H0, H0, H0
@@ -111,6 +111,27 @@ TEST(MineSweeperTests, clickMoveBomb)
 
     bool res = board.click(0, 0);
 
+    ASSERT_EQ(board(0, 0), V0);
+}
+TEST(MineSweeperTests, clickMoveBomb1)
+{
+    using namespace mswpalias;
+
+    mswp::MineSweeper board(5, 
+    {
+        B3, B5, B3, H2, H0,
+        B5, B8, B5, H3, H0,
+        B3, B5, B3, H2, H0,
+        H2, H3, H2, H1, H0
+    });
+
+    bool res = board.click(1, 1);
+
+    LOG_INFO(board);
+
+    ASSERT_EQ(board(1, 1), V0);
+    ASSERT_EQ(board(0, 1), V0);
+    ASSERT_EQ(board(1, 0), V0);
     ASSERT_EQ(board(0, 0), V0);
 }
 
@@ -121,7 +142,7 @@ TEST(MineSweeperTests, flag)
     mswp::MineSweeper board(5, 
     {
         H1, H1, H1, H0, H0,
-        H1, BO, H1, H0, H0,
+        H1, B0, H1, H0, H0,
         H1, H1, H1, H0, H0,
         H0, H0, H0, H0, H0
     });
@@ -131,7 +152,7 @@ TEST(MineSweeperTests, flag)
     mswp::BoardInitList postClick = 
     {
         H1, H1, H1, H0, H0,
-        H1, BO, H1, H0, H0,
+        H1, B0, H1, H0, H0,
         H1, H1, F1, H0, H0,
         H0, H0, H0, H0, H0
     };
@@ -152,7 +173,7 @@ TEST(MineSweeperTests, unflag)
     mswp::MineSweeper board(5, 
     {
         H1, H1, H1, H0, H0,
-        H1, BO, H1, H0, H0,
+        H1, B0, H1, H0, H0,
         H1, H1, F1, H0, H0,
         H0, H0, H0, H0, H0
     });
@@ -162,7 +183,7 @@ TEST(MineSweeperTests, unflag)
     mswp::BoardInitList postClick = 
     {
         H1, H1, H1, H0, H0,
-        H1, BO, H1, H0, H0,
+        H1, B0, H1, H0, H0,
         H1, H1, H1, H0, H0,
         H0, H0, H0, H0, H0
     };

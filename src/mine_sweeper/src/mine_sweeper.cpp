@@ -242,14 +242,14 @@ inline bool removeBombsInArea(BoardIndex i, BoardWidth width, BoardSize size, Ti
         });
     }
     applyFuncToAdjTiles(i, width, size, outTiles, 
-    [&](Tile& tile)
+    [&](BoardIndex j, Tile& tile)
     {
         if (tile.state & Tile::BOMB)
         {
             bombInArea = true;
             tile.state = tile.state ^ Tile::BOMB;
             outBombCounts--;
-            applyFuncToAdjTiles(i, width, size, outTiles,
+            applyFuncToAdjTiles(j, width, size, outTiles,
             [](Tile& tile)
             {
                 tile.adjBombs--;
