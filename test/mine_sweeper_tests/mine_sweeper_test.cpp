@@ -127,8 +127,6 @@ TEST(MineSweeperTests, clickMoveBomb1)
 
     bool res = board.click(1, 1);
 
-    LOG_INFO(board);
-
     ASSERT_EQ(board(1, 1), V0);
     ASSERT_EQ(board(0, 1), V0);
     ASSERT_EQ(board(1, 0), V0);
