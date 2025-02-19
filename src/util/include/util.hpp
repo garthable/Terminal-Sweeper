@@ -130,4 +130,16 @@ inline uint16_t multUi8sToUi16(uint8_t a, uint8_t b)
     return static_cast<uint16_t>(a)*static_cast<uint16_t>(b);
 }
 
+/**
+ * @brief Multiplies int8_t's to int16_t. Prevents overflow
+ * 
+ * @param a 
+ * @param b 
+ * @return int16_t 
+ */
+inline int16_t multI8sToI16(int8_t a, int8_t b)
+{
+    return static_cast<int16_t>(a)*static_cast<int16_t>(b);
+}
+
 } // util end

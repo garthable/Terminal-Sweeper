@@ -79,7 +79,7 @@ inline BombCount getBombCount(const BoardInitList& initList)
 }
 
 MineSweeper::MineSweeper(BoardWidth width, BoardHeight height, BombCount bombCount, BoardSeed boardSeed) :
-    m_Size{util::multUi8sToUi16(width, height)},
+    m_Size{util::multI8sToI16(width, height)},
     m_Width{width},
     m_BombCount{bombCount},
     m_BoardSeed{boardSeed},
