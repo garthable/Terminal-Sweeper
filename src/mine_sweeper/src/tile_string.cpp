@@ -14,7 +14,7 @@ TileString::TileString(TileStringSize size, TileStringWidth width) :
     fill(TileChar::HIDDEN);
 }
 TileString::TileString(TileStringWidth width, TileStringInitList&& tiles) :
-    m_Size{tiles.size()},
+    m_Size{static_cast<TileStringSize>(tiles.size())},
     m_Width{width}
 {
     for (TileStringIndex i = 0; i < m_Size; i++)
@@ -25,7 +25,7 @@ TileString::TileString(TileStringWidth width, TileStringInitList&& tiles) :
     }
 }
 TileString::TileString(TileStringWidth width, const TileStringInitList& tiles) :
-    m_Size{tiles.size()},
+    m_Size{static_cast<TileStringSize>(tiles.size())},
     m_Width{width}
 {
     for (TileStringIndex i = 0; i < m_Size; i++)

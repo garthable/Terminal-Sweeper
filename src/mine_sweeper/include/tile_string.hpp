@@ -12,8 +12,16 @@ namespace mswp
 
 #pragma pack(push, 1)
 
+/**
+ * @brief Struct that stores two tile visual representation
+ * 
+ */
 struct TileChar
 {
+    /**
+     * @brief 4 bit enum that can describe all visual states of tile.
+     * 
+     */
     enum TileCharEnum : uint8_t 
     {
         VISIBLE_0 = 0u,
@@ -35,12 +43,20 @@ struct TileChar
 
 #pragma pack(pop)
 
+// Typedefs used inorder to make it easier to change sizes safely.
+
 typedef uint16_t TileStringSize;
 typedef uint8_t TileStringWidth;
 typedef TileStringSize TileStringIndex;
 typedef std::array<TileChar, MSWP_MAX_TILES/2> TileChars;
 typedef std::initializer_list<Tile> TileStringInitList;
 
+/**
+ * @brief Converts a tile object into a TileCharEnum
+ * 
+ * @param tile 
+ * @return TileChar::TileCharEnum 
+ */
 inline TileChar::TileCharEnum tileToTileChar(Tile tile)
 {
     if (tile.state & Tile::VISIBLE)
@@ -58,6 +74,12 @@ inline TileChar::TileCharEnum tileToTileChar(Tile tile)
     return TileChar::HIDDEN;
 }
 
+/**
+ * @brief Converts TileCharEnum into char
+ * 
+ * @param tileChar 
+ * @return char 
+ */
 inline char tileCharToChar(TileChar::TileCharEnum tileChar)
 {
     switch (tileChar)
@@ -95,31 +117,134 @@ inline char tileCharToChar(TileChar::TileCharEnum tileChar)
 class TileString
 {
 public:
+    /**
+     * @brief Construct a new Tile String object
+     * 
+     */
     TileString();
+    /**
+     * @brief Construct a new Tile String object
+     * 
+     * @param size length of tile string
+     * @param width width of the tile string
+     */
     TileString(TileStringSize size, TileStringWidth width);
+    /**
+     * @brief Construct a new Tile String object
+     * 
+     * @param width width of the tile string
+     * @param tiles init list of tiles
+     */
     TileString(TileStringWidth width, TileStringInitList&& tiles);
+    /**
+     * @brief Construct a new Tile String object
+     * 
+     * @param width width of tile string
+     * @param tiles init list of tiles
+     */
     TileString(TileStringWidth width, const TileStringInitList& tiles);
+    /**
+     * @brief Sets value at index i to be tileCharEnum
+     * 
+     * @param i index
+     * @param tileCharEnum new value at index i
+     */
     void set(TileStringIndex i, TileChar::TileCharEnum tileCharEnum);
+    /**
+     * @brief Gets value at index i
+     * 
+     * @param i index
+     * @return TileChar::TileCharEnum 
+     */
     TileChar::TileCharEnum operator[](TileStringIndex i) const;
 
+    /**
+     * @brief Compares to init list
+     * 
+     * @param tiles 
+     * @return true 
+     * @return false 
+     */
     bool operator==(TileStringInitList&& tiles) const;
+    /**
+     * @brief Compares to other TileString
+     * 
+     * @param tileChars 
+     * @return true 
+     * @return false 
+     */
     bool operator==(const TileString& tileChars) const;
 
+    /**
+     * @brief Sets TileString
+     * 
+     * @param tiles 
+     */
     void operator=(TileStringInitList&& tiles);
+    /**
+     * @brief Fills tile string with value
+     * 
+     * @param tileCharEnum 
+     */
     void fill(TileChar::TileCharEnum tileCharEnum);
 
+    /**
+     * @brief Gets size
+     * 
+     * @return TileStringSize 
+     */
     TileStringSize size() const;
+    /**
+     * @brief Gets width
+     * 
+     * @return TileStringWidth 
+     */
     TileStringWidth width() const;
+    /**
+     * @brief Gets TileChars
+     * 
+     * @return const TileChars& 
+     */
     const TileChars& tileChars() const;
 
+    /**
+     * @brief Fills self with hidden
+     * 
+     */
     void reset();
 private:
+    /**
+     * @brief Array of TileChars
+     * 
+     */
     TileChars m_TileChars;
+    /**
+     * @brief Space used in TileChars
+     * 
+     */
     const TileStringSize m_Size;
+    /**
+     * @brief Width of strings
+     * 
+     */
     const TileStringWidth m_Width;
 };
 
+/**
+ * @brief Prints TileString
+ * 
+ * @param out 
+ * @param tileString 
+ * @return std::ostream& 
+ */
 std::ostream& operator<<(std::ostream &out, const TileString& tileString);
+/**
+ * @brief Prints Tile
+ * 
+ * @param out 
+ * @param tile 
+ * @return std::ostream& 
+ */
 std::ostream& operator<<(std::ostream &out, const Tile& tile);
 
 } // mswp end

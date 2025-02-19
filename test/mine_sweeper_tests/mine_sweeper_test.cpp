@@ -6,7 +6,7 @@
 
 TEST(MineSweeperTests, click0)
 {
-    using namespace mswpalias;
+    using namespace mswptileconsts;
 
     mswp::MineSweeper board(5, 
     {
@@ -37,7 +37,7 @@ TEST(MineSweeperTests, click0)
 
 TEST(MineSweeperTests, click1)
 {
-    using namespace mswpalias;
+    using namespace mswptileconsts;
 
     mswp::MineSweeper board(5, 
     {
@@ -68,7 +68,7 @@ TEST(MineSweeperTests, click1)
 
 TEST(MineSweeperTests, click2)
 {
-    using namespace mswpalias;
+    using namespace mswptileconsts;
 
     mswp::MineSweeper board(5, 
     {
@@ -99,7 +99,7 @@ TEST(MineSweeperTests, click2)
 
 TEST(MineSweeperTests, clickMoveBomb0)
 {
-    using namespace mswpalias;
+    using namespace mswptileconsts;
 
     mswp::MineSweeper board(5, 
     {
@@ -115,7 +115,7 @@ TEST(MineSweeperTests, clickMoveBomb0)
 }
 TEST(MineSweeperTests, clickMoveBomb1)
 {
-    using namespace mswpalias;
+    using namespace mswptileconsts;
 
     mswp::MineSweeper board(5, 
     {
@@ -135,7 +135,7 @@ TEST(MineSweeperTests, clickMoveBomb1)
 
 TEST(MineSweeperTests, flag)
 {
-    using namespace mswpalias;
+    using namespace mswptileconsts;
 
     mswp::MineSweeper board(5, 
     {
@@ -166,7 +166,7 @@ TEST(MineSweeperTests, flag)
 
 TEST(MineSweeperTests, unflag)
 {
-    using namespace mswpalias;
+    using namespace mswptileconsts;
 
     mswp::MineSweeper board(5, 
     {

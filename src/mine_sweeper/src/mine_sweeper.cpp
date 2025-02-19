@@ -9,11 +9,12 @@
 namespace mswp
 {
 
-inline BoardSize getSize(BoardWidth width, BoardHeight height)
-{
-    return static_cast<BoardSize>(width)*static_cast<BoardSize>(height);
-}
-
+/**
+ * @brief Sets all tiles to hidden
+ * 
+ * @param size 
+ * @param outTiles 
+ */
 inline void resetTiles(BoardSize size, Tiles& outTiles)
 {
     for (BoardIndex i = 0; i < size; i++)
@@ -24,6 +25,15 @@ inline void resetTiles(BoardSize size, Tiles& outTiles)
     }
 }
 
+/**
+ * @brief Generates bombs for board
+ * 
+ * @param size Size of board
+ * @param width Width of board
+ * @param bombCount Amount of bombs in board
+ * @param seed Seed of board
+ * @param outTiles Tiles to be modified
+ */
 void generateBombs(BoardSize size, BoardWidth width, BombCount bombCount, BoardSeed seed, Tiles& outTiles)
 {
     std:: minstd_rand rand;
@@ -42,7 +52,7 @@ void generateBombs(BoardSize size, BoardWidth width, BombCount bombCount, BoardS
         {
             continue;
         }
-        applyFuncToAdjObjects<Tiles, Tile>(index, width, size, outTiles, 
+        util::applyFuncToAdjObjects<Tiles, Tile>(index, width, size, outTiles, 
         [](Tile& tile) 
         {
             tile.adjBombs += 1;
@@ -52,6 +62,12 @@ void generateBombs(BoardSize size, BoardWidth width, BombCount bombCount, BoardS
     }
 }
 
+/**
+ * @brief Gets the amount of bombs in an initialization list
+ * 
+ * @param initList 
+ * @return BombCount 
+ */
 inline BombCount getBombCount(const BoardInitList& initList)
 {
     BombCount bombCount = 0;
@@ -63,7 +79,7 @@ inline BombCount getBombCount(const BoardInitList& initList)
 }
 
 MineSweeper::MineSweeper(BoardWidth width, BoardHeight height, BombCount bombCount, BoardSeed boardSeed) :
-    m_Size{getSize(width, height)},
+    m_Size{util::multUi8sToUi16(width, height)},
     m_Width{width},
     m_BombCount{bombCount},
     m_BoardSeed{boardSeed},
@@ -102,6 +118,16 @@ MineSweeper::MineSweeper(BoardWidth width, const BoardInitList& boardInitList) :
     std::copy(boardInitList.begin(), boardInitList.begin() + m_Size, m_Tiles.begin());
 }
 
+/**
+ * @brief Clicks all tiles neighboring tiles with no adjbombs
+ * 
+ * @param i Current tile index
+ * @param size Size of board
+ * @param width Width of board
+ * @param outRemainingTiles Remaining tiles to be modified
+ * @param outTiles Tiles to be modified
+ * @param outTileString Tile String to be modified
+ */
 void reccursiveClick(const BoardIndex i, const BoardSize size, const BoardWidth width, BoardSize& outRemainingTiles, Tiles& outTiles, TileString& outTileString)
 {
     if (outTiles[i].state & Tile::VISIBLE)
@@ -116,28 +142,39 @@ void reccursiveClick(const BoardIndex i, const BoardSize size, const BoardWidth 
         return;
     }
 
-    applyFuncToAdjObjects<Tiles, Tile>(i, width, size, outTiles, 
+    util::applyFuncToAdjObjects<Tiles, Tile>(i, width, size, outTiles, 
     [&](BoardIndex newI, Tile& tile) 
     {
         reccursiveClick(newI, size, width, outRemainingTiles, outTiles, outTileString);
     });
 }
 
-inline bool removeBombsInArea(BoardIndex i, BoardWidth width, BoardSize size, Tiles& outTiles, BombCount& outBombCounts)
+/**
+ * @brief Removes bombs in area
+ * 
+ * @param center Where user clicked
+ * @param width Width of board
+ * @param size Size of board
+ * @param outTiles Tiles to be modified
+ * @param outBombCounts used to keep track of number of bombs removed
+ * @return true 
+ * @return false 
+ */
+inline bool removeBombsInArea(BoardIndex center, BoardWidth width, BoardSize size, Tiles& outTiles, BombCount& outBombCounts)
 {
     bool bombInArea = false;
-    if (outTiles[i].state & Tile::BOMB)
+    if (outTiles[center].state & Tile::BOMB)
     {
         bombInArea = true;
-        outTiles[i].state = outTiles[i].state ^ Tile::BOMB;
+        outTiles[center].state = outTiles[center].state ^ Tile::BOMB;
         outBombCounts--;
-        applyFuncToAdjObjects<Tiles, Tile>(i, width, size, outTiles,
+        util::applyFuncToAdjObjects<Tiles, Tile>(center, width, size, outTiles,
         [](Tile& tile)
         {
             tile.adjBombs--;
         });
     }
-    applyFuncToAdjObjects<Tiles, Tile>(i, width, size, outTiles, 
+    util::applyFuncToAdjObjects<Tiles, Tile>(center, width, size, outTiles, 
     [&](BoardIndex j, Tile& tile)
     {
         if (tile.state & Tile::BOMB)
@@ -145,7 +182,7 @@ inline bool removeBombsInArea(BoardIndex i, BoardWidth width, BoardSize size, Ti
             bombInArea = true;
             tile.state = tile.state ^ Tile::BOMB;
             outBombCounts--;
-            applyFuncToAdjObjects<Tiles, Tile>(j, width, size, outTiles,
+            util::applyFuncToAdjObjects<Tiles, Tile>(j, width, size, outTiles,
             [](Tile& tile)
             {
                 tile.adjBombs--;
@@ -155,10 +192,20 @@ inline bool removeBombsInArea(BoardIndex i, BoardWidth width, BoardSize size, Ti
     return bombInArea;
 }
 
-inline void moveBombsAway(const BoardIndex i, const BoardSeed boardSeed, const BoardWidth width, const BoardSize size, const BombCount bombCount, Tiles& outTiles)
+/**
+ * @brief Moves bombs away from center
+ * 
+ * @param center Where user clicked
+ * @param boardSeed Seed used to randomly place bombs
+ * @param width Width of board
+ * @param size Size of board
+ * @param bombCount BombCount
+ * @param outTiles Tiles to be modified
+ */
+inline void moveBombsAway(const BoardIndex center, const BoardSeed boardSeed, const BoardWidth width, const BoardSize size, const BombCount bombCount, Tiles& outTiles)
 {
     BombCount currBombCount = bombCount;
-    if (!removeBombsInArea(i, width, size, outTiles, currBombCount))
+    if (!removeBombsInArea(center, width, size, outTiles, currBombCount))
     {
         return;
     }
@@ -167,13 +214,13 @@ inline void moveBombsAway(const BoardIndex i, const BoardSeed boardSeed, const B
     while(currBombCount != bombCount)
     {
         const BoardIndex randI = rand() % size;
-        if (outTiles[randI].state & Tile::BOMB || isIndexNear(width, i, randI))
+        if (outTiles[randI].state & Tile::BOMB || util::isIndexNear(width, center, randI))
         {
             continue;
         }
         outTiles[randI].state = outTiles[randI].state | Tile::BOMB;
         currBombCount++;
-        applyFuncToAdjObjects<Tiles, Tile>(randI, width, size, outTiles, 
+        util::applyFuncToAdjObjects<Tiles, Tile>(randI, width, size, outTiles, 
         [](Tile& tile) 
         {
             tile.adjBombs += 1;

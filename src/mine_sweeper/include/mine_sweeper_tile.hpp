@@ -9,6 +9,10 @@ namespace mswp
 
 struct Tile
 {
+    /**
+     * @brief Tile state, tracks whether tile is visible, has bomb, and or is flagged.
+     * 
+     */
     enum State : uint8_t 
     {
         HIDDEN = 0u,
@@ -22,6 +26,13 @@ struct Tile
         adjBombs{adjBombs},
         state{state}
     {}
+    /**
+     * @brief Detects if other tile state and adjBomb count are equal to ours.
+     * 
+     * @param other 
+     * @return true 
+     * @return false 
+     */
     bool operator==(const Tile other) const
     {
         return state == other.state && adjBombs == other.adjBombs;
@@ -32,16 +43,37 @@ struct Tile
 
 #pragma pack(pop)
 
+/**
+ * @brief Bit ORs two tile states.
+ * 
+ * @param a state a
+ * @param b state b
+ * @return constexpr Tile::State 
+ */
 constexpr Tile::State operator|(Tile::State a, Tile::State b)
 {
     return static_cast<Tile::State>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
 }
 
+/**
+ * @brief Bit XORs two tile states.
+ * 
+ * @param a state a
+ * @param b state b
+ * @return constexpr Tile::State 
+ */
 constexpr Tile::State operator^(Tile::State a, Tile::State b)
 {
     return static_cast<Tile::State>(static_cast<uint8_t>(a) ^ static_cast<uint8_t>(b));
 }
 
+/**
+ * @brief Bit ANDs two tile states.
+ * 
+ * @param a state a
+ * @param b state b
+ * @return constexpr Tile::State 
+ */
 constexpr Tile::State operator&(Tile::State a, Tile::State b)
 {
     return static_cast<Tile::State>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));

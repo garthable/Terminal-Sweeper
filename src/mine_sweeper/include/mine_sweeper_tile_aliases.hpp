@@ -2,7 +2,10 @@
 
 #include "mine_sweeper_tile.hpp"
 
-namespace mswpalias
+/**
+ * @brief Global tile constants used for creating boards. 
+ */
+namespace mswptileconsts
 {
 inline constexpr mswp::Tile V0 = mswp::Tile(0, mswp::Tile::VISIBLE);
 inline constexpr mswp::Tile V1 = mswp::Tile(1, mswp::Tile::VISIBLE);
