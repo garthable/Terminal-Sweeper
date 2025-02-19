@@ -137,7 +137,7 @@ void reccursiveClick(const BoardIndex i, const BoardSize size, const BoardWidth 
     outTiles[i].state = outTiles[i].state | Tile::VISIBLE;
     outTileString.set(i, tileToTileChar(outTiles[i]));
     outRemainingTiles--;
-    if (outTiles[i].adjBombs)
+    if (outTiles[i].adjBombs || outTiles[i].state & Tile::BOMB)
     {
         return;
     }
@@ -231,9 +231,10 @@ inline void moveBombsAway(const BoardIndex center, const BoardSeed boardSeed, co
 bool MineSweeper::click(BoardXPos x, BoardYPos y)
 {
     BoardIndex i = static_cast<BoardIndex>(x) + static_cast<BoardIndex>(y)*m_Width;
-    if (m_GameState & MineSweeper::START && m_Tiles[i].state & Tile::BOMB)
+    if (m_GameState & MineSweeper::START)
     {
         moveBombsAway(i, m_BoardSeed, m_Width, m_Size, m_BombCount, m_Tiles);
+        m_GameState = MineSweeper::IN_PROGRESS;
     }
     reccursiveClick(i, m_Size, m_Width, m_RemainingTiles, m_Tiles, m_TileString);
     if (m_Tiles[i].state & Tile::BOMB)
