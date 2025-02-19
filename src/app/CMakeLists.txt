@@ -17,28 +17,10 @@ cmake_minimum_required(VERSION 3.14)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(GOOGLE_TEST_VERSION 1.15.2)
-set(TEST_LIBRARIES
-    Util
-    Mine_Sweeper
-    App
-    gtest_main
-)
-set(TEST_SOURCE
-    mine_sweeper_tests/mine_sweeper_test.cpp
-    mine_sweeper_tests/mine_sweeper_tile_test.cpp
+set(SOURCE
+    src/app.cpp
 )
 
-enable_testing()
-
-# Installs google test
-include(FetchContent)
-FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/refs/tags/v${GOOGLE_TEST_VERSION}.zip 
-    FIND_PACKAGE_ARGS ${GOOGLE_TEST_VERSION}
-)
-FetchContent_MakeAvailable(googletest)
-
-add_executable(Mine_Sweeper_Test ${TEST_SOURCE})
-target_link_libraries(Mine_Sweeper_Test ${TEST_LIBRARIES})
+add_library(App STATIC ${SOURCE})
+target_include_directories(App PUBLIC include)
+target_link_libraries(App Mine_Sweeper Util)

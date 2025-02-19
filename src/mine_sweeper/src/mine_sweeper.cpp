@@ -231,10 +231,10 @@ inline void moveBombsAway(const BoardIndex center, const BoardSeed boardSeed, co
 bool MineSweeper::click(BoardXPos x, BoardYPos y)
 {
     BoardIndex i = static_cast<BoardIndex>(x) + static_cast<BoardIndex>(y)*m_Width;
-    if (m_GameState & MineSweeper::START)
+    if (m_GameState & START)
     {
         moveBombsAway(i, m_BoardSeed, m_Width, m_Size, m_BombCount, m_Tiles);
-        m_GameState = MineSweeper::IN_PROGRESS;
+        m_GameState = IN_PROGRESS;
     }
     reccursiveClick(i, m_Size, m_Width, m_RemainingTiles, m_Tiles, m_TileString);
     if (m_Tiles[i].state & Tile::BOMB)
