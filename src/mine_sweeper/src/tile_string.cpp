@@ -1,4 +1,5 @@
 #include "tile_string.hpp"
+#include "util.hpp"
 
 namespace mswp 
 {
@@ -115,14 +116,33 @@ void TileString::reset()
 std::ostream& operator<<(std::ostream &out, const TileString& tileString)
 {
     out << "Board:\n";
+    out << util::uI8ToLetter(0) << " | ";
+    TileStringWidth yMax = tileString.size() / tileString.width();
     for (TileStringIndex i = 0; i < tileString.size(); i++)
     {
         out << tileCharToChar(tileString[i]) << ' ';
         if (i % tileString.width() == tileString.width() - 1)
         {
             out << '\n';
+            TileStringWidth y = (i / tileString.width()) + 1;
+            if (y == yMax)
+            {
+                continue;
+            }
+            out << util::uI8ToLetter(y) << " | ";
         }
     }
+    out << "   ";
+    for (TileStringIndex i = 0; i < tileString.width(); i++)
+    {
+        out << "--";
+    }
+    out << "\n    ";
+    for (TileStringIndex i = 0; i < tileString.width(); i++)
+    {
+        out << util::uI8ToLetter(i) << " ";
+    }
+    out << "\n";
     return out;
 }
 std::ostream& operator<<(std::ostream &out, const Tile& tile)

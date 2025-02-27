@@ -57,13 +57,63 @@ struct Action
         CLICK
     };
 };
+
 void getActionAndPositionTerminal(mswp::BoardWidth width, mswp::BoardHeight height, mswp::BoardXPos& xPos, mswp::BoardYPos& yPos, Action::Actions& action)
 {
+    while (true)
+    {
+        std::cout << "Enter Action and Position: (c/f) <row> <col>\n";
+        std::string line;
 
+        getline(std::cin, line);
+        if (line.size() != 5)
+        {
+            std::cout << "Input is incorrect size!\n";
+        }
+
+        xPos = util::letterToUI8(line[4]);
+        if (xPos == 255)
+        {
+            std::cout << "\'" << line[4] << "\' is invalid!\n";
+        }
+        if (xPos >= width)
+        {
+            std::cout << "\'" << static_cast<int>(xPos) << "\' is larger than width!\n";
+        }
+
+        yPos = util::letterToUI8(line[2]);
+        if (yPos == 255)
+        {
+            std::cout << "\'" << line[2] << "\' is invalid!\n";
+        }
+        if (yPos >= height)
+        {
+            std::cout << "\'" << static_cast<int>(yPos) << "\' is larger than height!\n";
+        }
+
+        action = line[0] == 'c' ? Action::CLICK : Action::FLAG;
+        break;
+    }
 }
-bool getShouldExitTerminal()
+bool shouldExitTerminal()
 {
-
+    while (true)
+    {
+        std::cout << "Play another game? (Y/n)\n";
+        std::string input;
+        getline(std::cin, input);
+    
+        char firstLetter = tolower(input[0]);
+        if (firstLetter == 'y')
+        {
+            return true;
+        }
+        else if (firstLetter == 'n')
+        {
+            return false;
+        }
+        std::cout << "\"" << input << "\"" << " is an invalid input!\n";
+    }
 }
 void runInTerminal()
 {
@@ -74,10 +124,12 @@ void runInTerminal()
         mswp::BombCount bombCount;
         getWidthHeightBombCountTerminal(width, height, bombCount);
     
-        mswp::MineSweeper board(MSWP_EXPERT_WIDTH, MSWP_EXPERT_HEIGHT, MSWP_EXPERT_BOMB_COUNT, time(0));
+        mswp::MineSweeper board(width, height, bombCount, time(0));
     
         while(true)
         {
+            std::cout << "Flags: " << static_cast<int>(board.flagsRemaining()) << "\n";
+            std::cout << "Remaining Tiles: " << static_cast<int>(board.remainingTile()) << "\n";
             std::cout << board;
 
             mswp::BoardXPos xPos;
@@ -96,17 +148,21 @@ void runInTerminal()
             else
             {
                 bool res = board.flag(xPos, yPos);
-                if (res)
-                {
-                    break;
-                }
             }
         }
-    } while(getShouldExitTerminal());
-}
-void runBenchmark()
-{
-
+        
+        std::cout << "Flags: " << static_cast<int>(board.flagsRemaining()) << "\n";
+        std::cout << "Remaining Tiles: " << static_cast<int>(board.remainingTile()) << "\n";
+        std::cout << board;
+        if (board.gameState() == mswp::MineSweeper::WON)
+        {
+            std::cout << "WON\n";
+        }
+        else
+        {
+            std::cout << "LOST\n";
+        }
+    } while(shouldExitTerminal());
 }
 
 } // app end

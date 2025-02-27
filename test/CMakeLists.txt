@@ -40,5 +40,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 add_executable(Mine_Sweeper_Test ${TEST_SOURCE})
 target_link_libraries(Mine_Sweeper_Test ${TEST_LIBRARIES})

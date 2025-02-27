@@ -142,4 +142,42 @@ inline int16_t multI8sToI16(int8_t a, int8_t b)
     return static_cast<int16_t>(a)*static_cast<int16_t>(b);
 }
 
+/**
+ * @brief Converts abc...XYZ to number
+ * 
+ * @param c letter char
+ * @return uint8_t 
+ */
+inline uint8_t letterToUI8(char c)
+{
+    if (97 <= c && c <= 122)
+    {
+        return static_cast<int8_t>(c) - 97;
+    }
+    else if (65 <= c && c <= 90)
+    {
+        return static_cast<int8_t>(c) - 65 + 26;
+    }
+    return 255;
+}
+
+/**
+ * @brief Converts number to abc...XYZ
+ * 
+ * @param val number
+ * @return uint8_t 
+ */
+inline char uI8ToLetter(uint8_t val)
+{
+    if (0 <= val && val <= 25)
+    {
+        return static_cast<int16_t>(val) + 97;
+    }
+    else if (26 <= val && val <= 51)
+    {
+        return static_cast<int16_t>(val) + 65 - 26;
+    }
+    return 255;
+}
+
 } // util end
