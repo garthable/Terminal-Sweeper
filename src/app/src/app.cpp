@@ -69,26 +69,31 @@ void getActionAndPositionTerminal(mswp::BoardWidth width, mswp::BoardHeight heig
         if (line.size() != 5)
         {
             std::cout << "Input is incorrect size!\n";
+            continue;
         }
 
         xPos = util::letterToUI8(line[4]);
         if (xPos == 255)
         {
             std::cout << "\'" << line[4] << "\' is invalid!\n";
+            continue;
         }
         if (xPos >= width)
         {
             std::cout << "\'" << static_cast<int>(xPos) << "\' is larger than width!\n";
+            continue;
         }
 
         yPos = util::letterToUI8(line[2]);
         if (yPos == 255)
         {
             std::cout << "\'" << line[2] << "\' is invalid!\n";
+            continue;
         }
         if (yPos >= height)
         {
             std::cout << "\'" << static_cast<int>(yPos) << "\' is larger than height!\n";
+            continue;
         }
 
         action = line[0] == 'c' ? Action::CLICK : Action::FLAG;
