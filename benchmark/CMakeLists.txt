@@ -13,10 +13,15 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.14)
-project(Mine_Sweeper_Solver VERSION 0.1.0)
 
-add_compile_options(-std=c++20 -Wall -Wextra -O3)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(src)
-add_subdirectory(test)
-add_subdirectory(benchmark)
+FetchContent_Declare(googlebenchmark
+    GIT_REPOSITORY https://github.com/google/benchmark.git
+    GIT_TAG main) # need main for benchmark::benchmark
+
+FetchContent_MakeAvailable(
+    googlebenchmark)
+
+add_subdirectory(mine_sweeper)

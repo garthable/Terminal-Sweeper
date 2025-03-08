@@ -174,7 +174,7 @@ public:
      */
     inline Tile operator()(BoardXPos x, BoardYPos y) const
     {
-        return m_Tiles[x + y*m_Width];
+        return m_Tiles[static_cast<BoardIndex>(x) + static_cast<BoardIndex>(y)*static_cast<BoardIndex>(m_Width)];
     }
     /**
      * @brief Gets tile
