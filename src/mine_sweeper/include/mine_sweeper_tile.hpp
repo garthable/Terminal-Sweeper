@@ -7,6 +7,8 @@ namespace mswp
 
 #pragma pack(push, 1)
 
+#define MSWP_COMPACT_TILES 1
+
 struct Tile
 {
     /**
@@ -37,8 +39,13 @@ struct Tile
     {
         return state == other.state && adjBombs == other.adjBombs;
     }
+#ifdef MSWP_COMPACT_TILES
     uint8_t adjBombs : 4;
     State state : 4;
+#else
+    uint8_t adjBombs;
+    State state;
+#endif
 };
 
 #pragma pack(pop)

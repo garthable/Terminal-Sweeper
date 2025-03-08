@@ -38,7 +38,7 @@ TileString::TileString(TileStringWidth width, const TileStringInitList& tiles) :
 }
 void TileString::set(TileStringIndex i, TileChar::TileCharEnum tileCharEnum)
 {
-#ifdef COMPACT_TILESTRING
+#ifdef MSWP_COMPACT_TILESTRING
     TileStringIndex byteIndex = i / 2;
     switch (i % 2)
     {
@@ -55,7 +55,7 @@ void TileString::set(TileStringIndex i, TileChar::TileCharEnum tileCharEnum)
 }
 TileChar::TileCharEnum TileString::operator[](TileStringIndex i) const
 {
-#ifdef COMPACT_TILESTRING
+#ifdef MSWP_COMPACT_TILESTRING
     TileStringIndex byteIndex = i / 2;
     return i % 2 == 0 ?  m_TileChars[byteIndex].state0 : m_TileChars[byteIndex].state1;
 #else

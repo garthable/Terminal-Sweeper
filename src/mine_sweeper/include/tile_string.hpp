@@ -7,7 +7,7 @@
 #include "mine_sweeper_constants.hpp"
 #include "mine_sweeper_tile.hpp"
 
-// #define COMPACT_TILESTRING 1
+// #define MSWP_COMPACT_TILESTRING 1
 
 namespace mswp
 {
@@ -39,7 +39,7 @@ struct TileChar
         HIDDEN = 10u,
         FLAGGED = 11u,
     };
-#ifdef COMPACT_TILESTRING
+#ifdef MSWP_COMPACT_TILESTRING
     TileCharEnum state0 : 4;
     TileCharEnum state1 : 4;
 #else
@@ -54,7 +54,7 @@ struct TileChar
 typedef uint16_t TileStringSize;
 typedef uint8_t TileStringWidth;
 typedef TileStringSize TileStringIndex;
-#ifdef COMPACT_TILESTRING
+#ifdef MSWP_COMPACT_TILESTRING
     typedef std::array<TileChar, MSWP_MAX_TILES/2> TileChars;
 #else
     typedef std::array<TileChar, MSWP_MAX_TILES> TileChars;
