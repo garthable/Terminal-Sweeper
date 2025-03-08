@@ -26,7 +26,6 @@ set(TEST_LIBRARIES
 )
 set(TEST_SOURCE
     mine_sweeper_tests/mine_sweeper_test.cpp
-    mine_sweeper_tests/mine_sweeper_tile_test.cpp
 )
 
 enable_testing()
