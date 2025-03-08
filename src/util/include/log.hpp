@@ -38,5 +38,5 @@ namespace util
  */
 #define LOG_ERROR(error) do \
 { \
-    std::cout << "[ERROR] " << info << '\n'; \
+    std::clog << "[ERROR] " << info << '\n'; \
 } while(0) 
