@@ -15,6 +15,94 @@ namespace app
 
 // GUI
 
+void mainMenuBar()
+{
+    static bool initMenu = true;
+    static char difficultyStr[Difficulty::strSize];
+    static Difficulty::DifficultyEnum difficulty = Difficulty::BEGINNER;
+
+    static char allowedSeedStr[AllowedSeeds::strSize];
+    static AllowedSeeds::AllowedSeedsEnum allowedSeeds = AllowedSeeds::ALLOW_ALL_SEEDS;
+
+    static char firstClickStr[FirstClick::strSize];
+    static FirstClick::FirstClickEnum firstClick = FirstClick::_3X3_AREA;
+    if (initMenu)
+    {
+        strcpy(difficultyStr, Difficulty::beginnerStr);
+        strcpy(allowedSeedStr, AllowedSeeds::allowAllSeedsStr);
+        strcpy(firstClickStr, FirstClick::_3x3AreaStr);
+        initMenu = false;
+    }
+    ImGui::BeginMainMenuBar();
+    if (ImGui::BeginMenu(difficultyStr))
+    {
+        bool helper = difficulty == Difficulty::BEGINNER;
+        if (ImGui::MenuItem(Difficulty::beginnerStr, "", &helper)) 
+        {
+            strcpy(difficultyStr, Difficulty::beginnerStr);
+            difficulty = Difficulty::BEGINNER;
+        }
+        helper = difficulty == Difficulty::INTERMEDIATE;
+        if (ImGui::MenuItem(Difficulty::intermediateStr, "", &helper)) 
+        { 
+            strcpy(difficultyStr, Difficulty::intermediateStr);
+            difficulty = Difficulty::INTERMEDIATE;
+        }
+        helper = difficulty == Difficulty::EXPERT;
+        if (ImGui::MenuItem(Difficulty::expertStr, "", &helper)) 
+        {
+            strcpy(difficultyStr, Difficulty::expertStr);
+            difficulty = Difficulty::EXPERT;
+        }
+        ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu(allowedSeedStr))
+    {
+        bool helper = allowedSeeds == AllowedSeeds::ONLY_100_PERCENT_AND_0_PERCENT;
+        if (ImGui::MenuItem(AllowedSeeds::only100PercentAnd0PercentStr, "", &helper)) 
+        {
+            strcpy(allowedSeedStr, AllowedSeeds::only100PercentAnd0PercentStr);
+            allowedSeeds = AllowedSeeds::ONLY_100_PERCENT_AND_0_PERCENT;
+        }
+        helper = allowedSeeds == AllowedSeeds::HIGHEST_PROB_IS_BOMB;
+        if (ImGui::MenuItem(AllowedSeeds::highestProbIsBombStr, "", &helper)) 
+        { 
+            strcpy(allowedSeedStr, AllowedSeeds::highestProbIsBombStr);
+            allowedSeeds = AllowedSeeds::HIGHEST_PROB_IS_BOMB;
+        }
+        helper = allowedSeeds == AllowedSeeds::ALLOW_ALL_SEEDS;
+        if (ImGui::MenuItem(AllowedSeeds::allowAllSeedsStr, "", &helper)) 
+        {
+            strcpy(allowedSeedStr, AllowedSeeds::allowAllSeedsStr);
+            allowedSeeds = AllowedSeeds::ALLOW_ALL_SEEDS;
+        }
+        ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu(firstClickStr))
+    {
+        bool helper = firstClick == FirstClick::_3X3_AREA;
+        if (ImGui::MenuItem(FirstClick::_3x3AreaStr, "", &helper)) 
+        {
+            strcpy(firstClickStr, FirstClick::_3x3AreaStr);
+            firstClick = FirstClick::_3X3_AREA;
+        }
+        helper = firstClick == FirstClick::_1X1_AREA;
+        if (ImGui::MenuItem(FirstClick::_1x1AreaStr, "", &helper)) 
+        { 
+            strcpy(firstClickStr, FirstClick::_1x1AreaStr);
+            firstClick = FirstClick::_1X1_AREA;
+        }
+        helper = firstClick == FirstClick::_0X0_AREA;
+        if (ImGui::MenuItem(FirstClick::_0x0AreaStr, "", &helper)) 
+        {
+            strcpy(firstClickStr, FirstClick::_0x0AreaStr);
+            firstClick = FirstClick::_0X0_AREA;
+        }
+        ImGui::EndMenu();
+    }
+    ImGui::EndMainMenuBar();
+}
+
 void runInGUI()
 {
     glfwInit();
@@ -85,16 +173,7 @@ void runInGUI()
         ImGui::NewFrame();
 
         // UI
-
-        // Menu
-        {
-            ImGui::Begin("Menu");
-            if (ImGui::Button("Click Me!"))
-            {
-                LOG_INFO("Clicked!");
-            }
-            ImGui::End();
-        }
+        mainMenuBar();
 
         // Rendering
         ImGui::Render();
@@ -104,6 +183,8 @@ void runInGUI()
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        
 
         // Update and Render additional Platform Windows
         // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.

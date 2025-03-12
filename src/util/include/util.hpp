@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>
 #include <functional>
 
@@ -178,6 +180,38 @@ inline char uI8ToLetter(uint8_t val)
         return static_cast<int16_t>(val) + 65 - 26;
     }
     return 255;
+}
+
+/**
+ * @brief Get length of const char
+ * 
+ * @param string 
+ * @return constexpr size_t 
+ */
+inline constexpr size_t getLenStr(const char* string)
+{
+    return *string ? 1 + getLenStr(string + 1) : 0;
+}
+
+/**
+ * @brief Find char string of the largest size.
+ * 
+ * @param strings 
+ * @return constexpr size_t 
+ */
+inline constexpr size_t getMaxLenStr(std::initializer_list<const char*> strings)
+{
+    size_t maxLength = 0;
+    for (size_t i = 0; i < strings.size(); i++)
+    {
+        const char* string = *(strings.begin() + i);
+        size_t length = getLenStr(string);
+        if (length > maxLength)
+        {
+            maxLength = length;
+        }
+    }
+    return maxLength;
 }
 
 } // util end

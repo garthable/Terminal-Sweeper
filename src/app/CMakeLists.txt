@@ -23,4 +23,4 @@ set(SOURCE
 
 add_library(App STATIC ${SOURCE})
 target_include_directories(App PUBLIC include)
-target_link_libraries(App Mine_Sweeper Util ImGui)
+target_link_libraries(App Mine_Sweeper Util ImGui StbImage)
