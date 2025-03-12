@@ -21,7 +21,11 @@ set(LIBRARIES
     Util
     Mine_Sweeper
     App
+    glfw
 )
+
+find_package(glfw3 REQUIRED)
+find_package(OpenGL REQUIRED)
 
 add_subdirectory(util)
 add_subdirectory(mine_sweeper)
@@ -29,4 +33,4 @@ add_subdirectory(app)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 add_executable(Mine_Sweeper_Solver main.cpp)
-target_link_libraries(Mine_Sweeper_Solver PUBLIC ${LIBRARIES})
+target_link_libraries(Mine_Sweeper_Solver PUBLIC ${LIBRARIES} ${OPENGL_INCLUDE_DIRS})

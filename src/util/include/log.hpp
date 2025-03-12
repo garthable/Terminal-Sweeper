@@ -27,7 +27,7 @@ namespace util
  */
 #define LOG_WARNING(warning) do \
 { \
-    std::cout << "[WARNING] " << info << '\n'; \
+    std::cout << "[WARNING] " << warning << '\n'; \
 } while(0) 
 
 /**
@@ -38,5 +38,5 @@ namespace util
  */
 #define LOG_ERROR(error) do \
 { \
-    std::clog << "[ERROR] " << info << '\n'; \
+    std::clog << "[ERROR] " << error << '\n'; \
 } while(0) 

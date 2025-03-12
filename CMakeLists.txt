@@ -17,6 +17,7 @@ project(Mine_Sweeper_Solver VERSION 0.1.0)
 
 add_compile_options(-std=c++20 -Wall -Wextra -O3)
 
+add_subdirectory(deps)
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(benchmark)

@@ -1,7 +1,7 @@
 namespace app
 {
 
-void runInOpenGl();
+void runInGUI();
 void runInTerminal();
 
 } // app end
