@@ -119,8 +119,7 @@ void runInGUI()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
 
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
-    LOG_INFO("LAUNCHED WINDOW");
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Mine Sweeper Solver", nullptr, nullptr);
     if (window == nullptr)
     {
         LOG_ERROR("FAILED TO OPEN WINDOW");
