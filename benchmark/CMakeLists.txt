@@ -25,3 +25,4 @@ FetchContent_MakeAvailable(
     googlebenchmark)
 
 add_subdirectory(mine_sweeper)
+add_subdirectory(util)

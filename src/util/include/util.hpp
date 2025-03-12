@@ -169,7 +169,7 @@ inline uint8_t letterToUI8(char c)
  */
 inline char uI8ToLetter(uint8_t val)
 {
-    if (0 <= val && val <= 25)
+    if (val <= 25)
     {
         return static_cast<int16_t>(val) + 97;
     }

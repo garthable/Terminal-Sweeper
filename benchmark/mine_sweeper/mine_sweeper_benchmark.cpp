@@ -12,7 +12,6 @@ static void mineSweeperConstructor(benchmark::State& state)
         seed++;
         state.ResumeTiming();
     }
-    state.SetComplexityN(state.range(0)*state.range(1));
 }
 
 BENCHMARK(mineSweeperConstructor)
