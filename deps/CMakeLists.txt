@@ -19,9 +19,11 @@ target_include_directories(ImGui PUBLIC
 
 target_link_libraries(ImGui glfw OpenGL::GL)
 
-add_library(StbImage INTERFACE
-    stb_image/stb_image.h
+add_library(StbImage INTERFACE)
+target_include_directories(StbImage INTERFACE
+    stb_image
 )
+
 target_compile_definitions(StbImage INTERFACE
     STB_IMAGE_IMPLEMENTATION
 )

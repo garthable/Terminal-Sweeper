@@ -19,6 +19,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCE
     src/app.cpp
+    src/image.cpp
+    src/shader.cpp
 )
 
 add_library(App STATIC ${SOURCE})
