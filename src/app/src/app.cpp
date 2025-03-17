@@ -1,8 +1,3 @@
-#include <GLFW/glfw3.h>
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
 #include "mine_sweeper.hpp"
 #include "mine_sweeper_constants.hpp"
 #include "util.hpp"
@@ -10,202 +5,131 @@
 
 #include "app.hpp"
 
+#include <iostream>
+#define CLAY_IMPLEMENTATION
+#include "clay.h"
+#include "clay_renderer_raylib.c"
+
 namespace app
 {
 
-// GUI
+const Clay_Color COLOR_LIGHT = (Clay_Color) {224, 215, 210, 255};
+const Clay_Color COLOR_RED = (Clay_Color) {168, 66, 28, 255};
+const Clay_Color COLOR_ORANGE = (Clay_Color) {225, 138, 50, 255};
 
-void mainMenuBar()
-{
-    static bool initMenu = true;
-    static char difficultyStr[Difficulty::strSize];
-    static Difficulty::DifficultyEnum difficulty = Difficulty::BEGINNER;
-
-    static char allowedSeedStr[AllowedSeeds::strSize];
-    static AllowedSeeds::AllowedSeedsEnum allowedSeeds = AllowedSeeds::ALLOW_ALL_SEEDS;
-
-    static char firstClickStr[FirstClick::strSize];
-    static FirstClick::FirstClickEnum firstClick = FirstClick::_3X3_AREA;
-    if (initMenu)
-    {
-        strcpy(difficultyStr, Difficulty::beginnerStr);
-        strcpy(allowedSeedStr, AllowedSeeds::allowAllSeedsStr);
-        strcpy(firstClickStr, FirstClick::_3x3AreaStr);
-        initMenu = false;
+void HandleClayErrors(Clay_ErrorData errorData) {
+    // See the Clay_ErrorData struct for more information
+    printf("%s", errorData.errorText.chars);
+    switch(errorData.errorType) {
+        // etc
     }
-    ImGui::BeginMainMenuBar();
-    if (ImGui::BeginMenu(difficultyStr))
-    {
-        bool helper = difficulty == Difficulty::BEGINNER;
-        if (ImGui::MenuItem(Difficulty::beginnerStr, "", &helper)) 
-        {
-            strcpy(difficultyStr, Difficulty::beginnerStr);
-            difficulty = Difficulty::BEGINNER;
-        }
-        helper = difficulty == Difficulty::INTERMEDIATE;
-        if (ImGui::MenuItem(Difficulty::intermediateStr, "", &helper)) 
-        { 
-            strcpy(difficultyStr, Difficulty::intermediateStr);
-            difficulty = Difficulty::INTERMEDIATE;
-        }
-        helper = difficulty == Difficulty::EXPERT;
-        if (ImGui::MenuItem(Difficulty::expertStr, "", &helper)) 
-        {
-            strcpy(difficultyStr, Difficulty::expertStr);
-            difficulty = Difficulty::EXPERT;
-        }
-        ImGui::EndMenu();
-    }
-    if (ImGui::BeginMenu(allowedSeedStr))
-    {
-        bool helper = allowedSeeds == AllowedSeeds::ONLY_100_PERCENT_AND_0_PERCENT;
-        if (ImGui::MenuItem(AllowedSeeds::only100PercentAnd0PercentStr, "", &helper)) 
-        {
-            strcpy(allowedSeedStr, AllowedSeeds::only100PercentAnd0PercentStr);
-            allowedSeeds = AllowedSeeds::ONLY_100_PERCENT_AND_0_PERCENT;
-        }
-        helper = allowedSeeds == AllowedSeeds::HIGHEST_PROB_IS_BOMB;
-        if (ImGui::MenuItem(AllowedSeeds::highestProbIsBombStr, "", &helper)) 
-        { 
-            strcpy(allowedSeedStr, AllowedSeeds::highestProbIsBombStr);
-            allowedSeeds = AllowedSeeds::HIGHEST_PROB_IS_BOMB;
-        }
-        helper = allowedSeeds == AllowedSeeds::ALLOW_ALL_SEEDS;
-        if (ImGui::MenuItem(AllowedSeeds::allowAllSeedsStr, "", &helper)) 
-        {
-            strcpy(allowedSeedStr, AllowedSeeds::allowAllSeedsStr);
-            allowedSeeds = AllowedSeeds::ALLOW_ALL_SEEDS;
-        }
-        ImGui::EndMenu();
-    }
-    if (ImGui::BeginMenu(firstClickStr))
-    {
-        bool helper = firstClick == FirstClick::_3X3_AREA;
-        if (ImGui::MenuItem(FirstClick::_3x3AreaStr, "", &helper)) 
-        {
-            strcpy(firstClickStr, FirstClick::_3x3AreaStr);
-            firstClick = FirstClick::_3X3_AREA;
-        }
-        helper = firstClick == FirstClick::_1X1_AREA;
-        if (ImGui::MenuItem(FirstClick::_1x1AreaStr, "", &helper)) 
-        { 
-            strcpy(firstClickStr, FirstClick::_1x1AreaStr);
-            firstClick = FirstClick::_1X1_AREA;
-        }
-        helper = firstClick == FirstClick::_0X0_AREA;
-        if (ImGui::MenuItem(FirstClick::_0x0AreaStr, "", &helper)) 
-        {
-            strcpy(firstClickStr, FirstClick::_0x0AreaStr);
-            firstClick = FirstClick::_0X0_AREA;
-        }
-        ImGui::EndMenu();
-    }
-    ImGui::EndMainMenuBar();
 }
 
+// Example measure text function
+static inline Clay_Dimensions MeasureText(Clay_StringSlice text, Clay_TextElementConfig *config, uintptr_t userData) {
+    // Clay_TextElementConfig contains members such as fontId, fontSize, letterSpacing etc
+    // Note: Clay_String->chars is not guaranteed to be null terminated
+    return (Clay_Dimensions) {
+            .width = text.length * config->fontSize, // <- this will only work for monospace fonts, see the renderers/ directory for more advanced text measurement
+            .height = config->fontSize
+    };
+}
+
+// Layout config is just a struct that can be declared statically, or inline
+Clay_ElementDeclaration sidebarItemConfig = (Clay_ElementDeclaration) {
+    .layout = {
+        .sizing = { .width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(50) }
+    },
+    .backgroundColor = COLOR_ORANGE
+};
+
+// Re-useable components are just normal functions
+void SidebarItemComponent() {
+    CLAY(sidebarItemConfig) {
+        // children go here...
+    }
+}
+
+// GUI
 void runInGUI()
 {
-    glfwInit();
-#ifdef __APPLE__
-    // GL 3.2 + GLSL 150
-    const char* glsl_version = "#version 150";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-#else
-    const char* glsl_version = "#version 130";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#endif
+    // Note: malloc is only used here as an example, any allocator that provides
+    // a pointer to addressable memory of at least totalMemorySize will work
+    uint64_t totalMemorySize = Clay_MinMemorySize();
+    Clay_Arena arena = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, malloc(totalMemorySize));
 
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Mine Sweeper Solver", nullptr, nullptr);
-    if (window == nullptr)
-    {
-        LOG_ERROR("FAILED TO OPEN WINDOW");
-        return;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1); // Enable vsync
+    auto screenWidth = GetScreenWidth();
+    auto screenHeight = GetScreenHeight();
 
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); 
-    (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+    // Note: screenWidth and screenHeight will need to come from your environment, Clay doesn't handle window related tasks
+    Clay_Initialize(arena, (Clay_Dimensions) { screenWidth, screenHeight }, (Clay_ErrorHandler) { HandleClayErrors });
 
-    ImGui::StyleColorsDark();
+    while(!WindowShouldClose()) { // Will be different for each renderer / environment
 
-    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-    ImGuiStyle& style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
+        auto mousePositionX = GetMouseX();
+        auto mousePositionY = GetMouseY();
+        auto isMouseDown = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+        auto mouseWheel = GetMouseWheelMoveV();
+        auto mouseWheelX = mouseWheel.x;
+        auto mouseWheelY = mouseWheel.y;
+        auto deltaTime = GetFrameTime();
 
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
+        // Optional: Update internal layout dimensions to support resizing
+        Clay_SetLayoutDimensions((Clay_Dimensions) { screenWidth, screenHeight });
+        // Optional: Update internal pointer position for handling mouseover / click / touch events - needed for scrolling & debug tools
+        Clay_SetPointerState((Clay_Vector2) { mousePositionX, mousePositionY }, isMouseDown);
+        // Optional: Update internal pointer position for handling mouseover / click / touch events - needed for scrolling and debug tools
+        Clay_UpdateScrollContainers(true, (Clay_Vector2) { mouseWheelX, mouseWheelY }, deltaTime);
 
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+        // All clay layouts are declared between Clay_BeginLayout and Clay_EndLayout
+        Clay_BeginLayout();
 
-    // Main loop
-    while (!glfwWindowShouldClose(window))
-    {
-        glfwPollEvents();
-        if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
-        {
-            ImGui_ImplGlfw_Sleep(10);
-            continue;
+        // An example of laying out a UI with a fixed width sidebar and flexible width main content
+        CLAY({ .id = CLAY_ID("OuterContainer"), .layout = { .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)}, .padding = CLAY_PADDING_ALL(16), .childGap = 16 }, .backgroundColor = {250,250,255,255} }) {
+            CLAY({
+                .id = CLAY_ID("SideBar"),
+                .layout = 
+                { 
+                    .layoutDirection = CLAY_TOP_TO_BOTTOM, 
+                    .sizing = 
+                    { 
+                        .width = CLAY_SIZING_FIXED(300), 
+                        .height = CLAY_SIZING_GROW(0) 
+                    }, 
+                    .padding = CLAY_PADDING_ALL(16), 
+                    .childGap = 16 
+                },
+                .backgroundColor = COLOR_LIGHT
+            }) {
+                CLAY({ .id = CLAY_ID("ProfilePictureOuter"), .layout = { .sizing = { .width = CLAY_SIZING_GROW(0) }, .padding = CLAY_PADDING_ALL(16), .childGap = 16, .childAlignment = { .y = CLAY_ALIGN_Y_CENTER } }, .backgroundColor = COLOR_RED }) {
+                    CLAY({ .id = CLAY_ID("ProfilePicture"), .layout = { .sizing = { .width = CLAY_SIZING_FIXED(60), .height = CLAY_SIZING_FIXED(60) }}, .image = { .imageData = &profilePicture, .sourceDimensions = {60, 60} } }) {}
+                    CLAY_TEXT(CLAY_STRING("Clay - UI Library"), CLAY_TEXT_CONFIG({ .fontSize = 24, .textColor = {255, 255, 255, 255} }));
+                }
+
+                // Standard C code like loops etc work inside components
+                for (int i = 0; i < 5; i++) {
+                    SidebarItemComponent();
+                }
+
+                CLAY({ .id = CLAY_ID("MainContent"), .layout = { .sizing = { .width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0) } }, .backgroundColor = COLOR_LIGHT }) {}
+            }
         }
 
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        // All clay layouts are declared between Clay_BeginLayout and Clay_EndLayout
+        Clay_RenderCommandArray renderCommands = Clay_EndLayout();
 
-        // UI
-        mainMenuBar();
+        // More comprehensive rendering examples can be found in the renderers/ directory
+        for (int i = 0; i < renderCommands.length; i++) {
+            Clay_RenderCommand *renderCommand = &renderCommands.internalArray[i];
 
-        // Rendering
-        ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        
-
-        // Update and Render additional Platform Windows
-        // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-        //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-            GLFWwindow* backup_current_context = glfwGetCurrentContext();
-            ImGui::UpdatePlatformWindows();
-            ImGui::RenderPlatformWindowsDefault();
-            glfwMakeContextCurrent(backup_current_context);
+            switch (renderCommand->commandType) {
+                case CLAY_RENDER_COMMAND_TYPE_RECTANGLE: {
+                    DrawRectangle( renderCommand->boundingBox, renderCommand->renderData.rectangle.backgroundColor);
+                }
+                // ... Implement handling of other command types
+            }
         }
-
-        glfwSwapBuffers(window);
     }
-
-    // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
 }
 
 // Terminal
