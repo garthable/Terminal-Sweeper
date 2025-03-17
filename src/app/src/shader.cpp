@@ -16,7 +16,10 @@ void readShaderScript(const char* fileName, std::string& output)
         throw std::runtime_error("Failed to open file!");
     }
     in.seekg(0, std::ios::end);
-    output.resize(in.tellg());
+    if (output.capacity() <= in.tellg())
+    {
+        output.resize(in.tellg());
+    }
     in.seekg(0, std::ios::beg);
     in.read(&output[0], output.size());
     in.close();
@@ -51,9 +54,9 @@ void compileErrors(uint32_t shader, const char* type)
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
 	// Read vertexFile and fragmentFile and store the strings
-	std::string vertexCode;
+    std::string vertexCode;
     readShaderScript(vertexPath, vertexCode);
-	std::string fragmentCode;
+    std::string fragmentCode;
     readShaderScript(fragmentPath, fragmentCode);
 
 	// Convert the shader source strings into character arrays
