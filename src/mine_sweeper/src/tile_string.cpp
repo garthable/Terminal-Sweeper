@@ -121,6 +121,23 @@ void TileString::reset()
     fill(TileChar::HIDDEN);
 }
 
+TileChar* TileString::begin()
+{
+    return m_TileChars.begin();
+}
+TileChar* TileString::end()
+{
+    return m_TileChars.end();
+}
+const TileChar* TileString::begin() const
+{
+    return m_TileChars.begin();
+}
+const TileChar* TileString::end() const
+{
+    return m_TileChars.end();
+}
+
 std::ostream& operator<<(std::ostream &out, const TileString& tileString)
 {
     out << "Board:\n";

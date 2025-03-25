@@ -2,9 +2,24 @@
 
 #include <cstdint>
 #include <functional>
+#include <cmath>
+#include <initializer_list>
 
 namespace util
 {
+
+#define UTIL_WRAP_ONE_ADD(x, modAmount) \
+do \
+{ \
+    x = ((x + 1) % modAmount)*(x < (x + 1));\
+} \
+while(0)
+#define UTIL_WRAP_ONE_SUB(x, modAmount)\
+do\
+{\
+    x = (((x - 1) % modAmount)*(x > (x - 1))) + ((modAmount - 1)*(x <= (x - 1)));\
+} \
+while(0)
 
 /**
  * @brief Runs func on adjacent elements of index i

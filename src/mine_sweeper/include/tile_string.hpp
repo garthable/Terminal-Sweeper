@@ -222,6 +222,11 @@ public:
      * 
      */
     void reset();
+
+    TileChar* begin();
+    TileChar* end();
+    const TileChar* begin() const;
+    const TileChar* end() const;
 private:
     /**
      * @brief Array of TileChars

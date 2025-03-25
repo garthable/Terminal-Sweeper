@@ -17,9 +17,12 @@ cmake_minimum_required(VERSION 3.14)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include(FetchContent)
 FetchContent_Declare(googlebenchmark
     GIT_REPOSITORY https://github.com/google/benchmark.git
     GIT_TAG main) # need main for benchmark::benchmark
+
+set(BENCHMARK_ENABLE_TESTING OFF)
 
 FetchContent_MakeAvailable(
     googlebenchmark)

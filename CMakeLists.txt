@@ -16,8 +16,8 @@ cmake_minimum_required(VERSION 3.14)
 project(Mine_Sweeper_Solver VERSION 0.1.0)
 
 add_compile_options(-std=c++20 -Wall -Wextra -O3)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(deps)
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(benchmark)

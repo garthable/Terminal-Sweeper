@@ -19,10 +19,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCE
     src/app.cpp
-    src/image.cpp
-    src/shader.cpp
 )
+
+set(CPPTERMINAL_BUILD_EXAMPLES OFF)
+set(CPPTERMINAL_ENABLE_TESTING OFF)
+set(CPPTERMINAL_ENABLE_DOCS OFF)
+
+
+include(FetchContent)
+FetchContent_Declare(cpp-terminal
+    GIT_REPOSITORY https://github.com/jupyter-xeus/cpp-terminal
+    GIT_TAG f1d2e1c)
+
+FetchContent_MakeAvailable(
+    cpp-terminal)
 
 add_library(App STATIC ${SOURCE})
 target_include_directories(App PUBLIC include)
-target_link_libraries(App Mine_Sweeper Util ImGui StbImage)
+target_link_libraries(App Mine_Sweeper Util cpp-terminal)
