@@ -22,6 +22,6 @@ set(SOURCE
     src/tile_string.cpp
 )
 
-add_library(Mine_Sweeper STATIC ${SOURCE})
-target_include_directories(Mine_Sweeper PUBLIC include)
-target_link_libraries(Mine_Sweeper Util)
+add_library(mine_sweeper STATIC ${SOURCE})
+target_include_directories(mine_sweeper PUBLIC include)
+target_link_libraries(mine_sweeper util)

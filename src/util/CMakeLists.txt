@@ -21,5 +21,5 @@ set(SOURCE
     src/util.cpp
 )
 
-add_library(Util STATIC ${SOURCE})
-target_include_directories(Util PUBLIC include)
+add_library(util STATIC ${SOURCE})
+target_include_directories(util PUBLIC include)

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.14)
-project(Mine_Sweeper_Solver VERSION 0.1.0)
+project(MineSweeperSolver VERSION 0.1.0)
 
 add_compile_options(-std=c++20 -Wall -Wextra -O3)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

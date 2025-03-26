@@ -19,9 +19,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(GOOGLE_TEST_VERSION 1.15.2)
 set(TEST_LIBRARIES
-    Util
-    Mine_Sweeper
-    App
+    util
+    mine_sweeper
+    app
     gtest_main
 )
 set(TEST_SOURCE
@@ -40,5 +40,5 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-add_executable(Mine_Sweeper_Test ${TEST_SOURCE})
-target_link_libraries(Mine_Sweeper_Test ${TEST_LIBRARIES})
+add_executable(MineSweeperTest ${TEST_SOURCE})
+target_link_libraries(MineSweeperTest ${TEST_LIBRARIES})

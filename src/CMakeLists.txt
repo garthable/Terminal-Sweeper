@@ -18,9 +18,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(LIBRARIES
-    Util
-    Mine_Sweeper
-    App
+    util
+    mine_sweeper
+    app
 )
 
 add_subdirectory(util)
@@ -29,5 +29,5 @@ add_subdirectory(app)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-add_executable(Mine_Sweeper_Solver main.cpp)
-target_link_libraries(Mine_Sweeper_Solver PUBLIC ${LIBRARIES})
+add_executable(MineSweeperSolver main.cpp)
+target_link_libraries(MineSweeperSolver PUBLIC ${LIBRARIES})
