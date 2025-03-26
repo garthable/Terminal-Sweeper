@@ -135,7 +135,7 @@ void reccursiveClick(const BoardIndex i, const BoardSize size, const BoardWidth 
         return;
     }
     outTiles[i].state = outTiles[i].state | Tile::VISIBLE;
-    outTileString.set(i, tileToTileChar(outTiles[i]));
+    outTileString[i] = tileToTileChar(outTiles[i]);
     outRemainingTiles--;
     if (outTiles[i].adjBombs || outTiles[i].state & Tile::BOMB)
     {
@@ -258,7 +258,7 @@ bool MineSweeper::flag(BoardXPos x, BoardYPos y)
     }
     m_FlagsRemaining += (m_Tiles[i].state & Tile::FLAGGED ? 1 : -1);
     m_Tiles[i].state = m_Tiles[i].state ^ Tile::FLAGGED;
-    m_TileString.set(i, tileToTileChar(m_Tiles[i]));
+    m_TileString[i] = tileToTileChar(m_Tiles[i]);
 
     return true;
 }

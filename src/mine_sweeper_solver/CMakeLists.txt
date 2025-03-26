@@ -17,18 +17,10 @@ cmake_minimum_required(VERSION 3.14)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(LIBRARIES
-    util
-    mine_sweeper
-    app
+set(SOURCE
+    src/mine_sweeper_solver.cpp
 )
 
-add_subdirectory(util)
-add_subdirectory(mine_sweeper)
-add_subdirectory(mine_sweeper_solver)
-add_subdirectory(app)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-
-add_executable(MineSweeperSolver main.cpp)
-target_link_libraries(MineSweeperSolver PUBLIC ${LIBRARIES})
+add_library(mine_sweeper_solver STATIC ${SOURCE})
+target_include_directories(mine_sweeper_solver PUBLIC include)
+target_link_libraries(mine_sweeper_solver mine_sweeper util)

@@ -15,36 +15,23 @@ namespace mswp
 #pragma pack(push, 1)
 
 /**
- * @brief Struct that stores two tile visual representation
+ * @brief Enum that stores two tile visual representation
  * 
  */
-struct TileChar
+enum class TileChar : uint8_t 
 {
-    /**
-     * @brief 4 bit enum that can describe all visual states of tile.
-     * 
-     */
-    enum TileCharEnum : uint8_t 
-    {
-        VISIBLE_0 = 0u,
-        VISIBLE_1 = 1u,
-        VISIBLE_2 = 2u,
-        VISIBLE_3 = 3u,
-        VISIBLE_4 = 4u,
-        VISIBLE_5 = 5u,
-        VISIBLE_6 = 6u,
-        VISIBLE_7 = 7u,
-        VISIBLE_8 = 8u,
-        VISIBLE_BOMB = 9u,
-        HIDDEN = 10u,
-        FLAGGED = 11u,
-    };
-#ifdef MSWP_COMPACT_TILESTRING
-    TileCharEnum state0 : 4;
-    TileCharEnum state1 : 4;
-#else
-    TileCharEnum state;
-#endif
+    VISIBLE_0 = 0u,
+    VISIBLE_1 = 1u,
+    VISIBLE_2 = 2u,
+    VISIBLE_3 = 3u,
+    VISIBLE_4 = 4u,
+    VISIBLE_5 = 5u,
+    VISIBLE_6 = 6u,
+    VISIBLE_7 = 7u,
+    VISIBLE_8 = 8u,
+    VISIBLE_BOMB = 9u,
+    HIDDEN = 10u,
+    FLAGGED = 11u,
 };
 
 #pragma pack(pop)
@@ -54,20 +41,16 @@ struct TileChar
 typedef uint16_t TileStringSize;
 typedef uint8_t TileStringWidth;
 typedef TileStringSize TileStringIndex;
-#ifdef MSWP_COMPACT_TILESTRING
-    typedef std::array<TileChar, MSWP_MAX_TILES/2> TileChars;
-#else
-    typedef std::array<TileChar, MSWP_MAX_TILES> TileChars;
-#endif 
+typedef std::array<TileChar, MSWP_MAX_TILES> TileChars;
 typedef std::initializer_list<Tile> TileStringInitList;
 
 /**
- * @brief Converts a tile object into a TileCharEnum
+ * @brief Converts a tile object into a TileChar
  * 
  * @param tile 
- * @return TileChar::TileCharEnum 
+ * @return TileChar::TileChar
  */
-inline TileChar::TileCharEnum tileToTileChar(Tile tile)
+inline TileChar tileToTileChar(Tile tile)
 {
     if (tile.state & Tile::VISIBLE)
     {
@@ -75,7 +58,7 @@ inline TileChar::TileCharEnum tileToTileChar(Tile tile)
         {
             return TileChar::VISIBLE_BOMB;
         }
-        return static_cast<TileChar::TileCharEnum>(tile.adjBombs);
+        return static_cast<TileChar>(tile.adjBombs);
     }
     if (tile.state & Tile::FLAGGED)
     {
@@ -85,12 +68,12 @@ inline TileChar::TileCharEnum tileToTileChar(Tile tile)
 }
 
 /**
- * @brief Converts TileCharEnum into char
+ * @brief Converts TileChar into char
  * 
  * @param tileChar 
  * @return char 
  */
-inline char tileCharToChar(TileChar::TileCharEnum tileChar)
+inline char tileCharToChar(TileChar tileChar)
 {
     switch (tileChar)
     {
@@ -154,19 +137,19 @@ public:
      */
     TileString(TileStringWidth width, const TileStringInitList& tiles);
     /**
-     * @brief Sets value at index i to be tileCharEnum
+     * @brief Gets reference value at index i
      * 
      * @param i index
-     * @param tileCharEnum new value at index i
+     * @return TileChar&
      */
-    void set(TileStringIndex i, TileChar::TileCharEnum tileCharEnum);
+    TileChar& operator[](TileStringIndex i);
     /**
      * @brief Gets value at index i
      * 
      * @param i index
-     * @return TileChar::TileCharEnum 
+     * @return TileChar 
      */
-    TileChar::TileCharEnum operator[](TileStringIndex i) const;
+    TileChar operator[](TileStringIndex i) const;
 
     /**
      * @brief Compares to init list
@@ -194,9 +177,9 @@ public:
     /**
      * @brief Fills tile string with value
      * 
-     * @param tileCharEnum 
+     * @param tileChar
      */
-    void fill(TileChar::TileCharEnum tileCharEnum);
+    void fill(TileChar tileChar);
 
     /**
      * @brief Gets size

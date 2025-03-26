@@ -2,8 +2,6 @@
 #include "mine_sweeper.hpp"
 #include "mine_sweeper_tile_aliases.hpp"
 
-#include "log.hpp"
-
 TEST(MineSweeperTests, click0)
 {
     using namespace mswptileconsts;

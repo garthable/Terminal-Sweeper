@@ -21,8 +21,8 @@ TileString::TileString(TileStringWidth width, TileStringInitList&& tiles) :
     for (TileStringIndex i = 0; i < m_Size; i++)
     {
         Tile tile = *(tiles.begin() + i);
-        TileChar::TileCharEnum tileChar = tileToTileChar(tile);
-        set(i, tileChar);
+        TileChar tileChar = tileToTileChar(tile);
+        (*this)[i] = tileChar;
     }
 }
 TileString::TileString(TileStringWidth width, const TileStringInitList& tiles) :
@@ -32,42 +32,24 @@ TileString::TileString(TileStringWidth width, const TileStringInitList& tiles) :
     for (TileStringIndex i = 0; i < m_Size; i++)
     {
         Tile tile = *(tiles.begin() + i);
-        TileChar::TileCharEnum tileChar = tileToTileChar(tile);
-        set(i, tileChar);
+        TileChar tileChar = tileToTileChar(tile);
+        (*this)[i] = tileChar;
     }
 }
-void TileString::set(TileStringIndex i, TileChar::TileCharEnum tileCharEnum)
+TileChar& TileString::operator[](TileStringIndex i)
 {
-#ifdef MSWP_COMPACT_TILESTRING
-    TileStringIndex byteIndex = i / 2;
-    switch (i % 2)
-    {
-    case 0:
-        m_TileChars[byteIndex].state0 = tileCharEnum;
-        return;
-    case 1:
-        m_TileChars[byteIndex].state1 = tileCharEnum;
-        return;
-    }
-#else
-    m_TileChars[i].state = tileCharEnum;
-#endif
+    return m_TileChars[i];
 }
-TileChar::TileCharEnum TileString::operator[](TileStringIndex i) const
+TileChar TileString::operator[](TileStringIndex i) const
 {
-#ifdef MSWP_COMPACT_TILESTRING
-    TileStringIndex byteIndex = i / 2;
-    return i % 2 == 0 ?  m_TileChars[byteIndex].state0 : m_TileChars[byteIndex].state1;
-#else
-    return m_TileChars[i].state;
-#endif
+    return m_TileChars[i];
 }
 
 bool TileString::operator==(TileStringInitList&& tiles) const
 {
     for (TileStringSize i = 0; i < m_Size; i++)
     {
-        TileChar::TileCharEnum tileChar = tileToTileChar(*(tiles.begin() + 1));
+        TileChar tileChar = tileToTileChar(*(tiles.begin() + 1));
         if ((*this)[i] == tileChar)
         {
             return false;
@@ -89,17 +71,17 @@ bool TileString::operator==(const TileString& tileChars) const
 
 void TileString::operator=(TileStringInitList&& tiles)
 {
-    TileChar::TileCharEnum tileChar = tileToTileChar(*(tiles.begin() + 1));
+    TileChar tileChar = tileToTileChar(*(tiles.begin() + 1));
     for (TileStringIndex i = 0; i < m_Size; i++)
     {
-        set(i, tileChar);
+        (*this)[i] = tileChar;
     }
 }
-void TileString::fill(TileChar::TileCharEnum tileCharEnum)
+void TileString::fill(TileChar tileChar)
 {
     for (TileStringIndex i = 0; i < m_Size; i++)
     {
-        set(i, tileCharEnum);
+        (*this)[i] = tileChar;
     }
 }
 

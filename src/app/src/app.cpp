@@ -187,7 +187,7 @@ bool manageInput(Input input, mswp::MineSweeper& outBoard)
  * @param tileChar 
  * @return Term::Color 
  */
-Term::Color getColor(const mswp::TileChar::TileCharEnum tileChar)
+Term::Color getColor(const mswp::TileChar tileChar)
 {
     switch (tileChar)
     {
