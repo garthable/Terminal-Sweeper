@@ -110,6 +110,12 @@ Input pollInput(size_t rowMax, size_t colMax, Input prevInput)
 
     return input;
 }
+/**
+ * @brief Draws options for user prompts.
+ * 
+ * @param strings Array of three strings to be drawn
+ * @param highlightIndex Index of array to be highlighted, [0,3)
+ */
 void drawOptions(std::array<const char*, 3> strings, uint8_t highlightIndex)
 {
     auto& out = std::cout;
@@ -133,7 +139,7 @@ mswp::MineSweeper createBoard()
     {
         .col = 0,
         .row = 0,
-        .action = app::Input::Action::INIT
+        .action = app::Input::Action::NONE
     };
     while (true)
     {
@@ -159,7 +165,7 @@ mswp::MineSweeper createBoard()
 }
 bool manageInput(Input input, mswp::MineSweeper& outBoard)
 {
-    if (input.action == Input::NONE || input.action == Input::INIT)
+    if (input.action == Input::NONE)
     {
         return true;
     }
@@ -175,6 +181,12 @@ bool manageInput(Input input, mswp::MineSweeper& outBoard)
     }
 }
 
+/**
+ * @brief Gets the color corresponding to a tilechar.
+ * 
+ * @param tileChar 
+ * @return Term::Color 
+ */
 Term::Color getColor(const mswp::TileChar::TileCharEnum tileChar)
 {
     switch (tileChar)
@@ -254,7 +266,7 @@ bool shouldReset()
     {
         .col = 0,
         .row = 0,
-        .action = app::Input::Action::INIT
+        .action = app::Input::Action::NONE
     };
     while (true)
     {

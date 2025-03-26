@@ -223,9 +223,29 @@ public:
      */
     void reset();
 
+    /**
+     * @brief Gets iterator at start
+     * 
+     * @return TileChar* 
+     */
     TileChar* begin();
+    /**
+     * @brief Gets iterator at end
+     * 
+     * @return TileChar* 
+     */
     TileChar* end();
+    /**
+     * @brief Gets iterator at start
+     * 
+     * @return const TileChar* 
+     */
     const TileChar* begin() const;
+    /**
+     * @brief Gets iterator at end
+     * 
+     * @return const TileChar* 
+     */
     const TileChar* end() const;
 private:
     /**

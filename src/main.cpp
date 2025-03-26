@@ -20,7 +20,7 @@ int main(int argc, char** argv)
         {
             .col = 0,
             .row = 0,
-            .action = app::Input::Action::INIT
+            .action = app::Input::Action::NONE
         };
         LOG_INFO("HELLO");
         while(true)
