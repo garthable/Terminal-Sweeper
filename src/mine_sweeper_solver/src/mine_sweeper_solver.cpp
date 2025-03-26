@@ -1,5 +1,7 @@
 #include "mine_sweeper_solver.hpp"
 #include "util.hpp"
+#include "log.hpp"
+#include <cstring>
 
 namespace slvr
 {
@@ -14,14 +16,47 @@ MineSweeperSolver::MineSweeperSolver(mswp::BoardWidth width, mswp::BoardHeight h
 
 }
 
-inline void updateTile(Tile& outTile, Tiles& outTiles)
+inline void updateTile(const mswp::TileStringIndex i, const mswp::TileStringWidth width, const mswp::TileStringSize size, Tiles& outTiles, 
+                       mswp::BoardSize& outModifiedSize, bool* outIsModified, ModifiedBuffer& outModified)
 {
-    
+    uint8_t adjUnknowns = 0;
+    bool selfHidden = outTiles[i].hidden();
+    util::applyFuncToAdjObjects<Tiles, Tile>(i, width, size, outTiles, 
+    [&](int32_t j, Tile& tile) 
+    {
+        bool tileHidden = tile.hidden();
+
+        adjUnknowns += tileHidden;
+        tile.adjUnknowns -= !selfHidden && !tileHidden && tile.bombProb != 1.0;
+        tile.adjBombs -= outTiles[i].bombProb == 1.0 && !tileHidden && tile.bombProb != 1.0;
+        outTiles[i].adjBombs -= tile.bombProb == 1.0 && !selfHidden && outTiles[i].bombProb != 1.0;
+
+        if (!tileHidden && !outIsModified[j] && tile.bombProb != 1.0)
+        {
+            outModified[outModifiedSize] = j;
+            outIsModified[j] = true;
+            outModifiedSize++;
+        }
+    });
+    outTiles[i].adjUnknowns = adjUnknowns*(!selfHidden);
+
+    if (!selfHidden && !outIsModified[i] && outTiles[i].bombProb != 1.0)
+    {
+        outModified[outModifiedSize] = i;
+        outIsModified[i] = true;
+        outModifiedSize++;
+    }
 }
 
 void MineSweeperSolver::update(const mswp::TileString& otherTileString)
 {
+    mswp::TileStringWidth width = otherTileString.width();
     mswp::TileStringSize size = otherTileString.size();
+
+    bool isTileModified[MSWP_MAX_TILES];
+    memset(isTileModified, false, MSWP_MAX_TILES);
+    m_ModifiedBufferSize = 0;
+
     for (mswp::TileStringIndex i = 0; i < size; i++)
     {
         if (m_TileString[i] != otherTileString[i])
@@ -31,7 +66,6 @@ void MineSweeperSolver::update(const mswp::TileString& otherTileString)
             {
             case mswp::TileChar::VISIBLE_0:
                 m_Tiles[i].adjBombs = 0;
-                m_Tiles[i].adjUnknowns = 0;
                 m_Tiles[i].bombProb = 0;
                 break;
             case mswp::TileChar::VISIBLE_1:
@@ -70,6 +104,9 @@ void MineSweeperSolver::update(const mswp::TileString& otherTileString)
                 m_Tiles[i].bombProb = 1;
                 break;
             case mswp::TileChar::HIDDEN:
+                m_Tiles[i].bombProb = NAN;
+                m_Tiles[i].adjBombs = -1;
+                m_Tiles[i].adjUnknowns = -1;
                 break;
             case mswp::TileChar::FLAGGED:
                 m_Tiles[i].bombProb = 1;
@@ -78,13 +115,54 @@ void MineSweeperSolver::update(const mswp::TileString& otherTileString)
             default:
                 break;
             }
+            updateTile(i, width, size, m_Tiles, m_ModifiedBufferSize, isTileModified, m_ModifiedBuffer);
         }
     }
 }
-void MineSweeperSolver::applyFuncToAll(std::function<void(Tile& tile)> func)
+void MineSweeperSolver::applyFuncToAll(std::function<void(const mswp::BoardIndex i, Tile& outTile)> func)
 {
-
+    for (mswp::BoardIndex i = 0; i < m_Size; i++)
+    {
+        func(i, m_Tiles[i]);
+    }
 }
+void MineSweeperSolver::applyFuncToAll(std::function<void(Tile& outTile)> func)
+{
+    for (mswp::BoardIndex i = 0; i < m_Size; i++)
+    {
+        func(m_Tiles[i]);
+    }
+}
+void MineSweeperSolver::applyFuncToAll(std::function<void(const mswp::BoardIndex i)> func)
+{
+    for (mswp::BoardIndex i = 0; i < m_Size; i++)
+    {
+        func(i);
+    }
+}
+
+void MineSweeperSolver::applyFuncToModified(std::function<void(const mswp::BoardIndex i, Tile& outTile)> func)
+{
+    for (mswp::BoardIndex i = 0; i < m_Size; i++)
+    {
+        func(i, m_Tiles[i]);
+    }
+}
+void MineSweeperSolver::applyFuncToModified(std::function<void(Tile& outTile)> func)
+{
+    for (mswp::BoardIndex i = 0; i < m_Size; i++)
+    {
+        func(m_Tiles[i]);
+    }
+}
+void MineSweeperSolver::applyFuncToModified(std::function<void(const mswp::BoardIndex i)> func)
+{
+    for (mswp::BoardIndex i = 0; i < m_Size; i++)
+    {
+        func(i);
+    }
+}
+
 Tile& MineSweeperSolver::operator[](mswp::BoardIndex i)
 {
     return m_Tiles[i];
@@ -121,6 +199,15 @@ const Tiles& MineSweeperSolver::tiles() const
     return m_Tiles;
 }
 
+const ModifiedBuffer& MineSweeperSolver::modifiedBuffer() const
+{
+    return m_ModifiedBuffer;
+}
+mswp::BoardSize MineSweeperSolver::modifiedBufferSize() const
+{
+    return m_ModifiedBufferSize;
+}
+
 mswp::TileString& MineSweeperSolver::tileString()
 {
     return m_TileString;
@@ -137,6 +224,15 @@ mswp::BoardSize& MineSweeperSolver::remainingTiles()
 Tiles& MineSweeperSolver::tiles()
 {
     return m_Tiles;
+}
+
+ModifiedBuffer& MineSweeperSolver::modifiedBuffer()
+{
+    return m_ModifiedBuffer;
+}
+mswp::BoardSize& MineSweeperSolver::modifiedBufferSize()
+{
+    return m_ModifiedBufferSize;
 }
 
 bool MineSweeperSolver::operator==(const MineSweeperSolver& other) const
@@ -162,7 +258,7 @@ bool MineSweeperSolver::operator==(const SolverInitList& other) const
     }
     for (mswp::BoardIndex i = 0; i < other.size(); i++)
     {
-        if ((*this)[i] != *(other.begin() + i))
+        if ((*this)[i] != *(other.begin() + i) && (*this)[i].hidden() != (other.begin() + i)->hidden())
         {
             return false;
         }
@@ -172,7 +268,7 @@ bool MineSweeperSolver::operator==(const SolverInitList& other) const
 
 std::ostream& operator<<(std::ostream &out, const Tile& tile)
 {
-    if (tile.bombProb == tile.bombProb)
+    if (!tile.hidden())
     {
         if (tile.bombProb == 1)
         {
@@ -180,7 +276,7 @@ std::ostream& operator<<(std::ostream &out, const Tile& tile)
         }
         else
         {
-            out << 'B' << std::to_string(tile.adjBombs)[0] << 'H' << std::to_string(tile.adjUnknowns)[0];
+            out << 'B' << std::to_string(static_cast<int>(tile.adjBombs))[0] << 'H' << std::to_string(static_cast<int>(tile.adjUnknowns))[0];
         }
     }
     else

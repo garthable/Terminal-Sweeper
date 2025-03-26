@@ -12,6 +12,14 @@ inline constexpr slvr::Tile HIDD = slvr::Tile(NAN, -1, -1);
 inline constexpr slvr::Tile BOMB = slvr::Tile(1, -1, -1);
 
 inline constexpr slvr::Tile B0H0 = slvr::Tile(0, 0, 0);
+inline constexpr slvr::Tile B0H1 = slvr::Tile(0, 0, 1);
+inline constexpr slvr::Tile B0H2 = slvr::Tile(0, 0, 2);
+inline constexpr slvr::Tile B0H3 = slvr::Tile(0, 0, 3);
+inline constexpr slvr::Tile B0H4 = slvr::Tile(0, 0, 4);
+inline constexpr slvr::Tile B0H5 = slvr::Tile(0, 0, 5);
+inline constexpr slvr::Tile B0H6 = slvr::Tile(0, 0, 6);
+inline constexpr slvr::Tile B0H7 = slvr::Tile(0, 0, 7);
+inline constexpr slvr::Tile B0H8 = slvr::Tile(0, 0, 8);
 
 inline constexpr slvr::Tile B1H0 = slvr::Tile(0, 1, 0);
 inline constexpr slvr::Tile B1H1 = slvr::Tile(0, 1, 1);

@@ -19,6 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCE
     src/mine_sweeper_solver.cpp
+    src/mine_sweeper_solver_functions.cpp
 )
 
 add_library(mine_sweeper_solver STATIC ${SOURCE})
