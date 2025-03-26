@@ -12,14 +12,27 @@
 
 #include "cpp-terminal/private/unicode.hpp"
 
+#include "cpp-terminal/terminal.hpp"
+#include "cpp-terminal/exception.hpp"
+#include "cpp-terminal/tty.hpp"
+
 namespace app
 {
 
-Input pollInput(size_t rowMax, size_t colMax)
+void init()
 {
-    static size_t currRow = 0;
-    static size_t currCol = 0;
+    // Initialize Terminal Input
+    Term::terminal.setOptions(Term::Option::ClearScreen, Term::Option::SignalKeys, Term::Option::Cursor, Term::Option::Raw);
+    if (!Term::is_stdin_a_tty()) 
+    { 
+        throw Term::Exception("The terminal is not attached to a TTY and therefore can't catch user input. Exiting..."); 
+    }
+}
 
+Input pollInput(size_t rowMax, size_t colMax, Input prevInput)
+{
+    size_t currRow = prevInput.row;
+    size_t currCol = prevInput.col;
     Input input =
     {
         .col = 0,
@@ -97,11 +110,33 @@ Input pollInput(size_t rowMax, size_t colMax)
 
     return input;
 }
+void drawOptions(std::array<const char*, 3> strings, uint8_t highlightIndex)
+{
+    auto& out = std::cout;
+    for (uint8_t i = 0; i < 3; i++)
+    {
+        const char* str = strings[i];
+        if (i == highlightIndex)
+        {
+            out << Term::Style::Reversed << str << Term::Style::ResetReversed << '\t';
+        }
+        else
+        {
+            out << str << '\t';
+        }
+    }
+    out << '\n';
+}
 mswp::MineSweeper createBoard()
 {
+    app::Input input =
+    {
+        .col = 0,
+        .row = 0,
+        .action = app::Input::Action::INIT
+    };
     while (true)
     {
-        Input input = pollInput(1u, 3u);
         if (input.action == Input::CLICK)
         {
             switch (input.col)
@@ -117,11 +152,14 @@ mswp::MineSweeper createBoard()
                 break;
             }
         }
+        std::cout << Term::clear_screen() << "Please select a difficulty.\n";
+        drawOptions({"Beginner", "Intermediate", "Expert"}, input.col);
+        input = pollInput(1u, 3u, input);
     }
 }
 bool manageInput(Input input, mswp::MineSweeper& outBoard)
 {
-    if (input.action == Input::NONE)
+    if (input.action == Input::NONE || input.action == Input::INIT)
     {
         return true;
     }
@@ -136,12 +174,44 @@ bool manageInput(Input input, mswp::MineSweeper& outBoard)
         return true;
     }
 }
+
+Term::Color getColor(const mswp::TileChar::TileCharEnum tileChar)
+{
+    switch (tileChar)
+    {
+    case mswp::TileChar::VISIBLE_1:
+        return Term::Color::Name::BrightBlue;
+    case mswp::TileChar::VISIBLE_2:
+        return Term::Color::Name::BrightGreen;
+    case mswp::TileChar::VISIBLE_3:
+        return Term::Color::Name::BrightRed;
+    case mswp::TileChar::VISIBLE_4:
+        return Term::Color::Name::Blue;
+    case mswp::TileChar::VISIBLE_5:
+        return Term::Color::Name::Red;
+    case mswp::TileChar::VISIBLE_6:
+        return Term::Color::Name::Cyan;
+    case mswp::TileChar::VISIBLE_7:
+        return Term::Color::Name::Green;
+    case mswp::TileChar::VISIBLE_8:
+        return Term::Color::Name::Yellow;
+    case mswp::TileChar::FLAGGED:
+        return Term::Color::Name::Red;
+    case mswp::TileChar::HIDDEN:
+        return Term::Color::Name::Gray;
+    
+    default:
+        return Term::Color::Name::Default;
+    }
+}
+
 void displayBoard(const Input input, const mswp::MineSweeper& board)
 {
     auto& out = std::cout;
+    out << Term::clear_screen();
     const mswp::TileString& tileString = board.tileString();
     
-    out << "Board:\n";
+    out << "Flags Remaining: " << static_cast<int>(board.flagsRemaining()) << '\n';
     mswp::TileStringWidth yMax = tileString.size() / tileString.width();
 
     for (mswp::TileStringIndex i = 0; i < tileString.size(); i++)
@@ -150,11 +220,23 @@ void displayBoard(const Input input, const mswp::MineSweeper& board)
         mswp::TileStringWidth y = i / tileString.width();
         if (x == input.col && y == input.row)
         {
-            out << Term::Style::Reversed << color_fg(Term::Color::Name::Red) << tileCharToChar(tileString[i]) << Term::Style::ResetReversed << color_fg(Term::Color::Name::Default) << ' ';
+            Term::Color color = getColor(tileString[i]);
+            out << 
+                Term::Style::Reversed << 
+                    color_fg(color) << 
+                        tileCharToChar(tileString[i]) << 
+                    color_fg(Term::Color::Name::Default) << 
+                Term::Style::ResetReversed << 
+            ' ';
         }
         else
         {
-            out << tileCharToChar(tileString[i]) << ' ';
+            Term::Color color = getColor(tileString[i]);
+            out << 
+                Term::color_fg(color) << 
+                    tileCharToChar(tileString[i]) << 
+                Term::color_fg(Term::Color::Name::Default) << 
+            ' ';
         }
         if (x == tileString.width() - 1)
         {
@@ -168,10 +250,14 @@ void displayBoard(const Input input, const mswp::MineSweeper& board)
 }
 bool shouldReset()
 {
-    Input input = pollInput(1u, 2u);
+    app::Input input =
+    {
+        .col = 0,
+        .row = 0,
+        .action = app::Input::Action::INIT
+    };
     while (true)
     {
-        Input input = pollInput(1u, 3u);
         if (input.action == Input::CLICK)
         {
             switch (input.col)
@@ -185,6 +271,9 @@ bool shouldReset()
                 break;
             }
         }
+        std::cout << Term::clear_screen() << "Would you like to play another round?\n";
+        drawOptions({"Yes", "No", ""}, input.col);
+        input = pollInput(1u, 2u, input);
     }
 }
 

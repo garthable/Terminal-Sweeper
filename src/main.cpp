@@ -1,17 +1,10 @@
 #include "app.hpp"
-
-#include "cpp-terminal/terminal.hpp"
-#include "cpp-terminal/exception.hpp"
-#include "cpp-terminal/tty.hpp"
+#include "log.hpp"
 
 int main(int argc, char** argv)
 {
-    // Initialize Terminal Input
-    Term::terminal.setOptions(Term::Option::ClearScreen, Term::Option::SignalKeys, Term::Option::Cursor, Term::Option::Raw);
-    if (!Term::is_stdin_a_tty()) 
-    { 
-        throw Term::Exception("The terminal is not attached to a TTY and therefore can't catch user input. Exiting..."); 
-    }
+    // Initializes terminal
+    app::init();
 
     // Main game loop
     do
@@ -27,33 +20,30 @@ int main(int argc, char** argv)
         {
             .col = 0,
             .row = 0,
-            .action = app::Input::Action::NONE
+            .action = app::Input::Action::INIT
         };
+        LOG_INFO("HELLO");
         while(true)
         {
-            app::Input newInput = app::pollInput(height, width);
-            if (input == newInput)
-            {
-                continue;
-            }
-            input = newInput;
+            app::displayBoard(input, board);
+            input = app::pollInput(height, width, input);
             if (!app::manageInput(input, board))
             {
                 break;
             }
-            app::displayBoard(input, board);
         }
         
         // Check for whether player won or lost
         app::displayBoard(input, board);
         if (board.gameState() == mswp::MineSweeper::WON)
         {
-            std::cout << "WON\n";
+            std::cout << "WON (press any button to continue)\n";
         }
         else
         {
-            std::cout << "LOST\n";
+            std::cout << "LOST (press any button to continue)\n";
         }
+        app::pollInput(height, width, input);
     } 
     while(!app::shouldReset());
 }

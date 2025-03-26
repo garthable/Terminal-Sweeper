@@ -6,9 +6,10 @@ namespace app
     {
         enum Action
         {
-            CLICK,
-            FLAG,
-            NONE
+            NONE  = 0,
+            CLICK = 1,
+            FLAG  = 2,
+            INIT  = 3
         };
         size_t col;
         size_t row;
@@ -27,7 +28,8 @@ namespace app
         EXPERT
     };
 
-    Input pollInput(size_t rowMax, size_t colMax);
+    void init();
+    Input pollInput(size_t rowMax, size_t colMax, Input prevInput);
     mswp::MineSweeper createBoard();
     bool manageInput(Input input, mswp::MineSweeper& outBoard);
     void displayBoard(const Input input, const mswp::MineSweeper& board);
