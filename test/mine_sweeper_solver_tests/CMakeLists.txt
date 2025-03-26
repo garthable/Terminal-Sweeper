@@ -20,6 +20,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(TEST_LIBRARIES
     mine_sweeper
     mine_sweeper_solver
+    util
     gtest_main
 )
 set(TEST_SOURCE

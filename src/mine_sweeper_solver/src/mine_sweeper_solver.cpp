@@ -31,7 +31,7 @@ void MineSweeperSolver::update(const mswp::TileString& otherTileString)
             {
             case mswp::TileChar::VISIBLE_0:
                 m_Tiles[i].adjBombs = 0;
-                m_Tiles[i].adjUnkowns = 0;
+                m_Tiles[i].adjUnknowns = 0;
                 m_Tiles[i].bombProb = 0;
                 break;
             case mswp::TileChar::VISIBLE_1:
@@ -87,11 +87,11 @@ void MineSweeperSolver::applyFuncToAll(std::function<void(Tile& tile)> func)
 }
 Tile& MineSweeperSolver::operator[](mswp::BoardIndex i)
 {
-
+    return m_Tiles[i];
 }
 const Tile& MineSweeperSolver::operator[](mswp::BoardIndex i) const
 {
-
+    return m_Tiles[i];
 }
 
 mswp::BoardWidth MineSweeperSolver::width() const
@@ -137,6 +137,77 @@ mswp::BoardSize& MineSweeperSolver::remainingTiles()
 Tiles& MineSweeperSolver::tiles()
 {
     return m_Tiles;
+}
+
+bool MineSweeperSolver::operator==(const MineSweeperSolver& other) const
+{
+    if (m_Size != other.m_Size || m_Width != other.m_Width)
+    {
+        return false;
+    }
+    for (mswp::BoardIndex i = 0; i < other.size(); i++)
+    {
+        if ((*this)[i] != other[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+bool MineSweeperSolver::operator==(const SolverInitList& other) const
+{
+    if (m_Size != other.size())
+    {
+        return false;
+    }
+    for (mswp::BoardIndex i = 0; i < other.size(); i++)
+    {
+        if ((*this)[i] != *(other.begin() + i))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::ostream& operator<<(std::ostream &out, const Tile& tile)
+{
+    if (tile.bombProb == tile.bombProb)
+    {
+        if (tile.bombProb == 1)
+        {
+            out << "XXXX";
+        }
+        else
+        {
+            out << 'B' << std::to_string(tile.adjBombs)[0] << 'H' << std::to_string(tile.adjUnknowns)[0];
+        }
+    }
+    else
+    {
+        out << "####";
+    }
+    return out;
+}
+
+std::ostream& operator<<(std::ostream &out, const MineSweeperSolver& mineSweeperSolver)
+{
+    out << "Board:\n";
+    mswp::BoardWidth yMax = mineSweeperSolver.size() / mineSweeperSolver.width();
+    for (mswp::BoardIndex i = 0; i < mineSweeperSolver.size(); i++)
+    {
+        out << mineSweeperSolver[i] << ' ';
+        if (i % mineSweeperSolver.width() == mineSweeperSolver.width() - 1)
+        {
+            out << '\n';
+            mswp::BoardWidth y = (i / mineSweeperSolver.width()) + 1;
+            if (y == yMax)
+            {
+                continue;
+            }
+        }
+    }
+    return out;
 }
 
 } // namespace slvr end
