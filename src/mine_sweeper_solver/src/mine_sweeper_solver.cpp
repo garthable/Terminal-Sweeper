@@ -143,23 +143,23 @@ void MineSweeperSolver::applyFuncToAll(std::function<void(const mswp::BoardIndex
 
 void MineSweeperSolver::applyFuncToModified(std::function<void(const mswp::BoardIndex i, Tile& outTile)> func)
 {
-    for (mswp::BoardIndex i = 0; i < m_Size; i++)
+    for (mswp::BoardIndex i = 0; i < m_ModifiedBufferSize; i++)
     {
-        func(i, m_Tiles[i]);
+        func(m_ModifiedBuffer[i], m_Tiles[m_ModifiedBuffer[i]]);
     }
 }
 void MineSweeperSolver::applyFuncToModified(std::function<void(Tile& outTile)> func)
 {
-    for (mswp::BoardIndex i = 0; i < m_Size; i++)
+    for (mswp::BoardIndex i = 0; i < m_ModifiedBufferSize; i++)
     {
-        func(m_Tiles[i]);
+        func(m_Tiles[m_ModifiedBuffer[i]]);
     }
 }
 void MineSweeperSolver::applyFuncToModified(std::function<void(const mswp::BoardIndex i)> func)
 {
-    for (mswp::BoardIndex i = 0; i < m_Size; i++)
+    for (mswp::BoardIndex i = 0; i < m_ModifiedBufferSize; i++)
     {
-        func(i);
+        func(m_ModifiedBuffer[i]);
     }
 }
 
