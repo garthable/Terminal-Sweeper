@@ -19,28 +19,36 @@ MineSweeperSolver::MineSweeperSolver(mswp::BoardWidth width, mswp::BoardHeight h
 inline void updateTile(const mswp::TileStringIndex i, const mswp::TileStringWidth width, const mswp::TileStringSize size, Tiles& outTiles, 
                        mswp::BoardSize& outModifiedSize, bool* outIsModified, ModifiedBuffer& outModified)
 {
-    uint8_t adjUnknowns = 0;
-    bool selfHidden = outTiles[i].hidden();
+    Tile& centerTile = outTiles[i];
+    bool centerTileHidden = centerTile.hidden();
+    bool centerTileBomb = centerTile.bombProb == 1.0;
+
+    int8_t centerHiddenTiles = 0;
+
     util::applyFuncToAdjObjects<Tiles, Tile>(i, width, size, outTiles, 
-    [&](int32_t j, Tile& tile) 
+    [&](int32_t j, Tile& adjTile) 
     {
-        bool tileHidden = tile.hidden();
+        bool adjTileHidden = adjTile.hidden();
+        bool adjTileBomb = adjTile.bombProb == 1.0;
 
-        adjUnknowns += tileHidden;
-        tile.adjUnknowns -= !selfHidden && !tileHidden && tile.bombProb != 1.0;
-        tile.adjBombs -= outTiles[i].bombProb == 1.0 && !tileHidden && tile.bombProb != 1.0;
-        outTiles[i].adjBombs -= tile.bombProb == 1.0 && !selfHidden && outTiles[i].bombProb != 1.0;
+        adjTile.adjUnknowns -= !centerTileHidden && !adjTileHidden && !adjTileBomb;
+        adjTile.adjBombs -= centerTileBomb && !adjTileHidden && !adjTileBomb;
 
-        if (!tileHidden && !outIsModified[j] && tile.bombProb != 1.0)
+        centerHiddenTiles += adjTileHidden;
+        centerTile.adjBombs -= adjTileBomb && !adjTileHidden && !centerTileBomb;
+
+        if (!adjTileHidden && !adjTileBomb && !outIsModified[j])
         {
             outModified[outModifiedSize] = j;
             outIsModified[j] = true;
             outModifiedSize++;
         }
     });
-    outTiles[i].adjUnknowns = adjUnknowns*(!selfHidden);
 
-    if (!selfHidden && !outIsModified[i] && outTiles[i].bombProb != 1.0)
+    bool visibleTile = !centerTileHidden && !centerTileBomb;
+    centerTile.adjUnknowns = (centerHiddenTiles*visibleTile) + (-1*!visibleTile);
+
+    if (!centerTileHidden && !centerTileBomb && !outIsModified[i])
     {
         outModified[outModifiedSize] = i;
         outIsModified[i] = true;
