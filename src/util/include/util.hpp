@@ -114,6 +114,98 @@ inline void applyFuncToAdjObjects(const int32_t i, const int32_t width, const in
 }
 
 /**
+ * @brief Runs func on adjacent elements of index i
+ * 
+ * @tparam ARRAY object that behaves as an array
+ * @tparam OBJECT object in array
+ * @param i index of array to center around
+ * @param width width
+ * @param size size of array
+ * @param in array that is modified by function
+ * @param func lambda function that modifies array
+ */
+template<typename ARRAY, typename OBJECT>
+inline void applyFuncToAdjObjects(const int32_t i, const int32_t width, const int32_t size, const ARRAY& in, std::function<void(const OBJECT&)> func)
+{
+    static constexpr int32_t offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const int32_t offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    const int32_t x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        int32_t newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            continue;
+        }
+        int32_t offset = offsetsX[j] + offsetsY[j];
+        int32_t newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            continue;
+        }
+        func(in[newI]);
+    }
+}
+
+/**
+ * @brief Runs func on adjacent elements of index i. Overload that grants lambda function access to index.
+ * 
+ * @tparam ARRAY object that behaves as an array
+ * @tparam OBJECT object in array
+ * @param i index of array to center around
+ * @param width width
+ * @param size size of array
+ * @param in array that is modified by function
+ * @param func lambda function that modifies array
+ */
+template<typename ARRAY, typename OBJECT>
+inline void applyFuncToAdjObjects(const int32_t i, const int32_t width, const int32_t size, const ARRAY& in, std::function<void(int32_t, const OBJECT&)> func)
+{
+    static constexpr int32_t offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const int32_t offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    const int32_t x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        int32_t newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            continue;
+        }
+        int32_t offset = offsetsX[j] + offsetsY[j];
+        int32_t newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            continue;
+        }
+        func(newI, in[newI]);
+    }
+}
+
+/**
  * @brief Checks if index is one chebyshev distance away from center
  * 
  * @param width width of array

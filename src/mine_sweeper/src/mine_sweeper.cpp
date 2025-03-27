@@ -249,9 +249,41 @@ bool MineSweeper::click(BoardXPos x, BoardYPos y)
     }
     return false;
 }
+bool MineSweeper::click(BoardIndex i)
+{
+    if (m_GameState & START)
+    {
+        moveBombsAway(i, m_BoardSeed, m_Width, m_Size, m_BombCount, m_Tiles);
+        m_GameState = IN_PROGRESS;
+    }
+    reccursiveClick(i, m_Size, m_Width, m_RemainingTiles, m_Tiles, m_TileString);
+    if (m_Tiles[i].state & Tile::BOMB)
+    {
+        m_GameState = LOST;
+        return true;
+    }
+    if (m_RemainingTiles == m_BombCount)
+    {
+        m_GameState = WON;
+        return true;
+    }
+    return false;
+}
 bool MineSweeper::flag(BoardXPos x, BoardYPos y)
 {
     BoardIndex i = static_cast<BoardIndex>(x) + static_cast<BoardIndex>(y)*m_Width;
+    if (m_FlagsRemaining <= 0 && m_Tiles[i].state & Tile::FLAGGED == 0)
+    {
+        return false;
+    }
+    m_FlagsRemaining += (m_Tiles[i].state & Tile::FLAGGED ? 1 : -1);
+    m_Tiles[i].state = m_Tiles[i].state ^ Tile::FLAGGED;
+    m_TileString[i] = tileToTileChar(m_Tiles[i]);
+
+    return true;
+}
+bool MineSweeper::flag(BoardIndex i)
+{
     if (m_FlagsRemaining <= 0 && m_Tiles[i].state & Tile::FLAGGED == 0)
     {
         return false;

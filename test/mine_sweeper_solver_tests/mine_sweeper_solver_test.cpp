@@ -6,13 +6,14 @@
 #include "log.hpp"
 
 #include "mine_sweeper_solver.hpp"
+#include "mine_sweeper_solver_functions.hpp"
 
 bool compareArray(const slvr::ModifiedBuffer& buffer, const std::initializer_list<mswp::BoardIndex>& initList)
 {
-    for (mswp::BoardIndex i = 0; i < initList.size(); i++)
+    for (size_t i = 0; i < initList.size(); i++)
     {
         bool matches = false;
-        for (mswp::BoardIndex j = 0; j < initList.size(); j++)
+        for (size_t j = 0; j < initList.size(); j++)
         {
             if (buffer[j] == *(initList.begin() + i))
             {
@@ -22,12 +23,44 @@ bool compareArray(const slvr::ModifiedBuffer& buffer, const std::initializer_lis
         }
         if (!matches)
         {
-            for (mswp::BoardIndex i = 0; i < initList.size(); i++)
+            for (size_t i = 0; i < initList.size(); i++)
             {
                 std::cout << buffer[i] << ", ";
             }
             std::cout << '\n';
-            for (mswp::BoardIndex i = 0; i < initList.size(); i++)
+            for (size_t i = 0; i < initList.size(); i++)
+            {
+                std::cout << *(initList.begin() + i) << ", ";
+            }
+            std::cout << '\n';
+            LOG_ERROR("Couldnt find " << *(initList.begin() + i));
+            return false;
+        }
+    }
+    return true;
+}
+
+bool compareArray(const slvr::ActionArray& buffer, const std::initializer_list<mswp::BoardIndex>& initList)
+{
+    for (size_t i = 0; i < initList.size(); i++)
+    {
+        bool matches = false;
+        for (size_t j = 0; j < initList.size(); j++)
+        {
+            if (buffer.actions[j] == *(initList.begin() + i))
+            {
+                matches = true;
+                break;
+            }
+        }
+        if (!matches)
+        {
+            for (size_t i = 0; i < initList.size(); i++)
+            {
+                std::cout << buffer.actions[i] << ", ";
+            }
+            std::cout << '\n';
+            for (size_t i = 0; i < initList.size(); i++)
             {
                 std::cout << *(initList.begin() + i) << ", ";
             }
@@ -52,7 +85,7 @@ TEST(SolverTests, update0)
         H0, H0, H0, H0, H0
     });
 
-    slvr::MineSweeperSolver mineSweeperSolver(5, 4, 0, board.tileString());
+    slvr::MineSweeperSolver mineSweeperSolver(board);
 
     for (mswp::BoardIndex i = 0; i < board.size(); i++)
     {
@@ -93,7 +126,7 @@ TEST(SolverTests, update1)
         H2, H3, H2, H1, H0
     });
 
-    slvr::MineSweeperSolver mineSweeperSolver(5, 4, 5, board.tileString());
+    slvr::MineSweeperSolver mineSweeperSolver(board);
 
     for (mswp::BoardIndex i = 0; i < board.size(); i++)
     {
@@ -196,7 +229,7 @@ TEST(SolverTests, update2)
         H2, H3, H2, H1, H0
     });
 
-    slvr::MineSweeperSolver mineSweeperSolver(5, 4, 5, board.tileString());
+    slvr::MineSweeperSolver mineSweeperSolver(board);
 
     for (mswp::BoardIndex i = 0; i < board.size(); i++)
     {
@@ -269,4 +302,110 @@ TEST(SolverTests, update2)
     };
     
     ASSERT_EQ(mineSweeperSolver, solverInitListOtherSide);
+}
+
+TEST(SolverTests, lazySolve0)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(5, 
+    {
+        H0, H0, H0, H0, H0,
+        H0, H1, H2, H2, H1,
+        H0, H2, B2, B1, H1,
+        H0, H2, B1, H3, H1
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    board.click(0, 0);
+    solver.update(board.tileString());
+
+    slvr::ActionArray clicks;
+    slvr::ActionArray flags;
+    slvr::lazySolve(solver, clicks, flags);
+
+    ASSERT_TRUE(compareArray(flags, {12, 13, 17}));
+}
+
+TEST(SolverTests, lazySolve1)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(5, 
+    {
+        H0, H2, B0, H2, H0,
+        H1, H4, B0, H3, H0,
+        B0, H2, B0, H2, H0,
+        H1, H2, H1, H1, H0
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    board.click(0, 0);
+    solver.update(board.tileString());
+    board.flag(2, 0);
+    board.flag(2, 1);
+    board.flag(2, 2);
+    board.flag(0, 2);
+    solver.update(board.tileString());
+
+    slvr::ActionArray clicks;
+    slvr::ActionArray flags;
+    slvr::lazySolve(solver, clicks, flags);
+
+    ASSERT_TRUE(compareArray(clicks, {11}));
+}
+
+TEST(SolverTests, lazySolve2)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(5, 
+    {
+        H0, H0, H2, B0, H2,
+        H2, H3, H4, B0, H2,
+        B1, B2, B1, H2, H1,
+        H2, H3, H2, H1, H0
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    board.click(0, 0);
+
+    slvr::ActionArray clicks;
+    slvr::ActionArray flags;
+
+    solver.update(board.tileString());
+    slvr::lazySolve(solver, clicks, flags);
+    slvr::useActionArrays(clicks, flags, board);
+
+    ASSERT_TRUE(compareArray(flags, {3, 8, 10, 11, 12}));
+
+    solver.update(board.tileString());
+    slvr::lazySolve(solver, clicks, flags);
+    slvr::useActionArrays(clicks, flags, board);
+
+    ASSERT_TRUE(compareArray(clicks, {13}));
+
+    solver.update(board.tileString());
+    slvr::lazySolve(solver, clicks, flags);
+    slvr::useActionArrays(clicks, flags, board);
+
+    ASSERT_TRUE(compareArray(clicks, {9, 14, 19, 18, 17}));
+
+    solver.update(board.tileString());
+    slvr::lazySolve(solver, clicks, flags);
+    slvr::useActionArrays(clicks, flags, board);
+
+    ASSERT_TRUE(compareArray(clicks, {16, 4}));
+
+    solver.update(board.tileString());
+    slvr::lazySolve(solver, clicks, flags);
+    slvr::useActionArrays(clicks, flags, board);
+
+    ASSERT_TRUE(compareArray(clicks, {15}));
 }

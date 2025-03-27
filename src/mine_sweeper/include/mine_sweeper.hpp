@@ -79,6 +79,14 @@ public:
      * @return false 
      */
     bool click(BoardXPos x, BoardYPos y);
+        /**
+     * @brief Clicks tile, revealing whats there. Returns true when game is won or lost.
+     * 
+     * @param i
+     * @return true 
+     * @return false 
+     */
+    bool click(BoardIndex i);
     /**
      * @brief Flags tile, lowers flag count. Returns true when flag successfully placed. 
      * 
@@ -88,6 +96,14 @@ public:
      * @return false 
      */
     bool flag(BoardXPos x, BoardYPos y);
+    /**
+     * @brief Flags tile, lowers flag count. Returns true when flag successfully placed. 
+     * 
+     * @param i
+     * @return true 
+     * @return false 
+     */
+    bool flag(BoardIndex i);
 
     /**
      * @brief Tiles getter
