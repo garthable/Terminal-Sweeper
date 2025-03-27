@@ -6,6 +6,6 @@
 namespace slvr
 {
 
-// uhhh
+void computeProbabilities(MineSweeperSolver& outSolver);
 
 } // namespace slvr end
