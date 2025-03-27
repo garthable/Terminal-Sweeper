@@ -42,6 +42,12 @@ bool compareArray(const slvr::ModifiedBuffer& buffer, const std::initializer_lis
 
 bool compareArray(const slvr::ActionArray& buffer, const std::initializer_list<mswp::BoardIndex>& initList)
 {
+    size_t actionSize = buffer.actionSize;
+    if (initList.size() != actionSize)
+    {
+        LOG_ERROR("Sizes done match! " << initList.size() << " != " << actionSize);
+        return false;
+    }
     for (size_t i = 0; i < initList.size(); i++)
     {
         bool matches = false;
@@ -55,16 +61,6 @@ bool compareArray(const slvr::ActionArray& buffer, const std::initializer_list<m
         }
         if (!matches)
         {
-            for (size_t i = 0; i < initList.size(); i++)
-            {
-                std::cout << buffer.actions[i] << ", ";
-            }
-            std::cout << '\n';
-            for (size_t i = 0; i < initList.size(); i++)
-            {
-                std::cout << *(initList.begin() + i) << ", ";
-            }
-            std::cout << '\n';
             LOG_ERROR("Couldnt find " << *(initList.begin() + i));
             return false;
         }
@@ -72,7 +68,7 @@ bool compareArray(const slvr::ActionArray& buffer, const std::initializer_list<m
     return true;
 }
 
-TEST(SolverTests, update0)
+TEST(Update, 0)
 {
     using namespace mswptileconsts;
     using namespace slvrtileconsts;
@@ -113,7 +109,7 @@ TEST(SolverTests, update0)
     }
 }
 
-TEST(SolverTests, update1)
+TEST(Update, 1)
 {
     using namespace mswptileconsts;
     using namespace slvrtileconsts;
@@ -216,7 +212,7 @@ TEST(SolverTests, update1)
     ASSERT_EQ(mineSweeperSolver, solverInitListFlag);
 }
 
-TEST(SolverTests, update2)
+TEST(Update, 2)
 {
     using namespace mswptileconsts;
     using namespace slvrtileconsts;
@@ -304,7 +300,7 @@ TEST(SolverTests, update2)
     ASSERT_EQ(mineSweeperSolver, solverInitListOtherSide);
 }
 
-TEST(SolverTests, lazySolve0)
+TEST(LazySolver, 0)
 {
     using namespace mswptileconsts;
     using namespace slvrtileconsts;
@@ -329,7 +325,7 @@ TEST(SolverTests, lazySolve0)
     ASSERT_TRUE(compareArray(flags, {12, 13, 17}));
 }
 
-TEST(SolverTests, lazySolve1)
+TEST(LazySolver, 1)
 {
     using namespace mswptileconsts;
     using namespace slvrtileconsts;
@@ -359,7 +355,7 @@ TEST(SolverTests, lazySolve1)
     ASSERT_TRUE(compareArray(clicks, {11}));
 }
 
-TEST(SolverTests, lazySolve2)
+TEST(LazySolver, 2)
 {
     using namespace mswptileconsts;
     using namespace slvrtileconsts;
@@ -381,31 +377,80 @@ TEST(SolverTests, lazySolve2)
 
     solver.update(board.tileString());
     slvr::lazySolve(solver, clicks, flags);
-    slvr::useActionArrays(clicks, flags, board);
 
     ASSERT_TRUE(compareArray(flags, {3, 8, 10, 11, 12}));
 
+    slvr::useActionArrays(clicks, flags, board);
     solver.update(board.tileString());
     slvr::lazySolve(solver, clicks, flags);
-    slvr::useActionArrays(clicks, flags, board);
 
     ASSERT_TRUE(compareArray(clicks, {13}));
 
+    slvr::useActionArrays(clicks, flags, board);
     solver.update(board.tileString());
     slvr::lazySolve(solver, clicks, flags);
-    slvr::useActionArrays(clicks, flags, board);
 
     ASSERT_TRUE(compareArray(clicks, {9, 14, 19, 18, 17}));
 
+    slvr::useActionArrays(clicks, flags, board);
     solver.update(board.tileString());
     slvr::lazySolve(solver, clicks, flags);
-    slvr::useActionArrays(clicks, flags, board);
 
     ASSERT_TRUE(compareArray(clicks, {16, 4}));
 
+    slvr::useActionArrays(clicks, flags, board);
     solver.update(board.tileString());
     slvr::lazySolve(solver, clicks, flags);
-    slvr::useActionArrays(clicks, flags, board);
 
     ASSERT_TRUE(compareArray(clicks, {15}));
+}
+
+TEST(IntersectionSolver, 0)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(5, 
+    {
+        H0, H0, H1, B0, H1,
+        H1, H1, H1, H1, H1,
+        B0, H1, H0, H0, H0,
+        H1, H1, H0, H0, H0
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    board.click(0, 0);
+
+    solver.update(board.tileString());
+    slvr::ActionArray clicks, flags;
+    slvr::intersectionSolver(solver, clicks, flags);
+
+    ASSERT_TRUE(compareArray(clicks, {11, 12, 13}));
+    ASSERT_TRUE(compareArray(flags, {}));
+}
+
+TEST(IntersectionSolver, 1)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(5, 
+    {
+        H0, H0, H2, B1, H2,
+        H1, H1, H3, B2, H3,
+        B0, H1, H2, B1, H2,
+        H1, H1, H1, H1, H1
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    board.click(0, 0);
+
+    solver.update(board.tileString());
+    slvr::ActionArray clicks, flags;
+    slvr::intersectionSolver(solver, clicks, flags);
+
+    ASSERT_TRUE(compareArray(clicks, {12}));
+    ASSERT_TRUE(compareArray(flags, {3, 8}));
 }

@@ -92,7 +92,7 @@ void lazySolve(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray
 
 struct IntersectionAndDifference
 {
-    IntersectionAndDifference() : intersection{0}, differenceCenterCount{0}, differenceAdjCount{0} {}
+    IntersectionAndDifference() : intersectionCount{0}, differenceCenterCount{0}, differenceAdjCount{0} {}
 
     std::array<mswp::BoardIndex, 8> intersection;
     std::array<mswp::BoardIndex, 8> differenceCenter;
@@ -112,35 +112,61 @@ IntersectionAndDifference getIntersectionAndDifference(const BoardBitMap& boardB
     {
         if (tile.hidden())
         {
-            if (boardBitMapCenter[index])
+            // Intersection
+            if (boardBitMapCenter[index] && interAndDiff.intersectionCount < 8)
             {
                 interAndDiff.intersection[interAndDiff.intersectionCount] = index;
                 interAndDiff.intersectionCount++;
             }
-            else
+            // Adj Difference
+            else if (interAndDiff.differenceAdjCount < 8)
             {
-                interAndDiff.differenceCenter[interAndDiff.differenceCenterCount] = index;
-                interAndDiff.differenceCenterCount++;
+                interAndDiff.differenceAdj[interAndDiff.differenceAdjCount] = index;
+                interAndDiff.differenceAdjCount++;
             }
         }
     });
+
     util::applyFuncToAdjObjects<Tiles, Tile>(centerIndex, solver.width(), solver.size(), solver.tiles(),
     [&boardBitMapAdj, &interAndDiff](int32_t index, const Tile& tile)
     {
-        if (!boardBitMapAdj[index] && tile.hidden())
+        // Center Difference
+        if (!boardBitMapAdj[index] && tile.hidden() && interAndDiff.differenceCenterCount < 8)
         {
             interAndDiff.differenceCenter[interAndDiff.differenceCenterCount] = index;
             interAndDiff.differenceCenterCount++;
         }
     });
+
     return interAndDiff;
+}
+
+void applyActionIntersection(uint8_t count, const std::array<mswp::BoardIndex, 8>& indicies, ActionArray& outAction, BoardBitMap& outClickedOrFlagged)
+{
+    for (int8_t i = 0; i < count; i++)
+    {
+        if (outClickedOrFlagged[indicies[i]] && outAction.actionSize < SLVR_ACTION_BUFFER_SIZE)
+        {
+            continue;
+        }
+        outClickedOrFlagged[indicies[i]] = true;
+        outAction.actions[outAction.actionSize] = indicies[i];
+        outAction.actionSize++;
+    }
 }
 
 void intersectionSolver(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray& outFlags)
 {
+    outClicks.actionSize = 0;
+    outFlags.actionSize = 0;
+    BoardBitMap clickedOrFlagged;
     outSolver.applyFuncToModified(
-    [&outSolver, &outClicks, &outFlags](const mswp::BoardIndex centerIndex, Tile& centerTile) 
+    [&](const mswp::BoardIndex centerIndex, Tile& centerTile) 
     {
+        if (centerTile.hidden())
+        {
+            return;
+        }
         auto width = outSolver.width();
         auto size = outSolver.size();
         auto& tiles = outSolver.tiles();
@@ -166,63 +192,68 @@ void intersectionSolver(MineSweeperSolver& outSolver, ActionArray& outClicks, Ac
          * 
          */
         util::applyFuncToAdjObjects<Tiles, Tile>(centerIndex, width, size, tiles, 
-        [&centerTile, &centerIndex, &outSolver, &presentInCenterTile, &outClicks, &outFlags](int32_t adjIndex, Tile& adjTile) 
+        [&](int32_t adjIndex, Tile& adjTile) 
         {
+            if (adjTile.hidden())
+            {
+                return;
+            }
             BoardBitMap presentInAdjTile;
+
             util::applyFuncToAdjObjects<Tiles, Tile>(adjIndex, outSolver.width(), outSolver.size(), outSolver.tiles(),
             [&presentInAdjTile](int32_t index, Tile& tile)
             {
                 presentInAdjTile[index] = true;
             });
+
             auto interAndDiff = getIntersectionAndDifference(presentInCenterTile, presentInAdjTile, outSolver, centerIndex, adjIndex);
 
-            int8_t minAmountOfBombsCenter = std::max(centerTile.adjBombs - interAndDiff.differenceCenterCount, 0);
-            int8_t minAmountOfBombsAdj = std::max(adjTile.adjBombs - interAndDiff.differenceAdjCount, 0);
-            int8_t minAmountOfBombsInter = std::max(minAmountOfBombsCenter, minAmountOfBombsAdj);
+            int8_t minAmountOfBombsCenter = std::max(centerTile.adjBombs - interAndDiff.intersectionCount, 0);
+            int8_t minAmountOfBombsAdj = std::max(adjTile.adjBombs - interAndDiff.intersectionCount, 0);
 
-            int8_t bombsInDiffCenter = centerTile.adjBombs - minAmountOfBombsInter;
-            int8_t bombsInDiffAdj = adjTile.adjBombs - minAmountOfBombsInter;
+            int8_t maxAmountOfBombsCenter = std::min(static_cast<int>(centerTile.adjBombs), static_cast<int>(interAndDiff.differenceCenterCount));
+            int8_t maxAmountOfBombsAdj = std::min(static_cast<int>(adjTile.adjBombs), static_cast<int>(interAndDiff.differenceAdjCount));
 
-            if (interAndDiff.intersectionCount == minAmountOfBombsInter)
+            int8_t minAmountOfBombsInter = std::max(centerTile.adjBombs - maxAmountOfBombsCenter, centerTile.adjBombs - maxAmountOfBombsCenter);
+            int8_t maxAmountOfBombsInter = std::min(centerTile.adjBombs - minAmountOfBombsCenter, centerTile.adjBombs - minAmountOfBombsCenter);
+
+            int8_t maxBombsInDiffCenter = centerTile.adjBombs - minAmountOfBombsInter;
+            int8_t maxBombsInDiffAdj = adjTile.adjBombs - minAmountOfBombsInter;
+
+            int8_t minBombsInDiffCenter = centerTile.adjBombs - maxAmountOfBombsInter;
+            int8_t minBombsInDiffAdj = adjTile.adjBombs - maxAmountOfBombsInter;
+
+            // Click entire intersection
+            if (maxAmountOfBombsInter == 0 && interAndDiff.intersectionCount != 0)
             {
-                for (int8_t i = 0; i < interAndDiff.intersectionCount; i++)
-                {
-                    outFlags.actions[outFlags.actionSize] = interAndDiff.intersection[i];
-                    outFlags.actionSize++;
-                }
+                applyActionIntersection(interAndDiff.intersectionCount, interAndDiff.intersection, outClicks, clickedOrFlagged);
+            }
+            // Flag entire intersection
+            else if (minAmountOfBombsInter == interAndDiff.intersectionCount && interAndDiff.intersectionCount != 0)
+            {
+                applyActionIntersection(interAndDiff.intersectionCount, interAndDiff.intersection, outFlags, clickedOrFlagged);
             }
 
-            if (bombsInDiffCenter == 0)
+            // Click entire center difference
+            if (maxBombsInDiffCenter == 0 && interAndDiff.differenceCenterCount != 0)
             {
-                for (int8_t i = 0; i < interAndDiff.differenceCenterCount; i++)
-                {
-                    outClicks.actions[outClicks.actionSize] = interAndDiff.differenceCenter[i];
-                    outClicks.actionSize++;
-                }
+                applyActionIntersection(interAndDiff.differenceCenterCount, interAndDiff.differenceCenter, outClicks, clickedOrFlagged);
             }
-            else if (bombsInDiffCenter == interAndDiff.differenceCenterCount)
+            // Flag entire center difference
+            else if (minBombsInDiffCenter == interAndDiff.differenceCenterCount && interAndDiff.differenceCenterCount != 0)
             {
-                for (int8_t i = 0; i < interAndDiff.differenceCenterCount; i++)
-                {
-                    outFlags.actions[outFlags.actionSize] = interAndDiff.differenceCenter[i];
-                    outFlags.actionSize++;
-                }
+                applyActionIntersection(interAndDiff.differenceCenterCount, interAndDiff.differenceCenter, outFlags, clickedOrFlagged);
             }
-            if (bombsInDiffAdj == 0)
+
+            // Click entire adj difference
+            if (maxBombsInDiffAdj == 0 && interAndDiff.differenceAdjCount != 0)
             {
-                for (int8_t i = 0; i < interAndDiff.differenceAdjCount; i++)
-                {
-                    outClicks.actions[outClicks.actionSize] = interAndDiff.differenceAdj[i];
-                    outClicks.actionSize++;
-                }
+                applyActionIntersection(interAndDiff.differenceAdjCount, interAndDiff.differenceAdj, outClicks, clickedOrFlagged);
             }
-            else if (bombsInDiffAdj == interAndDiff.differenceAdjCount)
+            // Flag entire adj difference
+            else if (minBombsInDiffAdj == interAndDiff.differenceAdjCount && interAndDiff.differenceAdjCount != 0)
             {
-                for (int8_t i = 0; i < interAndDiff.differenceAdjCount; i++)
-                {
-                    outFlags.actions[outFlags.actionSize] = interAndDiff.differenceAdj[i];
-                    outFlags.actionSize++;
-                }
+                applyActionIntersection(interAndDiff.differenceAdjCount, interAndDiff.differenceAdj, outFlags, clickedOrFlagged);
             }
         });
     });
