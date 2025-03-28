@@ -11,7 +11,7 @@ namespace slvr
     void findHiddenTiles(mswp::BoardIndex centerVisibleTileIndex, const MineSweeperSolver& solver, BoardBitMap& outVisited, TileGroup& outGroup)
     {
         outVisited[centerVisibleTileIndex] = true;
-        outGroup.tiles[outGroup.size] = centerVisibleTileIndex;
+        outGroup.tiles[outGroup.size].tileIndex = centerVisibleTileIndex;
         outGroup.size += 1;
         util::applyFuncToAdjObjects<MineSweeperSolver, Tile>(centerVisibleTileIndex, solver, 
         [&](int32_t i, const Tile& tile)
@@ -81,7 +81,52 @@ inline uint8_t getHardcodedCombinationsSize(uint8_t n, uint8_t r)
 
 void sortByCombinationCount(const MineSweeperSolver& solver, group::TileGroup& outTileGroup)
 {
+    BoardBitMap claimed;
+    for (mswp::BoardIndex i = 0; i < outTileGroup.size; i++)
+    {
+        // Finds max combination size
+        mswp::BoardIndex maxIndex = 0;
+        uint8_t maxCombinationSize = 0;
+        for (mswp::BoardIndex j = i; j < outTileGroup.size; j++)
+        {
+            group::TileWithAdjs& tile = outTileGroup.tiles[j];
 
+            uint8_t n = 0;
+
+            util::applyFuncToAdjObjects<MineSweeperSolver, Tile>(tile.tileIndex, solver, 
+            [&](int32_t adjIndex, const Tile& inTile) 
+            {
+                n += inTile.hidden() && !claimed[adjIndex];
+            });
+            uint8_t combinationSize = getHardcodedCombinationsSize(n, solver[tile.tileIndex].adjBombs);
+            LOG_INFO(static_cast<int>(n) << " " << static_cast<int>(solver[tile.tileIndex].adjBombs) << " = " << static_cast<int>(combinationSize));
+            if (combinationSize > maxCombinationSize)
+            {
+                maxCombinationSize = combinationSize;
+                maxIndex = j;
+            }
+        }
+
+        LOG_INFO(static_cast<int>(maxIndex) << " " << static_cast<int>(maxCombinationSize));
+
+        // Moves tile to front
+        util::swap(outTileGroup.tiles[maxIndex].tileIndex, outTileGroup.tiles[i].tileIndex);
+
+        group::TileWithAdjs& tile = outTileGroup.tiles[i];
+
+        // Claims tiles
+        util::applyFuncToAdjObjects<MineSweeperSolver, Tile>(tile.tileIndex, solver, 
+        [&](int32_t adjIndex, const Tile& inTile) 
+        {
+            if (claimed[adjIndex] || !inTile.hidden())
+            {
+                return;
+            }
+            tile.adjTiles[tile.size] = adjIndex;
+            tile.size++;
+            claimed[adjIndex] = true;
+        });
+    }
 }
 
 void computeProbabilities(const group::TileGroup& tileGroup, MineSweeperSolver& outSolver)

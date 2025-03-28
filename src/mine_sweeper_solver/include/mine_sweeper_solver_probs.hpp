@@ -9,10 +9,26 @@ namespace slvr
     namespace group
     {
 
+    struct TileWithAdjs
+    {
+        TileWithAdjs() : size{0} {}
+        std::array<mswp::BoardIndex, 8> adjTiles;
+        mswp::BoardIndex tileIndex;
+        uint8_t size;
+    };
+
     struct TileGroup
     {
         TileGroup() : size{0} {}
-        std::array<mswp::BoardIndex, MSWP_MAX_TILES> tiles;
+        TileGroup(std::initializer_list<mswp::BoardIndex> indices) :
+            size{indices.size()}
+        {
+            for (int32_t i = 0; i < size; i++)
+            {
+                tiles[i].tileIndex = *(indices.begin() + i);
+            }
+        }
+        std::array<TileWithAdjs, MSWP_MAX_TILES> tiles;
         mswp::BoardSize size;
     };
 

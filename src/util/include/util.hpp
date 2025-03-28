@@ -505,4 +505,18 @@ inline constexpr size_t getMaxLenStr(std::initializer_list<const char*> strings)
     return maxLength;
 }
 
+/**
+ * @brief Swaps two variables using xors.
+ * 
+ * @param[out] a reference to int a
+ * @param[out] b reference to int b
+ */
+template<typename INT>
+inline constexpr void swap(INT& a, INT& b)
+{
+    a ^= b;
+    b ^= a;
+    a ^= b;
+}
+
 } // util end

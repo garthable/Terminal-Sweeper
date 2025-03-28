@@ -69,6 +69,62 @@ bool compareArray(const slvr::ActionArray& buffer, const std::initializer_list<m
     return true;
 }
 
+bool compareArray(const slvr::group::TileGroup& buffer, const std::initializer_list<mswp::BoardIndex>& initList)
+{
+    size_t actionSize = buffer.size;
+    if (initList.size() != actionSize)
+    {
+        LOG_ERROR("Sizes done match! " << initList.size() << " != " << actionSize);
+        return false;
+    }
+    for (size_t i = 0; i < initList.size(); i++)
+    {
+        bool matches = false;
+        for (size_t j = 0; j < initList.size(); j++)
+        {
+            if (buffer.tiles[j].tileIndex == *(initList.begin() + i))
+            {
+                matches = true;
+                break;
+            }
+        }
+        if (!matches)
+        {
+            LOG_ERROR("Couldnt find " << *(initList.begin() + i));
+            return false;
+        }
+    }
+    return true;
+}
+
+bool compareArray(const std::array<mswp::BoardIndex, 8> buffer, const std::initializer_list<mswp::BoardIndex>& initList)
+{
+    size_t actionSize = buffer.size();
+    if (initList.size() != actionSize)
+    {
+        LOG_ERROR("Sizes done match! " << initList.size() << " != " << actionSize);
+        return false;
+    }
+    for (size_t i = 0; i < initList.size(); i++)
+    {
+        bool matches = false;
+        for (size_t j = 0; j < initList.size(); j++)
+        {
+            if (buffer[j] == *(initList.begin() + i))
+            {
+                matches = true;
+                break;
+            }
+        }
+        if (!matches)
+        {
+            LOG_ERROR("Couldnt find " << *(initList.begin() + i));
+            return false;
+        }
+    }
+    return true;
+}
+
 TEST(Update, 0)
 {
     using namespace mswptileconsts;
@@ -475,7 +531,7 @@ TEST(Grouping, 0)
     slvr::group::TileGroup tileGroup;
     slvr::group::findHiddenTiles(0, solver, visited, tileGroup);
 
-    ASSERT_TRUE(compareArray(tileGroup.tiles, {0, 1, 2, 3, 4, 5, 7, 9, 10, 12, 14, 15, 16, 17, 18, 19}));
+    ASSERT_TRUE(compareArray(tileGroup, {0, 1, 2, 3, 4, 5, 7, 9, 10, 12, 14, 15, 16, 17, 18, 19}));
 }
 
 TEST(Grouping, 1)
@@ -497,7 +553,7 @@ TEST(Grouping, 1)
     slvr::group::TileGroup tileGroup;
     slvr::group::findHiddenTiles(0, solver, visited, tileGroup);
 
-    ASSERT_TRUE(compareArray(tileGroup.tiles, {0, 1, 5, 10, 15, 16, 3, 4, 9, 14, 19, 18}));
+    ASSERT_TRUE(compareArray(tileGroup, {0, 1, 5, 10, 15, 16, 3, 4, 9, 14, 19, 18}));
 }
 
 TEST(Grouping, 2)
@@ -519,5 +575,50 @@ TEST(Grouping, 2)
     slvr::group::TileGroup tileGroup;
     slvr::group::findHiddenTiles(0, solver, visited, tileGroup);
 
-    ASSERT_TRUE(compareArray(tileGroup.tiles, {0, 1, 5, 10, 15}));
+    ASSERT_TRUE(compareArray(tileGroup, {0, 1, 5, 10, 15}));
+}
+
+TEST(Grouping, 3)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(5, 
+    {
+        V1, V1, B1, V0, V1,
+        V1, B1, B1, V0, V1,
+        V1, B1, V0, V0, V1,
+        V1, B1, V0, V1, V1
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    slvr::BoardBitMap visited;
+    slvr::group::TileGroup tileGroup;
+    slvr::group::findHiddenTiles(0, solver, visited, tileGroup);
+
+    ASSERT_TRUE(compareArray(tileGroup, {0, 1, 5, 10, 15}));
+}
+
+TEST(Sorting, 0)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(3, 
+    {
+        V1, V1, V2,
+        H1, H1, H1
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    LOG_INFO(solver);
+
+    slvr::group::TileGroup tileGroup({0, 1, 2});
+    slvr::sortByCombinationCount(solver, tileGroup);
+
+    ASSERT_EQ(tileGroup.tiles[0].tileIndex, 1);
+    ASSERT_EQ(tileGroup.tiles[0].size, 3);
+    ASSERT_TRUE(compareArray(tileGroup.tiles[0].adjTiles, {3, 4, 5}));
 }
