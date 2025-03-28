@@ -59,7 +59,9 @@ namespace slvr
             // earlier in NP computeProbabilities call.
             sortByCombinationCount(outSolver, tileGroup);
             // NP computeProbabilities call.
-            computeProbabilities(tileGroup, outSolver);
+            BoardBitMap bombLocations;
+            uint32_t solutionCount = 0;
+            computeProbabilities(tileGroup, outSolver, bombLocations, solutionCount);
         });
     }
 
@@ -130,9 +132,124 @@ void sortByCombinationCount(const MineSweeperSolver& solver, group::TileGroup& o
     }
 }
 
-void computeProbabilities(const group::TileGroup& tileGroup, MineSweeperSolver& outSolver, const mswp::BoardIndex i = 0)
+
+// void MineSweeperSolutionFinder::getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, SolutionSet& solutionSet)
+// {
+//     if (currVisibleTileIndex == m_groupedVisibleTiles[group].size()) // Base case
+//     {
+//         while (m_groupedCompleteSolutions.size() < group + 1)
+//         {
+//             m_groupedCompleteSolutions.emplaceBack();
+//         }
+//         m_groupedCompleteSolutions[group].push_back(solutionSet);
+//         return;
+//     }
+//     VisibleTile& currVisibleTile = m_groupedVisibleTiles[group][currVisibleTileIndex];
+//     uint16_t bombCount = getEffectiveBombCount(currVisibleTile, solutionSet);
+//     int16_t claimedTilesSize = currVisibleTile.ownedHiddenTiles.size();
+//     if (claimedTilesSize < bombCount)
+//     {
+//         return;
+//     }
+//     if (claimedTilesSize == 0 || bombCount == 0)
+//     {
+//         getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, solutionSet);
+//         return;
+//     }
+//     uint8_t* combinations = getHardcodedCombinations(bombCount);
+//     while(true)
+//     {
+//         if (*combinations >= claimedTilesSize) 
+//         {
+//             break;
+//         }
+
+//         uint8_t* combinationsStart = combinations;
+//         // Apply solution
+//         for (uint8_t i = 0; i < bombCount; i++)
+//         {
+//             const uint16_t index = currVisibleTile.ownedHiddenTiles[*combinations];
+//             solutionSet.hiddenTiles[index].isBomb = true;
+//             combinations++;
+//         }
+//         solutionSet.bombCount += bombCount;
+//         getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, solutionSet);
+//         // Remove solution
+//         for (uint8_t i = 0; i < bombCount; i++)
+//         {
+//             const uint16_t index = currVisibleTile.ownedHiddenTiles[*combinationsStart];
+//             solutionSet.hiddenTiles[index].isBomb = false;
+//             combinationsStart++;
+//         }
+//         solutionSet.bombCount -= bombCount;
+//     }
+// }
+
+int8_t getAdjBombsInSolution(const int32_t i, const int32_t width, const int32_t size, const BoardBitMap& bombLocations)
 {
-    
+    int8_t adjBombs = 0;
+    util::applyFuncToAdjObjects<BoardBitMap, bool>(i, width, size, bombLocations, 
+    [&](const bool& isBomb) 
+    {
+        adjBombs += isBomb;
+    });
+    return adjBombs;
+}
+
+void computeProbabilities(group::TileGroup& outTileGroup, MineSweeperSolver& outSolver, BoardBitMap& outBombLocations, uint32_t& outSolutionCount, const mswp::BoardIndex i = 0, const uint8_t bombsInSolution = 0)
+{
+    if (i == outTileGroup.size) // Base case
+    {
+        if (false /* Place holder check to remove invalid solutions */)
+        {
+            return;
+        }
+        mswp::BoardSize size = outSolver.size();
+        for (mswp::BoardIndex i = 0; i < size; i++)
+        {
+            outTileGroup.bombFrequency[i] += outBombLocations[i];
+        }
+        outSolutionCount++;
+        return;
+    }
+    const group::TileWithAdjs& currTile = outTileGroup.tiles[i];
+    const int8_t adjBombsInSolution = getAdjBombsInSolution(currTile.tileIndex, outSolver.width(), outSolver.size(), outBombLocations);
+    const int8_t adjBombCount = outSolver[currTile.tileIndex].adjBombs - adjBombsInSolution;
+    const int8_t adjClaimedCount = currTile.size;
+
+    if (adjClaimedCount < adjBombCount) // Checks for invalid set
+    {
+        return;
+    }
+    if (adjClaimedCount == 0 || adjBombCount == 0) // Skips when there are 0 combinations.
+    {
+        computeProbabilities(outTileGroup, outSolver, outBombLocations, outSolutionCount, i + 1, bombsInSolution);
+        return;
+    }
+    uint8_t* combinations = getHardcodedCombinations(adjBombCount);
+    uint16_t index = 0;
+    while(*combinations < adjClaimedCount)
+    {
+        // Used to remove solution from outBombLocations
+        uint8_t* combinationsUndo = combinations;
+        // Apply solution
+        for (uint8_t i = 0; i < adjBombCount; i++)
+        {
+            const uint16_t index = currTile.adjTiles[*combinations];
+            outBombLocations[index] = true;
+            combinations++;
+        }
+
+        computeProbabilities(outTileGroup, outSolver, outBombLocations, outSolutionCount, i + 1, bombsInSolution + adjBombCount);
+
+        // Remove solution
+        for (uint8_t i = 0; i < adjBombCount; i++)
+        {
+            const uint16_t index = currTile.adjTiles[*combinationsUndo];
+            outBombLocations[index] = false;
+            combinationsUndo++;
+        }
+    }
 }
 
 } // namespace slvr end
