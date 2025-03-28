@@ -24,6 +24,190 @@ while(0)
 /**
  * @brief Runs func on adjacent elements of index i
  * 
+ * @tparam CONTAINER object that behaves as an array and has size and width functions
+ * @tparam OBJECT object in array
+ * @param i index of array to center around
+ * @param out array that is modified by function
+ * @param func lambda function that modifies array
+ */
+template<typename CONTAINER, typename OBJECT>
+inline void applyFuncToAdjObjects(const int32_t i, CONTAINER& out, std::function<void(OBJECT&)> func)
+{
+    int32_t width = out.width();
+    int32_t size = out.size();
+    static constexpr int32_t offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const int32_t offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    const int32_t x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        int32_t newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            continue;
+        }
+        int32_t offset = offsetsX[j] + offsetsY[j];
+        int32_t newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            continue;
+        }
+        func(out[newI]);
+    }
+}
+
+/**
+ * @brief Runs func on adjacent elements of index i
+ * 
+ * @tparam CONTAINER object that behaves as an array and has size and width functions
+ * @tparam OBJECT object in array
+ * @param i index of array to center around
+ * @param out array that is modified by function
+ * @param func lambda function that modifies array
+ */
+template<typename CONTAINER, typename OBJECT>
+inline void applyFuncToAdjObjects(const int32_t i, CONTAINER& out, std::function<void(int32_t, OBJECT&)> func)
+{
+    int32_t width = out.width();
+    int32_t size = out.size();
+    static constexpr int32_t offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const int32_t offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    const int32_t x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        int32_t newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            continue;
+        }
+        int32_t offset = offsetsX[j] + offsetsY[j];
+        int32_t newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            continue;
+        }
+        func(newI, out[newI]);
+    }
+}
+
+/**
+ * @brief Runs func on adjacent elements of index i
+ * 
+ * @tparam CONTAINER object that behaves as an array and has size and width functions
+ * @tparam OBJECT object in array
+ * @param i index of array to center around
+ * @param in container that is read by function
+ * @param func lambda function that modifies array
+ */
+template<typename CONTAINER, typename OBJECT>
+inline void applyFuncToAdjObjects(const int32_t i, const CONTAINER& in, std::function<void(const OBJECT&)> func)
+{
+    int32_t width = in.width();
+    int32_t size = in.size();
+    static constexpr int32_t offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const int32_t offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    const int32_t x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        int32_t newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            continue;
+        }
+        int32_t offset = offsetsX[j] + offsetsY[j];
+        int32_t newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            continue;
+        }
+        func(in[newI]);
+    }
+}
+
+/**
+ * @brief Runs func on adjacent elements of index i
+ * 
+ * @tparam CONTAINER object that behaves as an array and has size and width functions
+ * @tparam OBJECT object in array
+ * @param i index of array to center around
+ * @param in container that is read by function
+ * @param func lambda function that modifies array
+ */
+template<typename CONTAINER, typename OBJECT>
+inline void applyFuncToAdjObjects(const int32_t i, const CONTAINER& in, std::function<void(int32_t, const OBJECT&)> func)
+{
+    int32_t width = in.width();
+    int32_t size = in.size();
+    static constexpr int32_t offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const int32_t offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    const int32_t x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        int32_t newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            continue;
+        }
+        int32_t offset = offsetsX[j] + offsetsY[j];
+        int32_t newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            continue;
+        }
+        func(newI, in[newI]);
+    }
+}
+
+/**
+ * @brief Runs func on adjacent elements of index i
+ * 
  * @tparam ARRAY object that behaves as an array
  * @tparam OBJECT object in array
  * @param i index of array to center around
@@ -121,7 +305,7 @@ inline void applyFuncToAdjObjects(const int32_t i, const int32_t width, const in
  * @param i index of array to center around
  * @param width width
  * @param size size of array
- * @param in array that is modified by function
+ * @param in array that is read by function
  * @param func lambda function that modifies array
  */
 template<typename ARRAY, typename OBJECT>
@@ -167,7 +351,7 @@ inline void applyFuncToAdjObjects(const int32_t i, const int32_t width, const in
  * @param i index of array to center around
  * @param width width
  * @param size size of array
- * @param in array that is modified by function
+ * @param in array that is read by function
  * @param func lambda function that modifies array
  */
 template<typename ARRAY, typename OBJECT>

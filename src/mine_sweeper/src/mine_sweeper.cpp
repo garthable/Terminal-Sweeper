@@ -272,7 +272,7 @@ bool MineSweeper::click(BoardIndex i)
 bool MineSweeper::flag(BoardXPos x, BoardYPos y)
 {
     BoardIndex i = static_cast<BoardIndex>(x) + static_cast<BoardIndex>(y)*m_Width;
-    if (m_FlagsRemaining <= 0 && m_Tiles[i].state & Tile::FLAGGED == 0)
+    if (m_FlagsRemaining <= 0 && (m_Tiles[i].state & Tile::FLAGGED) == 0)
     {
         return false;
     }
@@ -284,7 +284,7 @@ bool MineSweeper::flag(BoardXPos x, BoardYPos y)
 }
 bool MineSweeper::flag(BoardIndex i)
 {
-    if (m_FlagsRemaining <= 0 && m_Tiles[i].state & Tile::FLAGGED == 0)
+    if (m_FlagsRemaining <= 0 && (m_Tiles[i].state & Tile::FLAGGED) == 0)
     {
         return false;
     }

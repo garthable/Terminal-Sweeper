@@ -13,7 +13,68 @@ MineSweeperSolver::MineSweeperSolver(const mswp::MineSweeper& mineSweeper) :
     m_RemainingBombs{mineSweeper.flagsRemaining()},
     m_RemainingTiles{mineSweeper.remainingTile()}
 {
+    mswp::TileStringSize size = m_TileString.size();
 
+    m_IsModifiedBuffer.reset();
+    m_ModifiedBufferSize = 0;
+
+    for (mswp::TileStringIndex i = 0; i < size; i++)
+    {
+        switch (m_TileString[i])
+        {
+        case mswp::TileChar::VISIBLE_0:
+            m_Tiles[i].adjBombs = 0;
+            m_Tiles[i].bombProb = 0;
+            break;
+        case mswp::TileChar::VISIBLE_1:
+            m_Tiles[i].adjBombs = 1;
+            m_Tiles[i].bombProb = 0;
+            break;
+        case mswp::TileChar::VISIBLE_2:
+            m_Tiles[i].adjBombs = 2;
+            m_Tiles[i].bombProb = 0;
+            break;
+        case mswp::TileChar::VISIBLE_3:
+            m_Tiles[i].adjBombs = 3;
+            m_Tiles[i].bombProb = 0;
+            break;
+        case mswp::TileChar::VISIBLE_4:
+            m_Tiles[i].adjBombs = 4;
+            m_Tiles[i].bombProb = 0;
+            break;
+        case mswp::TileChar::VISIBLE_5:
+            m_Tiles[i].adjBombs = 5;
+            m_Tiles[i].bombProb = 0;
+            break;
+        case mswp::TileChar::VISIBLE_6:
+            m_Tiles[i].adjBombs = 6;
+            m_Tiles[i].bombProb = 0;
+            break;
+        case mswp::TileChar::VISIBLE_7:
+            m_Tiles[i].adjBombs = 7;
+            m_Tiles[i].bombProb = 0;
+            break;
+        case mswp::TileChar::VISIBLE_8:
+            m_Tiles[i].adjBombs = 8;
+            m_Tiles[i].bombProb = 0;
+            break;
+        case mswp::TileChar::VISIBLE_BOMB:
+            m_Tiles[i].bombProb = 1;
+            break;
+        case mswp::TileChar::HIDDEN:
+            m_Tiles[i].bombProb = NAN;
+            m_Tiles[i].adjBombs = -1;
+            m_Tiles[i].adjUnknowns = -1;
+            break;
+        case mswp::TileChar::FLAGGED:
+            m_Tiles[i].bombProb = 1;
+            break;
+        
+        default:
+            break;
+        }
+        updateTile(i);
+    }
 }
 
 void MineSweeperSolver::updateTile(const mswp::TileStringIndex i)

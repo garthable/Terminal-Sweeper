@@ -7,6 +7,7 @@
 
 #include "mine_sweeper_solver.hpp"
 #include "mine_sweeper_solver_functions.hpp"
+#include "mine_sweeper_solver_probs.hpp"
 
 bool compareArray(const slvr::ModifiedBuffer& buffer, const std::initializer_list<mswp::BoardIndex>& initList)
 {
@@ -453,4 +454,70 @@ TEST(IntersectionSolver, 1)
 
     ASSERT_TRUE(compareArray(clicks, {12}));
     ASSERT_TRUE(compareArray(flags, {3, 8}));
+}
+
+TEST(Grouping, 0)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(5, 
+    {
+        V1, V1, V2, V1, V1,
+        V2, B1, V4, B1, V2,
+        V2, B1, V4, B1, V2,
+        V1, V1, V2, V1, V1
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    slvr::BoardBitMap visited;
+    slvr::group::TileGroup tileGroup;
+    slvr::group::findHiddenTiles(0, solver, visited, tileGroup);
+
+    ASSERT_TRUE(compareArray(tileGroup.tiles, {0, 1, 2, 3, 4, 5, 7, 9, 10, 12, 14, 15, 16, 17, 18, 19}));
+}
+
+TEST(Grouping, 1)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(5, 
+    {
+        V1, V1, B1, V1, V1,
+        V1, B1, B1, B1, V1,
+        V1, B1, B1, B1, V1,
+        V1, V1, B1, V1, V1
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    slvr::BoardBitMap visited;
+    slvr::group::TileGroup tileGroup;
+    slvr::group::findHiddenTiles(0, solver, visited, tileGroup);
+
+    ASSERT_TRUE(compareArray(tileGroup.tiles, {0, 1, 5, 10, 15, 16, 3, 4, 9, 14, 19, 18}));
+}
+
+TEST(Grouping, 2)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(5, 
+    {
+        V1, V1, B1, B1, V1,
+        V1, B1, B1, B1, V1,
+        V1, B1, B1, B1, V1,
+        V1, B1, B1, V1, V1
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    slvr::BoardBitMap visited;
+    slvr::group::TileGroup tileGroup;
+    slvr::group::findHiddenTiles(0, solver, visited, tileGroup);
+
+    ASSERT_TRUE(compareArray(tileGroup.tiles, {0, 1, 5, 10, 15}));
 }

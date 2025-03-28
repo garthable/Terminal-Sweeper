@@ -1,7 +1,69 @@
 #include "mine_sweeper_solver_probs.hpp"
+#include "util.hpp"
+#include "log.hpp"
 
 namespace slvr
 {
+
+    namespace group
+    {
+
+    void findHiddenTiles(mswp::BoardIndex centerVisibleTileIndex, const MineSweeperSolver& solver, BoardBitMap& outVisited, TileGroup& outGroup)
+    {
+        outVisited[centerVisibleTileIndex] = true;
+        outGroup.tiles[outGroup.size] = centerVisibleTileIndex;
+        outGroup.size += 1;
+        util::applyFuncToAdjObjects<MineSweeperSolver, Tile>(centerVisibleTileIndex, solver, 
+        [&](int32_t i, const Tile& tile)
+        {
+            if (!tile.hidden() || tile.bombProb == 1 || outVisited[i])
+            {
+                return;
+            }
+            findVisibleTiles(i, solver, outVisited, outGroup);
+        });
+    }
+
+    void findVisibleTiles(mswp::BoardIndex centerTileIndex, const MineSweeperSolver& solver, BoardBitMap& outVisited, TileGroup& outGroup)
+    {
+        outVisited[centerTileIndex] = true;
+        util::applyFuncToAdjObjects<MineSweeperSolver, Tile>(centerTileIndex, solver, 
+        [&](int32_t i, const Tile& tile)
+        {
+            if (tile.hidden() || tile.adjBombs == 0 || tile.bombProb == 1 || outVisited[i])
+            {
+                return;
+            }
+            findHiddenTiles(i, solver, outVisited, outGroup);
+        });
+    }
+
+    void groupTiles(MineSweeperSolver& outSolver)
+    {
+        BoardBitMap visited;
+        TileGroup tileGroup;
+        outSolver.applyFuncToAll(
+        [&](mswp::BoardIndex i, Tile& tile) 
+        {
+            // Disgards invalid starting tiles (0, #, @)
+            if (visited[i] || tile.hidden() || tile.adjBombs == 0 || tile.bombProb == 1)
+            {
+                return;
+            }
+
+            // Goes back and forth between find visible and 
+            // find hidden tiles until a group has been fully 
+            // created.
+            findHiddenTiles(i, outSolver, visited, tileGroup);
+            // Sorts combination count such that branches end 
+            // earlier in NP computeProbabilities call.
+            sortByCombinationCount(outSolver, tileGroup);
+            // NP computeProbabilities call.
+            computeProbabilities(tileGroup, outSolver);
+        });
+    }
+
+    } // namespace group end
 
 inline uint8_t* getHardcodedCombinations(uint8_t r)
 {
@@ -17,7 +79,12 @@ inline uint8_t getHardcodedCombinationsSize(uint8_t n, uint8_t r)
     return hardCodedSize[k];
 }
 
-void computeProbabilities(MineSweeperSolver& outSolver)
+void sortByCombinationCount(const MineSweeperSolver& solver, group::TileGroup& outTileGroup)
+{
+
+}
+
+void computeProbabilities(const group::TileGroup& tileGroup, MineSweeperSolver& outSolver)
 {
     
 }
