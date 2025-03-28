@@ -514,9 +514,10 @@ inline constexpr size_t getMaxLenStr(std::initializer_list<const char*> strings)
 template<typename INT>
 inline constexpr void swap(INT& a, INT& b)
 {
-    a ^= b;
-    b ^= a;
-    a ^= b;
+    bool neq = a != b;
+    a ^= b*neq;
+    b ^= a*neq;
+    a ^= b*neq;
 }
 
 } // util end

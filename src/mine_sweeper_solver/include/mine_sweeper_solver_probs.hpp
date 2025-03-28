@@ -40,6 +40,6 @@ namespace slvr
 
 void sortByCombinationCount(const MineSweeperSolver& solver, group::TileGroup& outTileGroup);
 bool validCombination(const BoardBitMap& bombLayout, mswp::FlagsRemaining bombsRemaining, mswp::BoardWidth width, mswp::BoardSize size);
-void computeProbabilities(const group::TileGroup& tileGroup, MineSweeperSolver& outSolver);
+void computeProbabilities(const group::TileGroup& tileGroup, MineSweeperSolver& outSolver, const mswp::BoardIndex i = 0);
 
 } // namespace slvr end

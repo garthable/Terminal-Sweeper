@@ -74,9 +74,12 @@ inline uint8_t* getHardcodedCombinations(uint8_t r)
 
 inline uint8_t getHardcodedCombinationsSize(uint8_t n, uint8_t r)
 {
+    --n;
+    --r;
     static uint8_t hardCodedSize[] = {1, 2, 1, 3, 3, 1, 4, 6, 4, 1, 5, 10, 10, 5, 1, 6, 15, 20, 15, 6, 1, 7, 21, 35, 35, 21, 7, 1, 8, 28, 56, 70, 56, 28, 8, 1};
-    const uint8_t k = n*(n+1)/2 + r;
-    return hardCodedSize[k];
+    const bool valid = (n < 8 && r < 8);
+    const uint8_t k = (n*(n+1)/2 + r)*valid;
+    return hardCodedSize[k]*valid;
 }
 
 void sortByCombinationCount(const MineSweeperSolver& solver, group::TileGroup& outTileGroup)
@@ -85,29 +88,27 @@ void sortByCombinationCount(const MineSweeperSolver& solver, group::TileGroup& o
     for (mswp::BoardIndex i = 0; i < outTileGroup.size; i++)
     {
         // Finds max combination size
-        mswp::BoardIndex maxIndex = 0;
-        uint8_t maxCombinationSize = 0;
+        mswp::BoardIndex maxIndex = -1;
+        int8_t maxCombinationSize = -1;
         for (mswp::BoardIndex j = i; j < outTileGroup.size; j++)
         {
             group::TileWithAdjs& tile = outTileGroup.tiles[j];
 
-            uint8_t n = 0;
+            int8_t n = 0;
 
             util::applyFuncToAdjObjects<MineSweeperSolver, Tile>(tile.tileIndex, solver, 
             [&](int32_t adjIndex, const Tile& inTile) 
             {
                 n += inTile.hidden() && !claimed[adjIndex];
             });
-            uint8_t combinationSize = getHardcodedCombinationsSize(n, solver[tile.tileIndex].adjBombs);
-            LOG_INFO(static_cast<int>(n) << " " << static_cast<int>(solver[tile.tileIndex].adjBombs) << " = " << static_cast<int>(combinationSize));
+            int8_t combinationSize = getHardcodedCombinationsSize(n, solver[tile.tileIndex].adjBombs);
+
             if (combinationSize > maxCombinationSize)
             {
                 maxCombinationSize = combinationSize;
                 maxIndex = j;
             }
         }
-
-        LOG_INFO(static_cast<int>(maxIndex) << " " << static_cast<int>(maxCombinationSize));
 
         // Moves tile to front
         util::swap(outTileGroup.tiles[maxIndex].tileIndex, outTileGroup.tiles[i].tileIndex);
@@ -129,7 +130,7 @@ void sortByCombinationCount(const MineSweeperSolver& solver, group::TileGroup& o
     }
 }
 
-void computeProbabilities(const group::TileGroup& tileGroup, MineSweeperSolver& outSolver)
+void computeProbabilities(const group::TileGroup& tileGroup, MineSweeperSolver& outSolver, const mswp::BoardIndex i = 0)
 {
     
 }

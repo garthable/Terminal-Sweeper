@@ -99,12 +99,6 @@ bool compareArray(const slvr::group::TileGroup& buffer, const std::initializer_l
 
 bool compareArray(const std::array<mswp::BoardIndex, 8> buffer, const std::initializer_list<mswp::BoardIndex>& initList)
 {
-    size_t actionSize = buffer.size();
-    if (initList.size() != actionSize)
-    {
-        LOG_ERROR("Sizes done match! " << initList.size() << " != " << actionSize);
-        return false;
-    }
     for (size_t i = 0; i < initList.size(); i++)
     {
         bool matches = false;
@@ -613,12 +607,34 @@ TEST(Sorting, 0)
 
     slvr::MineSweeperSolver solver(board);
 
-    LOG_INFO(solver);
-
     slvr::group::TileGroup tileGroup({0, 1, 2});
     slvr::sortByCombinationCount(solver, tileGroup);
 
     ASSERT_EQ(tileGroup.tiles[0].tileIndex, 1);
     ASSERT_EQ(tileGroup.tiles[0].size, 3);
     ASSERT_TRUE(compareArray(tileGroup.tiles[0].adjTiles, {3, 4, 5}));
+}
+
+TEST(Sorting, 1)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(5, 
+    {
+        H1, V1, H1, V2, H1,
+        H1, H1, H1, H1, H1
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    slvr::group::TileGroup tileGroup({1, 3});
+    slvr::sortByCombinationCount(solver, tileGroup);
+
+    ASSERT_EQ(tileGroup.tiles[0].tileIndex, 3);
+    ASSERT_EQ(tileGroup.tiles[1].tileIndex, 1);
+    ASSERT_EQ(tileGroup.tiles[0].size, 5);
+    ASSERT_EQ(tileGroup.tiles[1].size, 3);
+    ASSERT_TRUE(compareArray(tileGroup.tiles[0].adjTiles, {2, 7, 8, 9, 4}));
+    ASSERT_TRUE(compareArray(tileGroup.tiles[1].adjTiles, {0, 5, 6}));
 }
