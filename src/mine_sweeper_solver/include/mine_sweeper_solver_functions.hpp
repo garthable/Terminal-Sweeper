@@ -20,4 +20,4 @@ void useActionArrays(ActionArray& outClicks, ActionArray& outFlags, mswp::MineSw
 void lazySolve(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray& outFlags);
 void intersectionSolver(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray& outFlags);
 
-};
+}
