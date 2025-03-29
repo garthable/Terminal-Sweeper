@@ -21,6 +21,7 @@ set(SOURCE
     src/mine_sweeper_solver.cpp
     src/mine_sweeper_solver_functions.cpp
     src/mine_sweeper_solver_probs.cpp
+    src/solution_set.cpp
 )
 
 add_library(mine_sweeper_solver STATIC ${SOURCE})
