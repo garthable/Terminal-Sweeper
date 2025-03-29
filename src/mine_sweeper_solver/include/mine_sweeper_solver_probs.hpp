@@ -3,7 +3,7 @@
 #include "mine_sweeper_solver.hpp"
 #include "mine_sweeper_solver_probs.hpp"
 
-#include <vector>
+#include "solution_set.hpp"
 
 namespace slvr
 {
@@ -22,7 +22,7 @@ namespace slvr
     {
         TileGroup() : size{0} 
         {
-            std::fill(bombFrequency.begin(), bombFrequency.end(), 0);
+
         }
         TileGroup(std::initializer_list<mswp::BoardIndex> indices) :
             size{indices.size()}
@@ -31,20 +31,21 @@ namespace slvr
             {
                 tiles[i].tileIndex = *(indices.begin() + i);
             }
-            std::fill(bombFrequency.begin(), bombFrequency.end(), 0);
         }
         std::array<TileWithAdjs, MSWP_MAX_TILES> tiles;
-        std::array<uint32_t, MSWP_MAX_TILES> bombFrequency;
         mswp::BoardSize size;
     };
 
     void findHiddenTiles(mswp::BoardIndex centerTileIndex, const MineSweeperSolver& solver, BoardBitMap& outVisited, TileGroup& outGroup);
     void findVisibleTiles(mswp::BoardIndex centerTileIndex, const MineSweeperSolver& solver, BoardBitMap& outVisited, TileGroup& outGroup);
-    void groupTiles(MineSweeperSolver& outSolver);
 
     } // namespace group end
 
+typedef std::array<double, MSWP_MAX_TILES> TileProbs;
+
 void sortByCombinationCount(const MineSweeperSolver& solver, group::TileGroup& outTileGroup);
-void computeProbabilities(group::TileGroup& outTileGroup, MineSweeperSolver& outSolver, BoardBitMap& outBombLocations, uint32_t& outSolutionCount, const mswp::BoardIndex i = 0, const uint8_t bombsInSolution = 0);
+void getSolutions(group::TileGroup& outTileGroup, MineSweeperSolver& outSolver, BoardBitMap& outBombLocations, SolutionSet& outSolutionSet, const mswp::BoardIndex i = 0, const uint8_t bombsInSolution = 0);
+
+void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs);
 
 } // namespace slvr end

@@ -5,11 +5,20 @@
 namespace slvr
 {
 
-bool shouldCombineSolutionSets(const SolutionSet& solutionSetA, const SolutionSet& solutionSetB, mswp::FlagsRemaining minBombs, mswp::FlagsRemaining maxBombs)
+bool shouldCombineSolutionSets(const std::vector<SolutionSet>& solutionSets, mswp::FlagsRemaining minBombs, mswp::FlagsRemaining maxBombs)
 {
-    uint32_t maxCombined = solutionSetA.maxBombs() + solutionSetB.maxBombs();
-    uint32_t minCombined = solutionSetA.minBombs() + solutionSetB.minBombs();
-    return maxCombined <= maxBombs || minCombined >= minBombs;
+    // Removes completely invalid values
+    mswp::FlagsRemaining sumOfMins = 0;
+    mswp::FlagsRemaining sumOfMaxes = 0;
+
+    // Prepares solutionSets and sums
+    for (const SolutionSet& solutionSet : solutionSets)
+    {
+        sumOfMaxes += solutionSet.maxBombs();
+        sumOfMins += solutionSet.minBombs();
+    }
+
+    return sumOfMaxes > maxBombs || sumOfMins < minBombs;
 }
 
 void SolutionSet::eliminateSolutions(mswp::FlagsRemaining sumOfMins, mswp::FlagsRemaining sumOfMaxes, mswp::FlagsRemaining minBombs, mswp::FlagsRemaining maxBombs)

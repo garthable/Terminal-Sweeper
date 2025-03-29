@@ -38,33 +38,6 @@ namespace slvr
         });
     }
 
-    void groupTiles(MineSweeperSolver& outSolver)
-    {
-        BoardBitMap visited;
-        TileGroup tileGroup;
-        outSolver.applyFuncToAll(
-        [&](mswp::BoardIndex i, Tile& tile) 
-        {
-            // Disgards invalid starting tiles (0, #, @)
-            if (visited[i] || tile.hidden() || tile.adjBombs == 0 || tile.bombProb == 1)
-            {
-                return;
-            }
-
-            // Goes back and forth between find visible and 
-            // find hidden tiles until a group has been fully 
-            // created.
-            findHiddenTiles(i, outSolver, visited, tileGroup);
-            // Sorts combination count such that branches end 
-            // earlier in NP computeProbabilities call.
-            sortByCombinationCount(outSolver, tileGroup);
-            // NP computeProbabilities call.
-            BoardBitMap bombLocations;
-            uint32_t solutionCount = 0;
-            computeProbabilities(tileGroup, outSolver, bombLocations, solutionCount);
-        });
-    }
-
     } // namespace group end
 
 inline uint8_t* getHardcodedCombinations(uint8_t r)
@@ -143,20 +116,11 @@ int8_t getAdjBombsInSolution(const int32_t i, const int32_t width, const int32_t
     return adjBombs;
 }
 
-void computeProbabilities(group::TileGroup& outTileGroup, MineSweeperSolver& outSolver, BoardBitMap& outBombLocations, uint32_t& outSolutionCount, const mswp::BoardIndex i, const uint8_t bombsInSolution)
+void getSolutions(group::TileGroup& outTileGroup, MineSweeperSolver& outSolver, BoardBitMap& outBombLocations, SolutionSet& outSolutionSet, const mswp::BoardIndex i, const uint8_t bombsInSolution)
 {
     if (i == outTileGroup.size) // Base case
     {
-        if (false /* Place holder check to remove invalid solutions */)
-        {
-            return;
-        }
-        mswp::BoardSize size = outSolver.size();
-        for (mswp::BoardIndex i = 0; i < size; i++)
-        {
-            outTileGroup.bombFrequency[i] += outBombLocations[i];
-        }
-        outSolutionCount++;
+        outSolutionSet.push(Solution(outBombLocations, bombsInSolution));
         return;
     }
     const group::TileWithAdjs& currTile = outTileGroup.tiles[i];
@@ -170,7 +134,7 @@ void computeProbabilities(group::TileGroup& outTileGroup, MineSweeperSolver& out
     }
     if (adjClaimedCount == 0 || adjBombCount == 0) // Skips when there are 0 combinations.
     {
-        computeProbabilities(outTileGroup, outSolver, outBombLocations, outSolutionCount, i + 1, bombsInSolution);
+        getSolutions(outTileGroup, outSolver, outBombLocations, outSolutionSet, i + 1, bombsInSolution);
         return;
     }
     uint8_t* combinations = getHardcodedCombinations(adjBombCount);
@@ -187,7 +151,7 @@ void computeProbabilities(group::TileGroup& outTileGroup, MineSweeperSolver& out
             combinations++;
         }
 
-        computeProbabilities(outTileGroup, outSolver, outBombLocations, outSolutionCount, i + 1, bombsInSolution + adjBombCount);
+        getSolutions(outTileGroup, outSolver, outBombLocations, outSolutionSet, i + 1, bombsInSolution + adjBombCount);
 
         // Remove solution
         for (uint8_t i = 0; i < adjBombCount; i++)
@@ -195,6 +159,115 @@ void computeProbabilities(group::TileGroup& outTileGroup, MineSweeperSolver& out
             const uint16_t index = currTile.adjTiles[*combinationsUndo];
             outBombLocations[index] = false;
             combinationsUndo++;
+        }
+    }
+}
+
+void poppulateSolutionSets(MineSweeperSolver& outSolver, std::vector<SolutionSet>& outSolutionSet)
+{
+    BoardBitMap visited;
+    group::TileGroup tileGroup;
+    outSolver.applyFuncToAll(
+    [&](mswp::BoardIndex i, Tile& tile) 
+    {
+        // Disgards invalid starting tiles (0, #, @)
+        if (visited[i] || tile.hidden() || tile.adjBombs == 0 || tile.bombProb == 1)
+        {
+            return;
+        }
+
+        // Goes back and forth between find visible and 
+        // find hidden tiles until a group has been fully 
+        // created.
+        group::findHiddenTiles(i, outSolver, visited, tileGroup);
+        // Sorts combination count such that branches end 
+        // earlier in NP computeProbabilities call.
+        sortByCombinationCount(outSolver, tileGroup);
+        // NP computeProbabilities call.
+        BoardBitMap bombLocations;
+        SolutionSet solutionSet;
+        getSolutions(tileGroup, outSolver, bombLocations, solutionSet);
+        outSolutionSet.emplace_back(std::move(solutionSet));
+    });
+}
+
+uint64_t getTotalAmountOfSolutions(const std::vector<SolutionSet>& solutionSets)
+{
+    uint64_t totalAmountOfSolutions = 0;
+    for (const SolutionSet& solutionSet : solutionSets)
+    {
+        for (const Solution& solution : solutionSet)
+        {
+            totalAmountOfSolutions += solution.numberOfSolutions;
+        }
+    }
+    return totalAmountOfSolutions;
+}
+
+uint64_t getTotalAmountOfSolutions(const SolutionSet& solutionSet)
+{
+    uint64_t totalAmountOfSolutions = 0;
+    for (const Solution& solution : solutionSet)
+    {
+        totalAmountOfSolutions += solution.numberOfSolutions;
+    }
+    return totalAmountOfSolutions;
+}
+
+void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs)
+{
+    std::vector<SolutionSet> solutionSets;
+    poppulateSolutionSets(outSolver, solutionSets);
+
+    mswp::FlagsRemaining minBombs = std::max(static_cast<int>(outSolver.remainingBombs()) - outSolver.remainingDeepTiles(), 0);
+    mswp::FlagsRemaining maxBombs = outSolver.remainingBombs();
+    bool combined = shouldCombineSolutionSets(solutionSets, minBombs, maxBombs);
+    uint64_t totalAmountOfSolutions = 0;
+    if (combined)
+    {
+        combineSolutionSets(solutionSets, minBombs, maxBombs);
+        totalAmountOfSolutions = getTotalAmountOfSolutions(solutionSets);
+    }
+
+    mswp::BoardSize size = outSolver.size();
+    std::fill(outProbs.begin(), outProbs.begin() + size, 0.0);
+
+
+    // TODO: Cache indicies for optimization.
+
+    double remainingProb = outSolver.remainingBombs();
+
+    for (const SolutionSet& solutionSet : solutionSets)
+    {
+        if (!combined)
+        {
+            totalAmountOfSolutions = getTotalAmountOfSolutions(solutionSets);
+        }
+        for (const Solution& solution : solutionSet)
+        {
+            for (mswp::BoardIndex i = 0; i < size; i++)
+            {
+                if (!outSolver.isNotDeepTile()[i])
+                {
+                    continue;
+                }
+                // Zero if not a bomb, solution.numberOfSolutions if bomb.
+                uint64_t solutionCount = solution.numberOfSolutions * solution.solution[i];
+
+                double prob = static_cast<double>(solutionCount) / totalAmountOfSolutions;
+
+                // Gets probability of tile being a bomb
+                outSolver[i].bombProb += prob;
+                remainingProb -= prob;
+            }
+        }
+    }
+    double deepTileProb = remainingProb /= outSolver.remainingDeepTiles();
+    for (mswp::BoardIndex i = 0; i < size; i++)
+    {
+        if (!outSolver.isNotDeepTile()[i])
+        {
+            outProbs[i] = deepTileProb;
         }
     }
 }

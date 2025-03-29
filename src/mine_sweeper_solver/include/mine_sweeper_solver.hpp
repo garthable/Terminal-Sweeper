@@ -80,9 +80,9 @@ public:
     {
         return m_RemainingBombs;
     }
-    inline mswp::BoardSize remainingTiles() const
+    inline mswp::BoardSize remainingDeepTiles() const
     {
-        return m_RemainingTiles;
+        return m_RemainingDeepTiles;
     }
     
     inline const Tiles& tiles() const
@@ -107,9 +107,9 @@ public:
     {
         return m_RemainingBombs;
     }
-    inline mswp::BoardSize& remainingTiles()
+    inline mswp::BoardSize& remainingDeepTiles()
     {
-        return m_RemainingTiles;
+        return m_RemainingDeepTiles;
     }
     
     inline Tiles& tiles()
@@ -125,6 +125,10 @@ public:
     {
         return m_ModifiedBufferSize;
     }
+    inline const BoardBitMap& isNotDeepTile() const
+    {
+        return m_IsNotDeepTile;
+    }
 
     bool operator==(const MineSweeperSolver& other) const;
     bool operator==(const SolverInitList& other) const;
@@ -135,11 +139,12 @@ private:
     
     mswp::TileString m_TileString;
     mswp::FlagsRemaining m_RemainingBombs;
-    mswp::BoardSize m_RemainingTiles;
+    mswp::BoardSize m_RemainingDeepTiles;
     Tiles m_Tiles;
 
     ModifiedBuffer m_ModifiedBuffer;
     BoardBitMap m_IsModifiedBuffer;
+    BoardBitMap m_IsNotDeepTile;
     mswp::BoardSize m_ModifiedBufferSize;
 };
 

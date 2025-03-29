@@ -11,6 +11,7 @@ struct Solution
 {
     Solution() : bombCount{0}, numberOfSolutions{0} {}
     Solution(mswp::FlagsRemaining bombCount, uint64_t numberOfSolutions) : bombCount{bombCount}, numberOfSolutions{numberOfSolutions} {}
+    Solution(const BoardBitMap& boardBitMap, mswp::FlagsRemaining bombCount) : solution{boardBitMap}, bombCount{bombCount}, numberOfSolutions{0} {}
     BoardBitMap solution;
     mswp::FlagsRemaining bombCount;
     uint64_t numberOfSolutions;
@@ -107,7 +108,7 @@ private:
     size_t m_EndOffset;
 };
 
-bool shouldCombineSolutionSets(const SolutionSet& solutionSetA, const SolutionSet& solutionSetB, mswp::FlagsRemaining minBombs, mswp::FlagsRemaining maxBombs);
+bool shouldCombineSolutionSets(const std::vector<SolutionSet>& solutionSets, mswp::FlagsRemaining minBombs, mswp::FlagsRemaining maxBombs);
 void combineSolutionSets(std::vector<SolutionSet>& outSolutionSets, mswp::FlagsRemaining minBombs, mswp::FlagsRemaining maxBombs);
 
 } // namespace slvr end

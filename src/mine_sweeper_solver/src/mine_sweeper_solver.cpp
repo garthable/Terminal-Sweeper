@@ -11,7 +11,7 @@ MineSweeperSolver::MineSweeperSolver(const mswp::MineSweeper& mineSweeper) :
     m_Size{mineSweeper.size()},
     m_TileString{mineSweeper.tileString()},
     m_RemainingBombs{mineSweeper.flagsRemaining()},
-    m_RemainingTiles{mineSweeper.remainingTile()}
+    m_RemainingDeepTiles{mineSweeper.remainingTile()}
 {
     mswp::TileStringSize size = m_TileString.size();
 
@@ -102,6 +102,12 @@ void MineSweeperSolver::updateTile(const mswp::TileStringIndex i)
             m_ModifiedBuffer[m_ModifiedBufferSize] = j;
             m_IsModifiedBuffer[j] = true;
             m_ModifiedBufferSize++;
+        }
+
+        if (!m_IsNotDeepTile[j] && !centerTile.hidden())
+        {
+            m_IsNotDeepTile = true;
+            m_RemainingDeepTiles--;
         }
     });
 
