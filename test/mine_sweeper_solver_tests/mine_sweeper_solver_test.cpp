@@ -8,6 +8,7 @@
 #include "mine_sweeper_solver.hpp"
 #include "mine_sweeper_solver_functions.hpp"
 #include "mine_sweeper_solver_probs.hpp"
+#include "solution_set.hpp"
 
 bool compareArray(const slvr::ModifiedBuffer& buffer, const std::initializer_list<mswp::BoardIndex>& initList)
 {
@@ -637,4 +638,123 @@ TEST(Sorting, 1)
     ASSERT_EQ(tileGroup.tiles[1].size, 3);
     ASSERT_TRUE(compareArray(tileGroup.tiles[0].adjTiles, {2, 7, 8, 9, 4}));
     ASSERT_TRUE(compareArray(tileGroup.tiles[1].adjTiles, {0, 5, 6}));
+}
+
+TEST(CombineSolutionSets, 0)
+{
+    slvr::SolutionSet solutionSetA;
+    solutionSetA.push(slvr::Solution(0, 0));
+    solutionSetA.push(slvr::Solution(0, 0));
+    slvr::SolutionSet solutionSetB;
+    solutionSetB.push(slvr::Solution(0, 0));
+    slvr::SolutionSet solutionSetC;
+    solutionSetC.push(slvr::Solution(0, 0));
+    solutionSetC.push(slvr::Solution(0, 0));
+    solutionSetC.push(slvr::Solution(0, 0));
+
+    std::vector<slvr::SolutionSet> solutionSets = {solutionSetA, solutionSetB, solutionSetC};
+
+    slvr::combineSolutionSets(solutionSets, 0, 5);
+
+    ASSERT_EQ(solutionSets[0][0].numberOfSolutions, 3);
+    ASSERT_EQ(solutionSets[0][1].numberOfSolutions, 3);
+
+    ASSERT_EQ(solutionSets[1][0].numberOfSolutions, 6);
+
+    ASSERT_EQ(solutionSets[2][0].numberOfSolutions, 2);
+    ASSERT_EQ(solutionSets[2][1].numberOfSolutions, 2);
+    ASSERT_EQ(solutionSets[2][2].numberOfSolutions, 2);
+}
+
+TEST(CombineSolutionSets, 1)
+{
+    slvr::SolutionSet solutionSetA;
+    solutionSetA.push(slvr::Solution(5, 0)); // Eliminated
+    solutionSetA.push(slvr::Solution(2, 0));
+    solutionSetA.push(slvr::Solution(3, 0));
+    slvr::SolutionSet solutionSetB;
+    solutionSetB.push(slvr::Solution(3, 0)); // Eliminated
+    solutionSetB.push(slvr::Solution(1, 0));
+    solutionSetB.push(slvr::Solution(4, 0)); // Eliminated
+
+    std::vector<slvr::SolutionSet> solutionSets = {solutionSetA, solutionSetB};
+
+    slvr::combineSolutionSets(solutionSets, 2, 4);
+
+    ASSERT_EQ(solutionSets[0][0].bombCount, 2);
+    ASSERT_EQ(solutionSets[1][0].bombCount, 1);
+
+    ASSERT_EQ(solutionSets[0][0].numberOfSolutions, 1);
+    ASSERT_EQ(solutionSets[0][1].numberOfSolutions, 1);
+
+    ASSERT_EQ(solutionSets[1][0].numberOfSolutions, 2);
+}
+
+TEST(CombineSolutionSets, 2)
+{
+    slvr::SolutionSet solutionSetA;
+    solutionSetA.push(slvr::Solution(0, 0)); // Eliminated
+    solutionSetA.push(slvr::Solution(2, 0));
+    solutionSetA.push(slvr::Solution(3, 0));
+    slvr::SolutionSet solutionSetB;
+    solutionSetB.push(slvr::Solution(1, 0));
+
+    std::vector<slvr::SolutionSet> solutionSets = {solutionSetA, solutionSetB};
+
+    slvr::combineSolutionSets(solutionSets, 2, 10);
+
+    ASSERT_EQ(solutionSets[0][0].numberOfSolutions, 1);
+    ASSERT_EQ(solutionSets[0][1].numberOfSolutions, 1);
+
+    ASSERT_EQ(solutionSets[1][0].numberOfSolutions, 2);
+}
+
+TEST(CombineSolutionSets, 3)
+{
+    slvr::SolutionSet solutionSetA;
+    solutionSetA.push(slvr::Solution(0, 0));
+    solutionSetA.push(slvr::Solution(1, 0));
+    slvr::SolutionSet solutionSetB;
+    solutionSetB.push(slvr::Solution(0, 0));
+    slvr::SolutionSet solutionSetC;
+    solutionSetC.push(slvr::Solution(0, 0));
+    solutionSetC.push(slvr::Solution(0, 0));
+    solutionSetC.push(slvr::Solution(1, 0));
+    std::vector<slvr::SolutionSet> solutionSets = {solutionSetA, solutionSetB, solutionSetC};
+
+    slvr::combineSolutionSets(solutionSets, 0, 1);
+
+    ASSERT_EQ(solutionSets[0][0].numberOfSolutions, 3);
+    ASSERT_EQ(solutionSets[0][1].numberOfSolutions, 2);
+
+    ASSERT_EQ(solutionSets[1][0].numberOfSolutions, 5);
+
+    ASSERT_EQ(solutionSets[2][0].numberOfSolutions, 2);
+    ASSERT_EQ(solutionSets[2][1].numberOfSolutions, 2);
+    ASSERT_EQ(solutionSets[2][2].numberOfSolutions, 1);
+}
+
+TEST(CombineSolutionSets, 4)
+{
+    slvr::SolutionSet solutionSetA;
+    solutionSetA.push(slvr::Solution(0, 0)); // 3
+    solutionSetA.push(slvr::Solution(1, 0)); // 1
+    slvr::SolutionSet solutionSetB;
+    solutionSetB.push(slvr::Solution(0, 0)); // 4
+    slvr::SolutionSet solutionSetC;
+    solutionSetC.push(slvr::Solution(0, 0)); // 2
+    solutionSetC.push(slvr::Solution(0, 0)); // 1
+    solutionSetC.push(slvr::Solution(1, 0)); // 1
+    std::vector<slvr::SolutionSet> solutionSets = {solutionSetA, solutionSetB, solutionSetC};
+
+    slvr::combineSolutionSets(solutionSets, 1, 2);
+
+    ASSERT_EQ(solutionSets[0][0].numberOfSolutions, 1);
+    ASSERT_EQ(solutionSets[0][1].numberOfSolutions, 3);
+
+    ASSERT_EQ(solutionSets[1][0].numberOfSolutions, 4);
+
+    ASSERT_EQ(solutionSets[2][0].numberOfSolutions, 1);
+    ASSERT_EQ(solutionSets[2][1].numberOfSolutions, 1);
+    ASSERT_EQ(solutionSets[2][2].numberOfSolutions, 2);
 }

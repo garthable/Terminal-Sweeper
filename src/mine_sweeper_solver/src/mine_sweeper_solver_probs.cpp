@@ -132,59 +132,6 @@ void sortByCombinationCount(const MineSweeperSolver& solver, group::TileGroup& o
     }
 }
 
-
-// void MineSweeperSolutionFinder::getSolutionOfGroupReccursion(const uint16_t& group, uint16_t currVisibleTileIndex, SolutionSet& solutionSet)
-// {
-//     if (currVisibleTileIndex == m_groupedVisibleTiles[group].size()) // Base case
-//     {
-//         while (m_groupedCompleteSolutions.size() < group + 1)
-//         {
-//             m_groupedCompleteSolutions.emplaceBack();
-//         }
-//         m_groupedCompleteSolutions[group].push_back(solutionSet);
-//         return;
-//     }
-//     VisibleTile& currVisibleTile = m_groupedVisibleTiles[group][currVisibleTileIndex];
-//     uint16_t bombCount = getEffectiveBombCount(currVisibleTile, solutionSet);
-//     int16_t claimedTilesSize = currVisibleTile.ownedHiddenTiles.size();
-//     if (claimedTilesSize < bombCount)
-//     {
-//         return;
-//     }
-//     if (claimedTilesSize == 0 || bombCount == 0)
-//     {
-//         getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, solutionSet);
-//         return;
-//     }
-//     uint8_t* combinations = getHardcodedCombinations(bombCount);
-//     while(true)
-//     {
-//         if (*combinations >= claimedTilesSize) 
-//         {
-//             break;
-//         }
-
-//         uint8_t* combinationsStart = combinations;
-//         // Apply solution
-//         for (uint8_t i = 0; i < bombCount; i++)
-//         {
-//             const uint16_t index = currVisibleTile.ownedHiddenTiles[*combinations];
-//             solutionSet.hiddenTiles[index].isBomb = true;
-//             combinations++;
-//         }
-//         solutionSet.bombCount += bombCount;
-//         getSolutionOfGroupReccursion(group, currVisibleTileIndex + 1, solutionSet);
-//         // Remove solution
-//         for (uint8_t i = 0; i < bombCount; i++)
-//         {
-//             const uint16_t index = currVisibleTile.ownedHiddenTiles[*combinationsStart];
-//             solutionSet.hiddenTiles[index].isBomb = false;
-//             combinationsStart++;
-//         }
-//         solutionSet.bombCount -= bombCount;
-//     }
-// }
-
 int8_t getAdjBombsInSolution(const int32_t i, const int32_t width, const int32_t size, const BoardBitMap& bombLocations)
 {
     int8_t adjBombs = 0;
@@ -196,7 +143,7 @@ int8_t getAdjBombsInSolution(const int32_t i, const int32_t width, const int32_t
     return adjBombs;
 }
 
-void computeProbabilities(group::TileGroup& outTileGroup, MineSweeperSolver& outSolver, BoardBitMap& outBombLocations, uint32_t& outSolutionCount, const mswp::BoardIndex i = 0, const uint8_t bombsInSolution = 0)
+void computeProbabilities(group::TileGroup& outTileGroup, MineSweeperSolver& outSolver, BoardBitMap& outBombLocations, uint32_t& outSolutionCount, const mswp::BoardIndex i, const uint8_t bombsInSolution)
 {
     if (i == outTileGroup.size) // Base case
     {

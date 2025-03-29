@@ -1,4 +1,5 @@
 #include "solution_set.hpp"
+#include "log.hpp"
 #include <numeric>
 
 namespace slvr
@@ -16,29 +17,19 @@ void SolutionSet::eliminateSolutions(mswp::FlagsRemaining sumOfMins, mswp::Flags
     sumOfMins -= m_MinBombs;
     sumOfMaxes -= m_MaxBombs;
     size_t size = m_Solutions.size();
-    // Removes mins
+    // Removes maxes
     for (size_t i = size-1; i != static_cast<size_t>(-1); --i)
     {
-        if (m_Solutions[i].bombCount + sumOfMaxes < minBombs)
-        {
-            m_Solutions.erase(begin() + i);
-            ++i;
-        }
-        else
+        if (m_Solutions[i].bombCount + sumOfMins <= maxBombs)
         {
             m_EndOffset = size - 1 - i;
             break;
         }
     }
-    // Removes maxes
-    for (size_t i = 0; i < size; ++i)
+    // Removes mins
+    for (size_t i = 0; i < m_Solutions.size(); ++i)
     {
-        if (m_Solutions[i].bombCount + sumOfMins > maxBombs)
-        {
-            m_Solutions.erase(begin() + i);
-            --i;
-        }
-        else
+        if (m_Solutions[i].bombCount + sumOfMaxes >= minBombs)
         {
             m_StartOffset = i;
             break;
@@ -53,7 +44,7 @@ uint64_t combineSolutionSetsReccur(std::vector<SolutionSet>& outSolutionSets, ms
 {
     if (i == outSolutionSets.size())
     {
-        return 1;
+        return static_cast<uint64_t>(bombCount >= minBombs);
     }
     uint64_t totalAmount = 0; 
     auto begin = outSolutionSets[i].begin();
@@ -62,18 +53,14 @@ uint64_t combineSolutionSetsReccur(std::vector<SolutionSet>& outSolutionSets, ms
     {
         Solution& solution = *begin;
         mswp::FlagsRemaining newBombCount = bombCount + solution.bombCount;
-        // Since MaxBombs go first we need to continue.
+        // Since the rest of the bombs will be greater than this we can break.
         if (newBombCount > maxBombs)
-        {
-            continue;
-        }
-        // Since MinBombs go last we know that the rest of the options will not work.
-        if (newBombCount < minBombs)
         {
             break;
         }
-        solution.numberOfSolutions += combineSolutionSetsReccur(outSolutionSets, minBombs, maxBombs, i + 1, newBombCount);
-        totalAmount += solution.numberOfSolutions;
+        uint64_t amount = combineSolutionSetsReccur(outSolutionSets, minBombs, maxBombs, i + 1, newBombCount);
+        totalAmount += amount;
+        solution.numberOfSolutions += amount;
     }
     return totalAmount;
 }
@@ -85,16 +72,16 @@ void combineSolutionSets(std::vector<SolutionSet>& outSolutionSets, mswp::FlagsR
     mswp::FlagsRemaining sumOfMaxes = 0;
 
     // Prepares solutionSets and sums
-    for (const SolutionSet& solutionSet : outSolutionSets)
+    for (SolutionSet& outSolutionSet : outSolutionSets)
     {
-        // Sorts solutionSets by most to least bombs
-        std::sort(solutionSet.begin(), solutionSet.end(), 
+        // Sorts solutionSets by least to greatest bombs
+        std::sort(outSolutionSet.begin(), outSolutionSet.end(), 
         [](const Solution& a, const Solution& b) 
         {
-            return a.bombCount > b.bombCount;
+            return a.bombCount < b.bombCount;
         });
-        sumOfMaxes += solutionSet.maxBombs();
-        sumOfMins += solutionSet.minBombs();
+        sumOfMaxes += outSolutionSet.maxBombs();
+        sumOfMins += outSolutionSet.minBombs();
     }
     // Removes solutions that will never work.
     for (SolutionSet& outSolutionSet : outSolutionSets)

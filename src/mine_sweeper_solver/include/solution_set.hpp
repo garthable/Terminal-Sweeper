@@ -9,22 +9,18 @@ namespace slvr
 
 struct Solution
 {
-    Solution() : bombCount{0}, numberOfSolutions{1} {}
+    Solution() : bombCount{0}, numberOfSolutions{0} {}
+    Solution(mswp::FlagsRemaining bombCount, uint64_t numberOfSolutions) : bombCount{bombCount}, numberOfSolutions{numberOfSolutions} {}
     BoardBitMap solution;
-    mswp::BombCount bombCount;
+    mswp::FlagsRemaining bombCount;
     uint64_t numberOfSolutions;
-};
-
-struct Slice
-{
-
 };
 
 class SolutionSet
 {
 public:
     SolutionSet() :
-        m_MinBombs{0},
+        m_MinBombs{INT8_MAX},
         m_MaxBombs{0},
         m_StartOffset{0},
         m_EndOffset{0}
@@ -34,17 +30,25 @@ public:
 
     void eliminateSolutions(mswp::FlagsRemaining sumOfMins, mswp::FlagsRemaining sumOfMaxes, mswp::FlagsRemaining minBombs, mswp::FlagsRemaining maxBombs);
 
-    inline void SolutionSet::push(Solution& solution)
+    inline void push(const Solution& solution)
     {
+        m_MaxBombs = std::max(static_cast<int32_t>(m_MaxBombs), static_cast<int32_t>(solution.bombCount));
+        m_MinBombs = std::min(static_cast<int32_t>(m_MinBombs), static_cast<int32_t>(solution.bombCount));
         m_Solutions.push_back(solution);
+    }
+    inline void push(Solution&& solution)
+    {
+        m_MaxBombs = std::max(static_cast<int32_t>(m_MaxBombs), static_cast<int32_t>(solution.bombCount));
+        m_MinBombs = std::min(static_cast<int32_t>(m_MinBombs), static_cast<int32_t>(solution.bombCount));
+        m_Solutions.emplace_back(solution);
     }
     inline Solution& operator[](size_t i)
     {
-        return m_Solutions[i];
+        return m_Solutions[i + m_StartOffset];
     }
-    inline size_t size()
+    inline size_t size() const
     {
-        return m_Solutions.size();
+        return m_Solutions.size() - m_EndOffset;
     }
     inline void reserve(size_t amount)
     {
