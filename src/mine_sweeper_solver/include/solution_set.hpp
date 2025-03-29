@@ -4,6 +4,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "log.hpp"
+
 namespace slvr
 {
 
@@ -35,12 +37,16 @@ public:
     {
         m_MaxBombs = std::max(static_cast<int32_t>(m_MaxBombs), static_cast<int32_t>(solution.bombCount));
         m_MinBombs = std::min(static_cast<int32_t>(m_MinBombs), static_cast<int32_t>(solution.bombCount));
+        LOG_INFO("Min " << static_cast<int>(m_MinBombs));
+        LOG_INFO("Max " << static_cast<int>(m_MaxBombs));
         m_Solutions.push_back(solution);
     }
     inline void push(Solution&& solution)
     {
         m_MaxBombs = std::max(static_cast<int32_t>(m_MaxBombs), static_cast<int32_t>(solution.bombCount));
         m_MinBombs = std::min(static_cast<int32_t>(m_MinBombs), static_cast<int32_t>(solution.bombCount));
+        LOG_INFO("Min " << static_cast<int>(m_MinBombs));
+        LOG_INFO("Max " << static_cast<int>(m_MaxBombs));
         m_Solutions.emplace_back(solution);
     }
     inline Solution& operator[](size_t i)

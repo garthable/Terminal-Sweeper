@@ -758,3 +758,201 @@ TEST(CombineSolutionSets, 4)
     ASSERT_EQ(solutionSets[2][1].numberOfSolutions, 1);
     ASSERT_EQ(solutionSets[2][2].numberOfSolutions, 2);
 }
+
+TEST(CalcProbs, 0)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(2, 
+    {
+        V1, V1,
+        H1, B0
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    slvr::TileProbs tileProbs;
+    slvr::calculateProbs(solver, tileProbs);
+
+    ASSERT_FLOAT_EQ(tileProbs[2], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[3], 0.5);
+}
+
+TEST(CalcProbs, 1)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(3, 
+    {
+        V1, V1, V1,
+        H1, B0, H1
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    slvr::TileProbs tileProbs;
+    slvr::calculateProbs(solver, tileProbs);
+
+    ASSERT_FLOAT_EQ(tileProbs[3], 0);
+    ASSERT_FLOAT_EQ(tileProbs[4], 1);
+    ASSERT_FLOAT_EQ(tileProbs[5], 0);
+}
+
+TEST(CalcProbs, 2)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(3, 
+    {
+        V2, F3, B3,
+        V2, F3, F3,
+        V1, V2, V2,
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    slvr::TileProbs tileProbs;
+    slvr::calculateProbs(solver, tileProbs);
+
+    ASSERT_FLOAT_EQ(tileProbs[2], 1);
+}
+
+TEST(CalcProbs, 3)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(3, 
+    {
+        B0, V2, H1,
+        H2, V4, B1,
+        F0, B1, H2
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    slvr::TileProbs tileProbs;
+    slvr::calculateProbs(solver, tileProbs);
+
+    ASSERT_FLOAT_EQ(tileProbs[0], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[2], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[3], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[5], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[7], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[8], 0.5);
+}
+
+TEST(CalcProbs, 4)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(4, 
+    {
+        B0, V1, V1, H1,
+        H1, V1, V1, B0,
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    LOG_INFO(solver);
+
+    slvr::TileProbs tileProbs;
+    slvr::calculateProbs(solver, tileProbs);
+
+    ASSERT_FLOAT_EQ(tileProbs[0], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[3], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[4], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[7], 0.5);
+}
+
+TEST(CalcProbs, 5)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(3, 
+    {
+        H2, B1, H2,
+        V3, F1, V3,
+        V3, F1, V3,
+        H2, B1, H2,
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    LOG_INFO(solver);
+
+    slvr::TileProbs tileProbs;
+    slvr::calculateProbs(solver, tileProbs);
+
+    ASSERT_FLOAT_EQ(tileProbs[0], 0);
+    ASSERT_FLOAT_EQ(tileProbs[1], 1);
+    ASSERT_FLOAT_EQ(tileProbs[2], 0);
+
+    ASSERT_FLOAT_EQ(tileProbs[9],  0);
+    ASSERT_FLOAT_EQ(tileProbs[10], 1);
+    ASSERT_FLOAT_EQ(tileProbs[11], 0);
+}
+
+TEST(CalcProbs, 6)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(3, 
+    {
+        H2, B1, H2,
+        V3, F1, V3,
+        V3, F1, V3,
+        B1, H2, B1,
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    LOG_INFO(solver);
+
+    slvr::TileProbs tileProbs;
+    slvr::calculateProbs(solver, tileProbs);
+
+    ASSERT_FLOAT_EQ(tileProbs[0], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[1], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[2], 0.5);
+
+    ASSERT_FLOAT_EQ(tileProbs[9],  0.5);
+    ASSERT_FLOAT_EQ(tileProbs[10], 0.5);
+    ASSERT_FLOAT_EQ(tileProbs[11], 0.5);
+}
+
+TEST(CalcProbs, 7)
+{
+    using namespace mswptileconsts;
+    using namespace slvrtileconsts;
+
+    mswp::MineSweeper board(3, 
+    {
+        H2, B1, H2,
+        V3, F1, V3,
+        V3, F1, V3,
+        B1, H2, B1,
+        H1, H2, H1
+    });
+
+    slvr::MineSweeperSolver solver(board);
+
+    LOG_INFO(solver);
+
+    slvr::TileProbs tileProbs;
+    slvr::calculateProbs(solver, tileProbs);
+
+    ASSERT_FLOAT_EQ(tileProbs[0], 1.0/3);
+    ASSERT_FLOAT_EQ(tileProbs[1], 2.0/3);
+    ASSERT_FLOAT_EQ(tileProbs[2], 1.0/3);
+
+    ASSERT_FLOAT_EQ(tileProbs[9],  1.0/3);
+    ASSERT_FLOAT_EQ(tileProbs[10], 2.0/3);
+    ASSERT_FLOAT_EQ(tileProbs[11], 1.0/3);
+}

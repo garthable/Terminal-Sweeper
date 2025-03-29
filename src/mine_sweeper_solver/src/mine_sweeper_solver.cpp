@@ -11,7 +11,7 @@ MineSweeperSolver::MineSweeperSolver(const mswp::MineSweeper& mineSweeper) :
     m_Size{mineSweeper.size()},
     m_TileString{mineSweeper.tileString()},
     m_RemainingBombs{mineSweeper.flagsRemaining()},
-    m_RemainingDeepTiles{mineSweeper.remainingTile()}
+    m_RemainingDeepTiles{m_Size}
 {
     mswp::TileStringSize size = m_TileString.size();
 
@@ -85,6 +85,12 @@ void MineSweeperSolver::updateTile(const mswp::TileStringIndex i)
 
     int8_t centerHiddenTiles = 0;
 
+    if (!m_IsNotDeepTile[i] && !centerTile.hidden())
+    {
+        m_RemainingDeepTiles--;
+        m_IsNotDeepTile[i] = true;
+    }
+
     util::applyFuncToAdjObjects<Tiles, Tile>(i, m_Width, m_Size, m_Tiles, 
     [&](int32_t j, Tile& adjTile) 
     {
@@ -104,9 +110,9 @@ void MineSweeperSolver::updateTile(const mswp::TileStringIndex i)
             m_ModifiedBufferSize++;
         }
 
-        if (!m_IsNotDeepTile[j] && !centerTile.hidden())
+        if (!m_IsNotDeepTile[j] && !centerTile.hidden() && centerTile.bombProb != 1 && adjTile.hidden())
         {
-            m_IsNotDeepTile = true;
+            m_IsNotDeepTile[j] = true;
             m_RemainingDeepTiles--;
         }
     });
@@ -182,6 +188,7 @@ void MineSweeperSolver::update(const mswp::TileString& otherTileString)
                 break;
             case mswp::TileChar::FLAGGED:
                 m_Tiles[i].bombProb = 1;
+                m_RemainingBombs--;
                 break;
             
             default:
