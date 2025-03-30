@@ -33,8 +33,15 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     add_compile_options()
 endif()
 
+message(STATUS "${CMAKE_GENERATOR}")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(src)
 add_subdirectory(test)
-add_subdirectory(benchmark)
+
+if(CMAKE_GENERATOR STREQUAL "Ninja")
+    message(WARNING "Ninja Generator Detected! Cannot compile Google Benchmark with Ninja!")
+else()
+    add_subdirectory(benchmark)
+endif()

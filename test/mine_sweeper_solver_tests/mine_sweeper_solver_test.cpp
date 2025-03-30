@@ -25,14 +25,14 @@ bool compareArray(const slvr::TilesWithAdjBombBuffer& buffer, const std::initial
         }
         if (!matches)
         {
-            for (size_t i = 0; i < initList.size(); i++)
+            for (size_t j = 0; j < initList.size(); j++)
             {
-                std::cout << buffer[i] << ", ";
+                std::cout << buffer[j] << ", ";
             }
             std::cout << '\n';
-            for (size_t i = 0; i < initList.size(); i++)
+            for (size_t j = 0; j < initList.size(); j++)
             {
-                std::cout << *(initList.begin() + i) << ", ";
+                std::cout << *(initList.begin() + j) << ", ";
             }
             std::cout << '\n';
             LOG_ERROR("Couldnt find " << *(initList.begin() + i));

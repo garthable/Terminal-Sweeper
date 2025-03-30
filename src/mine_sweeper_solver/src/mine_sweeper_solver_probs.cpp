@@ -143,7 +143,7 @@ void getSolutions(group::TileGroup& outTileGroup, MineSweeperSolver& outSolver, 
         // Used to remove solution from outBombLocations
         uint8_t* combinationsUndo = combinations;
         // Apply solution
-        for (uint8_t i = 0; i < adjBombCount; i++)
+        for (uint8_t j = 0; j < adjBombCount; j++)
         {
             const uint16_t index = currTile.adjTiles[*combinations];
             outBombLocations[index] = true;
@@ -153,7 +153,7 @@ void getSolutions(group::TileGroup& outTileGroup, MineSweeperSolver& outSolver, 
         getSolutions(outTileGroup, outSolver, outBombLocations, outSolutionSet, i + 1, bombsInSolution + adjBombCount);
 
         // Remove solution
-        for (uint8_t i = 0; i < adjBombCount; i++)
+        for (uint8_t j = 0; j < adjBombCount; j++)
         {
             const uint16_t index = currTile.adjTiles[*combinationsUndo];
             outBombLocations[index] = false;

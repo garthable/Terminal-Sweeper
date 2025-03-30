@@ -483,7 +483,7 @@ inline char uI8ToLetter(uint8_t val)
     {
         return static_cast<int16_t>(val) + 65 - 26;
     }
-    return 255;
+    return static_cast<char>(255u);
 }
 
 /**
