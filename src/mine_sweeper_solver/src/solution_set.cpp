@@ -1,6 +1,7 @@
 #include "solution_set.hpp"
 #include "log.hpp"
 #include <numeric>
+#include <algorithm>
 
 namespace slvr
 {
