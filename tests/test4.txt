@@ -1,6 +1,0 @@
-$ Shows Zero pref is working
-@ @ @ - -
-@ - @ - -
-@ @ @ @ @
-- - @ - -
-- - @ - -

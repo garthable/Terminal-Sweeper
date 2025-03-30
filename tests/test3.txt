@@ -1,4 +1,0 @@
-$ Shows that basic check works
-- - - @ -
-- - 3 @ -
-- - - @ -
