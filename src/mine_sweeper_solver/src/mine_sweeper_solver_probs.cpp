@@ -217,7 +217,7 @@ void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs)
     }
 
     mswp::BoardSize size = outSolver.size();
-    std::fill(outProbs.begin(), outProbs.begin() + size, 0.0);
+    std::fill(outProbs.begin(), outProbs.begin() + size, NAN);
 
 
     // TODO: Cache indicies for optimization.
@@ -238,6 +238,10 @@ void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs)
                 if (!outSolver.isNotDeepTile()[i])
                 {
                     continue;
+                }
+                if (outProbs[i] != outProbs[i])
+                {
+                    outProbs[i] = 0;
                 }
                 // Zero if not a bomb, solution.numberOfSolutions if bomb.
                 uint64_t solutionCount = (solution.numberOfSolutions + !combined) * solution.solution[i];
