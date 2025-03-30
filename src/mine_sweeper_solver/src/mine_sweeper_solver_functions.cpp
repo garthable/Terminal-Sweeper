@@ -1,4 +1,5 @@
 #include "mine_sweeper_solver_functions.hpp"
+#include "mine_sweeper_solver_probs.hpp"
 #include "util.hpp"
 #include "log.hpp"
 
@@ -7,16 +8,16 @@ namespace slvr
 
 void useActionArrays(ActionArray& outClicks, ActionArray& outFlags, mswp::MineSweeper& outBoard)
 {
-    for (mswp::BoardIndex i = 0; i < outClicks.actionSize; i++)
+    for (mswp::BoardIndex i = 0; i < outClicks.size(); i++)
     {
-        outBoard.click(outClicks.actions[i]);
+        outBoard.click(outClicks[i]);
     }
-    outClicks.actionSize = 0;
-    for (mswp::BoardIndex i = 0; i < outFlags.actionSize; i++)
+    outClicks.reset();
+    for (mswp::BoardIndex i = 0; i < outFlags.size(); i++)
     {
-        outBoard.flag(outFlags.actions[i]);
+        outBoard.flag(outFlags[i]);
     }
-    outFlags.actionSize = 0;
+    outFlags.reset();
 }
 
 void lazySolve(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray& outFlags)
@@ -50,11 +51,10 @@ void lazySolve(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray
             util::applyFuncToAdjObjects<Tiles, Tile>(i, width, size, tiles, 
             [&outSolver, &outFlags, &isModified](int32_t i, Tile& outAdjTile) 
             {
-                if (outAdjTile.hidden() && !isModified[i] && outFlags.actionSize < SLVR_ACTION_BUFFER_SIZE)
+                if (outAdjTile.hidden() && !isModified[i] && outFlags.size() < SLVR_ACTION_BUFFER_SIZE)
                 {
                     isModified[i] = true;
-                    outFlags.actions[outFlags.actionSize] = i;
-                    outFlags.actionSize++;
+                    outFlags.push(i);
                 }
             });
         }
@@ -79,10 +79,9 @@ void lazySolve(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray
             util::applyFuncToAdjObjects<Tiles, Tile>(i, width, size, tiles, 
             [&outSolver, &outClicks, &isModified](int32_t i, Tile& outAdjTile) 
             {
-                if (outAdjTile.hidden() && !isModified[i] && outClicks.actionSize < SLVR_ACTION_BUFFER_SIZE)
+                if (outAdjTile.hidden() && !isModified[i] && outClicks.size() < SLVR_ACTION_BUFFER_SIZE)
                 {
-                    outClicks.actions[outClicks.actionSize] = i;
-                    outClicks.actionSize++;
+                    outClicks.push(i);
                     isModified[i] = true;
                 }
             });
@@ -145,20 +144,19 @@ void applyActionIntersection(uint8_t count, const std::array<mswp::BoardIndex, 8
 {
     for (int8_t i = 0; i < count; i++)
     {
-        if (outClickedOrFlagged[indicies[i]] && outAction.actionSize < SLVR_ACTION_BUFFER_SIZE)
+        if (outClickedOrFlagged[indicies[i]] && outAction.size() < SLVR_ACTION_BUFFER_SIZE)
         {
             continue;
         }
         outClickedOrFlagged[indicies[i]] = true;
-        outAction.actions[outAction.actionSize] = indicies[i];
-        outAction.actionSize++;
+        outAction.push(indicies[i]);
     }
 }
 
 void intersectionSolver(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray& outFlags)
 {
-    outClicks.actionSize = 0;
-    outFlags.actionSize = 0;
+    outClicks.reset();
+    outFlags.reset();
     BoardBitMap clickedOrFlagged;
     outSolver.applyFuncToModified(
     [&](const mswp::BoardIndex centerIndex, Tile& centerTile) 
@@ -257,6 +255,24 @@ void intersectionSolver(MineSweeperSolver& outSolver, ActionArray& outClicks, Ac
             }
         });
     });
+}
+
+void getRecommendedActions(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray& outFlags)
+{
+    lazySolve(outSolver, outClicks, outFlags);
+    if (outClicks.size() != 0 || outFlags.size() != 0)
+    {
+        return;
+    }
+    intersectionSolver(outSolver, outClicks, outFlags);
+    if (outClicks.size() != 0 || outFlags.size() != 0)
+    {
+        return;
+    }
+    TileProbs tileProbs;
+    calculateProbs(outSolver, tileProbs);
+    mswp::BoardIndex lowestProb = std::min_element(tileProbs.begin(), tileProbs.begin() + outSolver.size()) - tileProbs.begin();
+    outClicks.push(lowestProb);
 }
 
 };

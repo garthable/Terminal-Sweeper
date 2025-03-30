@@ -436,6 +436,19 @@ inline int16_t multI8sToI16(int8_t a, int8_t b)
 }
 
 /**
+ * @brief 
+ * 
+ * @param x
+ * @param y
+ * @param width
+ * @return int16_t 
+ */
+inline int16_t xyToIndex(int8_t x, int8_t y, int8_t width)
+{
+    return static_cast<int16_t>(x) + static_cast<int16_t>(y)*static_cast<int16_t>(width);
+}
+
+/**
  * @brief Converts abc...XYZ to number
  * 
  * @param c letter char

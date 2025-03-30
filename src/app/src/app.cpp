@@ -39,68 +39,86 @@ Input pollInput(size_t rowMax, size_t colMax, Input prevInput)
         .row = 0,
         .action = Input::NONE
     };
-    Term::Event event = Term::read_event();
-    if (event.type() == Term::Event::Type::Key)
+    while(true)
     {
-        Term::Key key(event);
-        switch (key)
+        Term::Event event = Term::read_event();
+        if (event.type() == Term::Event::Type::Key)
         {
-        // Movement
-        case Term::Key::ArrowDown:
-            UTIL_WRAP_ONE_ADD(currRow, rowMax);
-            break;
-        case Term::Key::ArrowUp:
-            UTIL_WRAP_ONE_SUB(currRow, rowMax);
-            break;
-        case Term::Key::ArrowRight:
-            UTIL_WRAP_ONE_ADD(currCol, colMax);
-            break;
-        case Term::Key::ArrowLeft:
-            UTIL_WRAP_ONE_SUB(currCol, colMax);
-            break;
-
-        case Term::Key::s:
-            UTIL_WRAP_ONE_ADD(currRow, rowMax);
-            break;
-        case Term::Key::w:
-            UTIL_WRAP_ONE_SUB(currRow, rowMax);
-            break;
-        case Term::Key::d:
-            UTIL_WRAP_ONE_ADD(currCol, colMax);
-            break;
-        case Term::Key::a:
-            UTIL_WRAP_ONE_SUB(currCol, colMax);
-            break;
-
-        case Term::Key::S:
-            UTIL_WRAP_ONE_ADD(currRow, rowMax);
-            break;
-        case Term::Key::W:
-            UTIL_WRAP_ONE_SUB(currRow, rowMax);
-            break;
-        case Term::Key::D:
-            UTIL_WRAP_ONE_ADD(currCol, colMax);
-            break;
-        case Term::Key::A:
-            UTIL_WRAP_ONE_SUB(currCol, colMax);
-            break;
-
-        // Flag and click
-        case Term::Key::q:
-            input.action = Input::FLAG;
-            break;
-        case Term::Key::e:
-            input.action = Input::CLICK;
-            break;
-
-        case Term::Key::Q:
-            input.action = Input::FLAG;
-            break;
-        case Term::Key::E:
-            input.action = Input::CLICK;
-            break;
-        
-        default:
+            Term::Key key(event);
+            switch (key)
+            {
+            // Movement
+            case Term::Key::ArrowDown:
+                UTIL_WRAP_ONE_ADD(currRow, rowMax);
+                break;
+            case Term::Key::ArrowUp:
+                UTIL_WRAP_ONE_SUB(currRow, rowMax);
+                break;
+            case Term::Key::ArrowRight:
+                UTIL_WRAP_ONE_ADD(currCol, colMax);
+                break;
+            case Term::Key::ArrowLeft:
+                UTIL_WRAP_ONE_SUB(currCol, colMax);
+                break;
+    
+            case Term::Key::s:
+                UTIL_WRAP_ONE_ADD(currRow, rowMax);
+                break;
+            case Term::Key::w:
+                UTIL_WRAP_ONE_SUB(currRow, rowMax);
+                break;
+            case Term::Key::d:
+                UTIL_WRAP_ONE_ADD(currCol, colMax);
+                break;
+            case Term::Key::a:
+                UTIL_WRAP_ONE_SUB(currCol, colMax);
+                break;
+    
+            case Term::Key::S:
+                UTIL_WRAP_ONE_ADD(currRow, rowMax);
+                break;
+            case Term::Key::W:
+                UTIL_WRAP_ONE_SUB(currRow, rowMax);
+                break;
+            case Term::Key::D:
+                UTIL_WRAP_ONE_ADD(currCol, colMax);
+                break;
+            case Term::Key::A:
+                UTIL_WRAP_ONE_SUB(currCol, colMax);
+                break;
+    
+            // Flag and click
+            case Term::Key::q:
+                input.action = Input::FLAG;
+                break;
+            case Term::Key::e:
+                input.action = Input::CLICK;
+                break;
+    
+            case Term::Key::Q:
+                input.action = Input::FLAG;
+                break;
+            case Term::Key::E:
+                input.action = Input::CLICK;
+                break;
+    
+            case Term::Key::Del:
+                input.action = Input::FLAG;
+                break;
+            case Term::Key::Enter:
+                input.action = Input::CLICK;
+                break;
+    
+            case Term::Key::f:
+                input.action = Input::ASSIST;
+                break;
+            case Term::Key::F:
+                input.action = Input::ASSIST;
+                break;
+            
+            default:
+                break;
+            }
             break;
         }
     }
@@ -163,7 +181,7 @@ mswp::MineSweeper createBoard()
         input = pollInput(1u, 3u, input);
     }
 }
-bool manageInput(Input input, mswp::MineSweeper& outBoard)
+bool manageInput(Input input, mswp::MineSweeper& outBoard, bool& outAssist)
 {
     if (input.action == Input::NONE)
     {
@@ -174,9 +192,14 @@ bool manageInput(Input input, mswp::MineSweeper& outBoard)
     {
         return !outBoard.click(input.col, input.row);
     }
-    else
+    else if (input.action == Input::FLAG)
     {
         outBoard.flag(input.col, input.row);
+        return true;
+    }
+    else
+    {
+        outAssist = !outAssist;
         return true;
     }
 }
@@ -217,11 +240,16 @@ Term::Color getColor(const mswp::TileChar tileChar)
     }
 }
 
-void displayBoard(const Input input, const mswp::MineSweeper& board)
+void displayBoard(const Input input, const mswp::MineSweeper& board, const bool assist, const slvr::ActionArray& recomendedClicks, const slvr::ActionArray& recomendedFlags)
 {
     auto& out = std::cout;
     out << Term::clear_screen();
     const mswp::TileString& tileString = board.tileString();
+
+    if (assist)
+    {
+        out << "Assist Mode: ON \n";
+    }
     
     out << "Flags Remaining: " << static_cast<int>(board.flagsRemaining()) << '\n';
     mswp::TileStringWidth yMax = tileString.size() / tileString.width();
@@ -230,26 +258,39 @@ void displayBoard(const Input input, const mswp::MineSweeper& board)
     {
         mswp::TileStringWidth x = i % tileString.width();
         mswp::TileStringWidth y = i / tileString.width();
-        if (x == input.col && y == input.row)
+        Term::Color color = getColor(tileString[i]);
+
+        bool cursor = x == input.col && y == input.row;
+        bool recomendedClick = assist && recomendedClicks.in(i);
+        bool recomendedFlag = assist && recomendedFlags.in(i);
+
+        char symbol = tileCharToChar(tileString[i]);
+        if (recomendedClick)
         {
-            Term::Color color = getColor(tileString[i]);
-            out << 
-                Term::Style::Reversed << 
-                    color_fg(color) << 
-                        tileCharToChar(tileString[i]) << 
-                    color_fg(Term::Color::Name::Default) << 
-                Term::Style::ResetReversed << 
-            ' ';
+            symbol = 'C';
+            color = Term::Color::Name::Green;
         }
-        else
+        else if (recomendedFlag)
         {
-            Term::Color color = getColor(tileString[i]);
-            out << 
-                Term::color_fg(color) << 
-                    tileCharToChar(tileString[i]) << 
-                Term::color_fg(Term::Color::Name::Default) << 
-            ' ';
+            symbol = 'F';
+            color = Term::Color::Name::Red;
         }
+
+        if (cursor)
+        {
+            out << Term::Style::Reversed;
+        }
+        out << 
+            color_fg(color) << 
+                symbol << 
+            color_fg(Term::Color::Name::Default);
+        if (cursor)
+        {
+            out << Term::Style::ResetReversed;
+        }
+
+        out << ' ';
+
         if (x == tileString.width() - 1)
         {
             out << '\n';

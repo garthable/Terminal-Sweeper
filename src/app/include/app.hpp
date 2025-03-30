@@ -1,4 +1,5 @@
 #include "mine_sweeper.hpp"
+#include "mine_sweeper_solver_functions.hpp"
 
 namespace app
 {
@@ -14,9 +15,10 @@ namespace app
          */
         enum Action
         {
-            NONE  = 0,
-            CLICK = 1,
-            FLAG  = 2
+            NONE   = 0,
+            CLICK  = 1,
+            FLAG   = 2,
+            ASSIST = 3
         };
         /**
          * @brief Column that cursor is currently on
@@ -65,7 +67,7 @@ namespace app
      * @return true 
      * @return false 
      */
-    bool manageInput(Input input, mswp::MineSweeper& outBoard);
+    bool manageInput(Input input, mswp::MineSweeper& outBoard, bool& outAssist);
 
     /**
      * @brief Displays minesweeper board with cursor. 
@@ -73,7 +75,7 @@ namespace app
      * @param input Last input taken by player. 
      * @param board Minesweeper board.
      */
-    void displayBoard(const Input input, const mswp::MineSweeper& board);
+    void displayBoard(const Input input, const mswp::MineSweeper& board, const bool assist, const slvr::ActionArray& reccomendedClicks, const slvr::ActionArray& reccomendedFlags);
     /**
      * @brief Prompts user if they want to reset to play again or if they want to quit.
      * 

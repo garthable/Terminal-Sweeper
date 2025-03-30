@@ -36,4 +36,4 @@ FetchContent_MakeAvailable(
 
 add_library(app STATIC ${SOURCE})
 target_include_directories(app PUBLIC include)
-target_link_libraries(app mine_sweeper util cpp-terminal)
+target_link_libraries(app mine_sweeper mine_sweeper_solver util cpp-terminal)

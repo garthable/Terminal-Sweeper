@@ -44,7 +44,7 @@ bool compareArray(const slvr::ModifiedBuffer& buffer, const std::initializer_lis
 
 bool compareArray(const slvr::ActionArray& buffer, const std::initializer_list<mswp::BoardIndex>& initList)
 {
-    size_t actionSize = buffer.actionSize;
+    size_t actionSize = buffer.size();
     if (initList.size() != actionSize)
     {
         LOG_ERROR("Sizes done match! " << initList.size() << " != " << actionSize);
@@ -55,7 +55,7 @@ bool compareArray(const slvr::ActionArray& buffer, const std::initializer_list<m
         bool matches = false;
         for (size_t j = 0; j < initList.size(); j++)
         {
-            if (buffer.actions[j] == *(initList.begin() + i))
+            if (buffer[j] == *(initList.begin() + i))
             {
                 matches = true;
                 break;
