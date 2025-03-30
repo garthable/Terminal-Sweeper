@@ -27,7 +27,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
     add_compile_options(-std=c++20 /Wall -O3)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     message(STATUS "MSVC detected, adding compile flags")
-    add_compile_options(/std=c++20 /Wall /Wextra /O3)
+    add_compile_options(/std=c++20 /Wall /O3)
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
