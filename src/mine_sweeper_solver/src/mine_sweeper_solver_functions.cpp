@@ -91,7 +91,12 @@ void lazySolve(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray
 
 struct IntersectionAndDifference
 {
-    IntersectionAndDifference() : intersectionCount{0}, differenceCenterCount{0}, differenceAdjCount{0} {}
+    IntersectionAndDifference() : intersectionCount{0}, differenceCenterCount{0}, differenceAdjCount{0} 
+    {
+        std::fill(intersection.begin(), intersection.end(), -1);
+        std::fill(differenceCenter.begin(), differenceCenter.end(), -1);
+        std::fill(differenceAdj.begin(), differenceAdj.end(), -1);
+    }
 
     std::array<mswp::BoardIndex, 8> intersection;
     std::array<mswp::BoardIndex, 8> differenceCenter;
@@ -158,7 +163,7 @@ void intersectionSolver(MineSweeperSolver& outSolver, ActionArray& outClicks, Ac
     outClicks.reset();
     outFlags.reset();
     BoardBitMap clickedOrFlagged;
-    outSolver.applyFuncToAll(
+    outSolver.applyFuncToModified(
     [&](const mswp::BoardIndex centerIndex, Tile& centerTile) 
     {
         if (centerTile.hidden())

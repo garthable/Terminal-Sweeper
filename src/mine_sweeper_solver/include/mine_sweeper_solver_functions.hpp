@@ -20,37 +20,16 @@ public:
         m_Size++;
     }
 
-    inline bool in(mswp::BoardIndex i) const
+    inline bool in(mswp::BoardIndex item) const
     {
         for (ActionsSize j = 0; j < m_Size; j++)
         {
-            if (m_Actions[j] == i)
+            if (m_Actions[j] == item)
             {
                 return true;
             }
         }
         return false;
-    }
-
-    inline void remove(mswp::BoardIndex item)
-    {
-        if (!in(item))
-        {
-            return;
-        }
-        std::remove(m_Actions.begin(), m_Actions.end(), item);
-        m_Size--;
-    }
-
-    inline void update(const mswp::TileString& tileString)
-    {
-        for (mswp::TileStringIndex i = 0; i < tileString.size(); i++)
-        {
-            if (tileString[i] != mswp::TileChar::HIDDEN)
-            {
-                remove(i);
-            }
-        }
     }
 
     inline void reset()
@@ -75,7 +54,7 @@ public:
 
     inline ActionBuffer::iterator end()
     {
-        return m_Actions.end();
+        return m_Actions.begin() + m_Size;
     }
 
     inline ActionBuffer::const_iterator begin() const
@@ -85,7 +64,7 @@ public:
 
     inline ActionBuffer::const_iterator end() const
     {
-        return m_Actions.end();
+        return m_Actions.begin() + m_Size;
     }
 
     inline ActionsSize size() const
@@ -98,10 +77,38 @@ public:
         return m_Actions;
     }
 
+    inline void remove(mswp::BoardIndex item)
+    {
+        auto newEnd = std::remove(begin(), end(), item);
+        m_Size = newEnd - begin();
+    }
+
+    inline void update(const mswp::TileString& tileString)
+    {
+        for (mswp::TileStringIndex i = 0; i < tileString.size(); i++)
+        {
+            if (tileString[i] != mswp::TileChar::HIDDEN)
+            {
+                remove(i);
+            }
+        }
+    }
+
 private:
     ActionBuffer m_Actions;
     ActionsSize m_Size;
 };
+
+inline std::ostream& operator<<(std::ostream &out, const ActionArray& array)
+{
+    out << "{ ";
+    for (mswp::BoardIndex i : array)
+    {
+        out << i << ", ";
+    }
+    out << "}\n";
+    return out;
+}
 
 void useActionArrays(ActionArray& outClicks, ActionArray& outFlags, mswp::MineSweeper& outBoard);
 
