@@ -15,12 +15,15 @@
 cmake_minimum_required(VERSION 3.14)
 project(MineSweeperSolver VERSION 0.1.0)
 
+set(CMAKE_CXX_STANDARD, 20)
+set(CMAKE_C_STANDARD, 99)
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     message(STATUS "Clang detected, adding compile flags")
-    add_compile_options(-std=c++20 -Wall -Wextra -O3)
+    add_compile_options(-Wall -Wextra -O3)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     message(STATUS "GCC detected, adding compile flags")
-    add_compile_options(-std=c++20 -Wall -Wextra -O3)
+    add_compile_options(-Wall -Wextra -O3)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
     message(WARNING "Intel Compiler not tested")
     message(STATUS "Intel detected, adding compile flags")
