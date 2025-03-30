@@ -27,7 +27,7 @@ struct Tile
     }
     bool hidden() const
     {
-        return isnanf(bombProb) == 1;
+        return bombProb != bombProb;
     }
     float bombProb;
     int8_t adjBombs;
