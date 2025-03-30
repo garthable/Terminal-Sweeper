@@ -25,7 +25,7 @@ namespace slvr
 
         }
         TileGroup(std::initializer_list<mswp::BoardIndex> indices) :
-            size{indices.size()}
+            size{static_cast<mswp::BoardSize>(indices.size())}
         {
             for (int32_t i = 0; i < size; i++)
             {
