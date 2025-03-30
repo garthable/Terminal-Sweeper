@@ -20,7 +20,7 @@ set(CMAKE_C_STANDARD, 99)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     message(STATUS "Clang detected, adding compile flags")
-    add_compile_options(-Wall -Wextra -O3)
+    add_compile_options(-Wall -Wextra -Wundef -Wshadow -Wpointer-arith -Wcast-align -Wcast-qual -O3)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     message(STATUS "GCC detected, adding compile flags")
     add_compile_options(-Wall -Wextra -O3)

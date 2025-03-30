@@ -41,9 +41,6 @@ void generateBombs(BoardSize size, BoardWidth width, BombCount bombCount, BoardS
 
     BombCount currBombCount = 0;
 
-    BoardIndex y = static_cast<BoardIndex>(width);
-    BoardIndex x = static_cast<BoardIndex>(1);
-
     while(currBombCount != bombCount)
     {
         BoardIndex index = rand() % size;

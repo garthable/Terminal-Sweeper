@@ -151,7 +151,7 @@ TEST(MineSweeperTests, clickMoveBomb0)
         H0, H0, H0, H0, H0
     });
 
-    bool res = board.click(0, 0);
+    board.click(0, 0);
 
     ASSERT_EQ(board(0, 0), V0);
 }
@@ -167,7 +167,7 @@ TEST(MineSweeperTests, clickMoveBomb1)
         H2, H3, H2, H1, H0
     });
 
-    bool res = board.click(1, 1);
+    board.click(1, 1);
 
     ASSERT_EQ(board(1, 1), V0);
     ASSERT_EQ(board(0, 1), V0);

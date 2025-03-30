@@ -14,6 +14,7 @@ static void applyFuncToAdjObjects(benchmark::State& state)
         util::applyFuncToAdjObjects<std::array<int32_t, 64>, int32_t>(8, 8, 64, array, 
         [](int32_t& i) 
         {
+            i++;
         });
     }
 }
@@ -25,7 +26,6 @@ static void isIndexNear(benchmark::State& state)
     for (auto _ : state)
     {
         state.PauseTiming();
-        std::array<int32_t, 64> array;
         state.ResumeTiming();
 
         util::isIndexNear(state.range(0), state.range(1), state.range(2));

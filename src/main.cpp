@@ -1,7 +1,7 @@
 #include "app.hpp"
 #include "log.hpp"
 
-int main(int argc, char** argv)
+int main(/* int argc, char** argv */)
 {
     // Initializes terminal
     app::init();

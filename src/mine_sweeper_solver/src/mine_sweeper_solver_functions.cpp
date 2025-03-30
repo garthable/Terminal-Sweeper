@@ -212,10 +212,8 @@ void intersectionSolver(MineSweeperSolver& outSolver, ActionArray& outClicks, Ac
             auto interAndDiff = getIntersectionAndDifference(presentInCenterTile, presentInAdjTile, outSolver, centerIndex, adjIndex);
 
             int8_t minAmountOfBombsCenter = std::max(centerTile.adjBombs - interAndDiff.intersectionCount, 0);
-            int8_t minAmountOfBombsAdj = std::max(adjTile.adjBombs - interAndDiff.intersectionCount, 0);
 
             int8_t maxAmountOfBombsCenter = std::min(static_cast<int>(centerTile.adjBombs), static_cast<int>(interAndDiff.differenceCenterCount));
-            int8_t maxAmountOfBombsAdj = std::min(static_cast<int>(adjTile.adjBombs), static_cast<int>(interAndDiff.differenceAdjCount));
 
             int8_t minAmountOfBombsInter = std::max(centerTile.adjBombs - maxAmountOfBombsCenter, centerTile.adjBombs - maxAmountOfBombsCenter);
             int8_t maxAmountOfBombsInter = std::min(centerTile.adjBombs - minAmountOfBombsCenter, centerTile.adjBombs - minAmountOfBombsCenter);

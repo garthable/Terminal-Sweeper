@@ -138,7 +138,6 @@ void getSolutions(group::TileGroup& outTileGroup, MineSweeperSolver& outSolver, 
         return;
     }
     uint8_t* combinations = getHardcodedCombinations(adjBombCount);
-    uint16_t index = 0;
     while(*combinations < adjClaimedCount)
     {
         // Used to remove solution from outBombLocations
