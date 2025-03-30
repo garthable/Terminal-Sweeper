@@ -77,7 +77,7 @@ MineSweeperSolver::MineSweeperSolver(const mswp::MineSweeper& mineSweeper) :
     }
 }
 
-void MineSweeperSolver::updateTile(const mswp::TileStringIndex i)
+void MineSweeperSolver::updateTile(const mswp::TileStringIndex i, bool unflag)
 {
     Tile& centerTile = m_Tiles[i];
     bool centerTileHidden = centerTile.hidden();
@@ -97,8 +97,10 @@ void MineSweeperSolver::updateTile(const mswp::TileStringIndex i)
         bool adjTileHidden = adjTile.hidden();
         bool adjTileBomb = adjTile.bombProb == 1.0;
 
-        adjTile.adjUnknowns -= !centerTileHidden && !adjTileHidden && !adjTileBomb;
-        adjTile.adjBombs -= centerTileBomb && !adjTileHidden && !adjTileBomb;
+        adjTile.adjUnknowns -= !centerTileHidden && !adjTileHidden && !adjTileBomb && !unflag;
+        adjTile.adjBombs -= centerTileBomb && !adjTileHidden && !adjTileBomb && !unflag;
+        adjTile.adjUnknowns += centerTileHidden && !adjTileHidden && !adjTileBomb && unflag;
+        adjTile.adjBombs += !centerTileBomb && !adjTileHidden && !adjTileBomb && unflag;
 
         centerHiddenTiles += adjTileHidden;
         centerTile.adjBombs -= adjTileBomb && !adjTileHidden && !centerTileBomb;
@@ -139,9 +141,11 @@ void MineSweeperSolver::update(const mswp::TileString& otherTileString)
     {
         if (m_TileString[i] != otherTileString[i])
         {
+            bool unflag = false;
             // Flagged -> Not Flagged
             if (m_TileString[i] == mswp::TileChar::FLAGGED && otherTileString[i] != mswp::TileChar::FLAGGED)
             {
+                unflag = true;
                 m_RemainingBombs++;
             }
             // Not Flagged -> Flagged
@@ -203,7 +207,7 @@ void MineSweeperSolver::update(const mswp::TileString& otherTileString)
             default:
                 break;
             }
-            updateTile(i);
+            updateTile(i, unflag);
         }
     }
 }

@@ -43,7 +43,7 @@ class MineSweeperSolver
 {
 public:
     MineSweeperSolver(const mswp::MineSweeper& mineSweeper);
-    void updateTile(const mswp::TileStringIndex i);
+    void updateTile(const mswp::TileStringIndex i, bool unflag = false);
     void update(const mswp::TileString& otherTileString);
 
     void applyFuncToAll(std::function<void(const mswp::BoardIndex i, Tile& outTile)> func);
