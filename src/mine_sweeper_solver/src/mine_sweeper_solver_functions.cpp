@@ -49,7 +49,7 @@ void lazySolve(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray
         if (outCenterTile.adjBombs == outCenterTile.adjUnknowns)
         {
             util::applyFuncToAdjObjects<Tiles, Tile>(i, width, size, tiles, 
-            [&outSolver, &outFlags, &isModified](int32_t i, Tile& outAdjTile) 
+            [&outFlags, &isModified](int32_t i, Tile& outAdjTile) 
             {
                 if (outAdjTile.hidden() && !isModified[i] && outFlags.size() < SLVR_ACTION_BUFFER_SIZE)
                 {
@@ -77,7 +77,7 @@ void lazySolve(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray
         else if (outCenterTile.adjBombs == 0)
         {
             util::applyFuncToAdjObjects<Tiles, Tile>(i, width, size, tiles, 
-            [&outSolver, &outClicks, &isModified](int32_t i, Tile& outAdjTile) 
+            [&outClicks, &isModified](int32_t i, Tile& outAdjTile) 
             {
                 if (outAdjTile.hidden() && !isModified[i] && outClicks.size() < SLVR_ACTION_BUFFER_SIZE)
                 {
