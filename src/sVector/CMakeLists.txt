@@ -12,12 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# TODO: Improve this so its easier to use as a package.
+
+set(LIBRARY_NAME sVector)
+
 cmake_minimum_required(VERSION 3.14)
-project(MineSweeperSolver VERSION 0.1.0)
+project(${LIBRARY_NAME} VERSION 0.1.0 LANGUAGES CXX)
 
-add_compile_options(-std=c++20 -Wall -Wextra -O3)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+add_library(${LIBRARY_NAME} INTERFACE)
+target_include_directories(${LIBRARY_NAME} INTERFACE .)
 
-add_subdirectory(src)
-add_subdirectory(test)
-add_subdirectory(benchmark)
+set_target_properties(
+    PROPERTIES
+    CMAKE_CXX_STANDARD 20
+    CMAKE_CXX_STANDARD_REQUIRED ON
+    CMAKE_CXX_EXTENSIONS OFF
+)

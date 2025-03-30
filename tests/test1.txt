@@ -1,0 +1,5 @@
+$ Shows that 1-2-1 pattern works
+- - -
+- - -
+1 2 1
+@ - @

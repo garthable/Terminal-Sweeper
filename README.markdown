@@ -21,12 +21,21 @@ I'm in the process of rewriting this project, the rewrite code can be found on t
 - If there are no obvious tile choices, the algorithm will find the bomb with the lowest probability of being a bomb and click it. If there's a tie between probabilities, the algorithm will use whether or not the tile is a corner or edge as a tie breaker.
 - This cycle will be repeated every iteration.
 ## How to compile and run
-1. Navigate to the root directory of the repository
-2. Type "make" into the console
-    - If you get an error from this make sure you are using a linux based terminal and that you have "make" installed.
-3. Type ./build/runner into the console
-    - If you received an error make sure your current directory is either the root of the repository or is the build directory.
-4. The program should now be running.
+In order to compile the program run:
+```bash
+cd /path/to/directory/Mine-Sweeper-Solver
+mkdir build
+cd build
+cmake ..
+make
+```
+You can then run the program by running
+```bash
+# On mac / linux:
+./MineSweeperSolver
+# On windows:
+./MineSweeperSolver.exe
+```
 ## How to use
 When booting up the program in terminal you will be greeted by 3 options:
 ```
@@ -115,14 +124,13 @@ Example of test results on expert set to 10000 runs:
 ######################################################
 Total Games: 10000
 
-Wins:        4266
-Losses:      5734
+Wins:        4193
+Loses:       5807
 
-Win Rate:    42.66%
-
+Win Rate:    41.93%
 ######################################################
-Time Taken:         46 secs
-Time Taken per run: 4.6 millisecs per run
+Time Taken:         42.7533 secs
+Time Taken Per Run: 4.27533 millisecs per run
 
 ######################################################
 ```
