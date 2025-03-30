@@ -158,7 +158,7 @@ void intersectionSolver(MineSweeperSolver& outSolver, ActionArray& outClicks, Ac
     outClicks.reset();
     outFlags.reset();
     BoardBitMap clickedOrFlagged;
-    outSolver.applyFuncToModified(
+    outSolver.applyFuncToAll(
     [&](const mswp::BoardIndex centerIndex, Tile& centerTile) 
     {
         if (centerTile.hidden())
