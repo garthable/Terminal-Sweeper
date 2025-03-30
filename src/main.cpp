@@ -18,9 +18,6 @@ int main(int argc, char** argv)
 
         mswp::BoardWidth width = board.width();
         mswp::BoardHeight height = board.size() / width;
-
-        slvr::ActionArray recommendedClicks;
-        slvr::ActionArray recommendedFlags;
         
         // Play game
         app::Input input =
@@ -32,12 +29,14 @@ int main(int argc, char** argv)
         LOG_INFO("HELLO");
         while(true)
         {
+            slvr::ActionArray recommendedClicks;
+            slvr::ActionArray recommendedFlags;
             if (assist)
             {
                 solver.update(board.tileString());
                 slvr::getRecommendedActions(solver, recommendedClicks, recommendedFlags);
-                recommendedClicks.update(board.tileString());
-                recommendedFlags.update(board.tileString());
+                // recommendedClicks.update(board.tileString());
+                // recommendedFlags.update(board.tileString());
             }
             app::displayBoard(input, board, assist, recommendedClicks, recommendedFlags);
             input = app::pollInput(height, width, input);
@@ -46,6 +45,9 @@ int main(int argc, char** argv)
                 break;
             }
         }
+
+        slvr::ActionArray recommendedClicks;
+        slvr::ActionArray recommendedFlags;
         
         // Check for whether player won or lost
         app::displayBoard(input, board, assist, recommendedClicks, recommendedFlags);

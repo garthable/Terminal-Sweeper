@@ -10,7 +10,7 @@
 #include "mine_sweeper_solver_probs.hpp"
 #include "solution_set.hpp"
 
-bool compareArray(const slvr::ModifiedBuffer& buffer, const std::initializer_list<mswp::BoardIndex>& initList)
+bool compareArray(const slvr::TilesWithAdjBombBuffer& buffer, const std::initializer_list<mswp::BoardIndex>& initList)
 {
     for (size_t i = 0; i < initList.size(); i++)
     {
@@ -148,7 +148,7 @@ TEST(Update, 0)
     board.click(0, 0);
     mineSweeperSolver.update(board.tileString());
 
-    ASSERT_TRUE(compareArray(mineSweeperSolver.modifiedBuffer(), 
+    ASSERT_TRUE(compareArray(mineSweeperSolver.tilesWithAdjBombBuffer(), 
     {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
     }));
@@ -189,7 +189,7 @@ TEST(Update, 1)
     board.click(0, 0);
     mineSweeperSolver.update(board.tileString());
 
-    ASSERT_TRUE(compareArray(mineSweeperSolver.modifiedBuffer(), 
+    ASSERT_TRUE(compareArray(mineSweeperSolver.tilesWithAdjBombBuffer(), 
     {
         0, 1, 5, 6
     }));
@@ -224,7 +224,7 @@ TEST(Update, 1)
     board.click(4, 3);
     mineSweeperSolver.update(board.tileString());
 
-    ASSERT_TRUE(compareArray(mineSweeperSolver.modifiedBuffer(), 
+    ASSERT_TRUE(compareArray(mineSweeperSolver.tilesWithAdjBombBuffer(), 
     {
         3, 4, 8, 9, 13, 14, 18, 19
     }));
@@ -248,7 +248,7 @@ TEST(Update, 1)
     board.flag(0, 2);
     mineSweeperSolver.update(board.tileString());
 
-    ASSERT_TRUE(compareArray(mineSweeperSolver.modifiedBuffer(), 
+    ASSERT_TRUE(compareArray(mineSweeperSolver.tilesWithAdjBombBuffer(), 
     {
         1, 3, 5, 6, 8, 13, 18
     }));
@@ -292,7 +292,7 @@ TEST(Update, 2)
     board.click(0, 0);
     mineSweeperSolver.update(board.tileString());
 
-    ASSERT_TRUE(compareArray(mineSweeperSolver.modifiedBuffer(), 
+    ASSERT_TRUE(compareArray(mineSweeperSolver.tilesWithAdjBombBuffer(), 
     {
         0, 1, 5, 6
     }));
@@ -316,7 +316,7 @@ TEST(Update, 2)
     board.flag(0, 2);
     mineSweeperSolver.update(board.tileString());
 
-    ASSERT_TRUE(compareArray(mineSweeperSolver.modifiedBuffer(), 
+    ASSERT_TRUE(compareArray(mineSweeperSolver.tilesWithAdjBombBuffer(), 
     {
         1, 5, 6
     }));
@@ -336,7 +336,7 @@ TEST(Update, 2)
 
     board.click(4, 3);
     mineSweeperSolver.update(board.tileString());
-    ASSERT_TRUE(compareArray(mineSweeperSolver.modifiedBuffer(), 
+    ASSERT_TRUE(compareArray(mineSweeperSolver.tilesWithAdjBombBuffer(), 
     {
         3, 4, 8, 9, 13, 14, 18, 19
     }));

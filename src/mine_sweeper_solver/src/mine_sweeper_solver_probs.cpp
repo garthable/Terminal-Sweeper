@@ -217,7 +217,7 @@ void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs)
     }
 
     mswp::BoardSize size = outSolver.size();
-    std::fill(outProbs.begin(), outProbs.end(), 2.0);
+    std::fill(outProbs.begin(), outProbs.end(), INFINITY);
 
 
     // TODO: Cache indicies for optimization.
@@ -239,14 +239,15 @@ void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs)
                 {
                     continue;
                 }
-                if (outProbs[i] == 2.0)
-                {
-                    outProbs[i] = 0;
-                }
                 // Zero if not a bomb, solution.numberOfSolutions if bomb.
                 uint64_t solutionCount = (solution.numberOfSolutions + !combined) * solution.solution[i];
 
                 double prob = static_cast<double>(solutionCount) / totalAmountOfSolutions;
+
+                if (outProbs[i] == INFINITY && prob != 0)
+                {
+                    outProbs[i] = 0;
+                }
 
                 // Gets probability of tile being a bomb
                 outProbs[i] += prob;

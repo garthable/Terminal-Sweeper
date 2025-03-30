@@ -249,8 +249,6 @@ void displayBoard(const Input input, const mswp::MineSweeper& board, const bool 
     if (assist)
     {
         out << "Assist Mode: ON \n";
-        out << "Clicks: " << recomendedClicks << "\n";
-        out << "Flags: " << recomendedFlags << "\n";
     }
     
     out << "Flags Remaining: " << static_cast<int>(board.flagsRemaining()) << '\n';
@@ -276,6 +274,10 @@ void displayBoard(const Input input, const mswp::MineSweeper& board, const bool 
         {
             symbol = 'F';
             color = Term::Color::Name::Red;
+        }
+        else if (assist)
+        {
+            color = Term::Color::Name::Gray;
         }
 
         if (cursor)

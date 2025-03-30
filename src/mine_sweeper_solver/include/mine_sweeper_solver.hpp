@@ -35,8 +35,10 @@ struct Tile
 };
 
 typedef std::array<Tile, MSWP_MAX_TILES> Tiles;
-typedef std::array<mswp::BoardIndex, MSWP_MAX_TILES> ModifiedBuffer;
+typedef std::array<mswp::BoardIndex, MSWP_MAX_TILES> TilesWithAdjBombBuffer;
+typedef mswp::BoardIndex TilesWithAdjBombSize;
 typedef std::bitset<MSWP_MAX_TILES> BoardBitMap;
+typedef mswp::BoardIndex BoardBitSize;
 typedef std::initializer_list<Tile> SolverInitList;
 
 class MineSweeperSolver
@@ -50,9 +52,9 @@ public:
     void applyFuncToAll(std::function<void(Tile& outTile)> func);
     void applyFuncToAll(std::function<void(const mswp::BoardIndex i)> func);
 
-    void applyFuncToModified(std::function<void(const mswp::BoardIndex i, Tile& outTile)> func);
-    void applyFuncToModified(std::function<void(Tile& outTile)> func);
-    void applyFuncToModified(std::function<void(const mswp::BoardIndex i)> func);
+    void applyFuncToTilesWithAdjBombs(std::function<void(const TilesWithAdjBombSize i, Tile& outTile)> func);
+    void applyFuncToTilesWithAdjBombs(std::function<void(Tile& outTile)> func);
+    void applyFuncToTilesWithAdjBombs(std::function<void(const TilesWithAdjBombSize i)> func);
 
     inline Tile& operator[](mswp::BoardIndex i)
     {
@@ -90,13 +92,13 @@ public:
         return m_Tiles;
     }
     
-    inline const ModifiedBuffer& modifiedBuffer() const
+    inline const TilesWithAdjBombBuffer& tilesWithAdjBombBuffer() const
     {
-        return m_ModifiedBuffer;
+        return m_TilesWithAdjBombBuffer;
     }
-    inline mswp::BoardSize modifiedBufferSize() const
+    inline TilesWithAdjBombSize tilesWithAdjBombBufferSize() const
     {
-        return m_ModifiedBufferSize;
+        return m_TilesWithAdjBombBufferSize;
     }
     
     inline mswp::TileString& tileString()
@@ -117,13 +119,13 @@ public:
         return m_Tiles;
     }
     
-    inline ModifiedBuffer& modifiedBuffer()
+    inline TilesWithAdjBombBuffer& tilesWithAdjBombBuffer()
     {
-        return m_ModifiedBuffer;
+        return m_TilesWithAdjBombBuffer;
     }
-    inline mswp::BoardSize& modifiedBufferSize()
+    inline TilesWithAdjBombSize& tilesWithAdjBombBufferSize()
     {
-        return m_ModifiedBufferSize;
+        return m_TilesWithAdjBombBufferSize;
     }
     inline const BoardBitMap& isNotDeepTile() const
     {
@@ -142,10 +144,10 @@ private:
     mswp::BoardSize m_RemainingDeepTiles;
     Tiles m_Tiles;
 
-    ModifiedBuffer m_ModifiedBuffer;
-    BoardBitMap m_IsModifiedBuffer;
+    TilesWithAdjBombBuffer m_TilesWithAdjBombBuffer;
+    TilesWithAdjBombSize m_TilesWithAdjBombBufferSize;
+    
     BoardBitMap m_IsNotDeepTile;
-    mswp::BoardSize m_ModifiedBufferSize;
 };
 
 std::ostream& operator<<(std::ostream &out, const Tile& tile);

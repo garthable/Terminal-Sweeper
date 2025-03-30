@@ -24,7 +24,7 @@ void lazySolve(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray
 {
     BoardBitMap isModified;
 
-    outSolver.applyFuncToModified(
+    outSolver.applyFuncToTilesWithAdjBombs(
     [&outSolver, &outClicks, &outFlags, &isModified](const mswp::BoardIndex i, Tile& outCenterTile) 
     {
         auto width = outSolver.width();
@@ -163,7 +163,7 @@ void intersectionSolver(MineSweeperSolver& outSolver, ActionArray& outClicks, Ac
     outClicks.reset();
     outFlags.reset();
     BoardBitMap clickedOrFlagged;
-    outSolver.applyFuncToModified(
+    outSolver.applyFuncToTilesWithAdjBombs(
     [&](const mswp::BoardIndex centerIndex, Tile& centerTile) 
     {
         if (centerTile.hidden())
@@ -264,11 +264,14 @@ void intersectionSolver(MineSweeperSolver& outSolver, ActionArray& outClicks, Ac
 
 void getRecommendedActions(MineSweeperSolver& outSolver, ActionArray& outClicks, ActionArray& outFlags)
 {
-    lazySolve(outSolver, outClicks, outFlags);
-    if (outClicks.size() != 0 || outFlags.size() != 0)
-    {
-        return;
-    }
+    // Was initially included to improve performance but it can cause clickable tiles top 'disapear' temporarily. 
+    // Leads to worse game feel.
+    //
+    // lazySolve(outSolver, outClicks, outFlags);
+    // if (outClicks.size() != 0 || outFlags.size() != 0)
+    // {
+    //     return;
+    // }
     intersectionSolver(outSolver, outClicks, outFlags);
     if (outClicks.size() != 0 || outFlags.size() != 0)
     {
