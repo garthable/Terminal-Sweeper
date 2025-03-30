@@ -211,25 +211,25 @@ public:
      * 
      * @return TileChar* 
      */
-    TileChar* begin();
+    TileChars::iterator begin();
     /**
      * @brief Gets iterator at end
      * 
      * @return TileChar* 
      */
-    TileChar* end();
+    TileChars::iterator end();
     /**
      * @brief Gets iterator at start
      * 
      * @return const TileChar* 
      */
-    const TileChar* begin() const;
+    TileChars::const_iterator begin() const;
     /**
      * @brief Gets iterator at end
      * 
      * @return const TileChar* 
      */
-    const TileChar* end() const;
+    TileChars::const_iterator end() const;
 private:
     /**
      * @brief Array of TileChars

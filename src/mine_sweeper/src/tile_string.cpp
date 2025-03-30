@@ -103,19 +103,19 @@ void TileString::reset()
     fill(TileChar::HIDDEN);
 }
 
-TileChar* TileString::begin()
+TileChars::iterator TileString::begin()
 {
     return m_TileChars.begin();
 }
-TileChar* TileString::end()
+TileChars::iterator TileString::end()
 {
     return m_TileChars.end();
 }
-const TileChar* TileString::begin() const
+TileChars::const_iterator TileString::begin() const
 {
     return m_TileChars.begin();
 }
-const TileChar* TileString::end() const
+TileChars::const_iterator TileString::end() const
 {
     return m_TileChars.end();
 }
