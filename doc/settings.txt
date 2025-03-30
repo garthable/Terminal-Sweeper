@@ -1,9 +1,0 @@
-run_amount: 10000
-
-# Three difficulties are: beginner, intermediate, and expert
-difficulty: expert
-
-# Type "r" for a random value
-seed: r
-
-wait_time: 50000
