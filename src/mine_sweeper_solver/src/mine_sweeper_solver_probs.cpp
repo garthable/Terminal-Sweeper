@@ -217,7 +217,7 @@ void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs)
     }
 
     mswp::BoardSize size = outSolver.size();
-    std::fill(outProbs.begin(), outProbs.begin() + size, NAN);
+    std::fill(outProbs.begin(), outProbs.end(), 2.0);
 
 
     // TODO: Cache indicies for optimization.
@@ -239,7 +239,7 @@ void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs)
                 {
                     continue;
                 }
-                if (outProbs[i] != outProbs[i])
+                if (outProbs[i] == 2.0)
                 {
                     outProbs[i] = 0;
                 }

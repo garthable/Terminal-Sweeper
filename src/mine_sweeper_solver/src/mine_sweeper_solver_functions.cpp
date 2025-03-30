@@ -277,6 +277,10 @@ void getRecommendedActions(MineSweeperSolver& outSolver, ActionArray& outClicks,
     TileProbs tileProbs;
     calculateProbs(outSolver, tileProbs);
     mswp::BoardIndex lowestProb = std::min_element(tileProbs.begin(), tileProbs.begin() + outSolver.size()) - tileProbs.begin();
+    if (lowestProb >= outSolver.size())
+    {
+        throw std::runtime_error("Invalid lowestProb!");
+    }
     outClicks.push(lowestProb);
 }
 

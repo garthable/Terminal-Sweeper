@@ -139,6 +139,16 @@ void MineSweeperSolver::update(const mswp::TileString& otherTileString)
     {
         if (m_TileString[i] != otherTileString[i])
         {
+            // Flagged -> Not Flagged
+            if (m_TileString[i] == mswp::TileChar::FLAGGED && otherTileString[i] != mswp::TileChar::FLAGGED)
+            {
+                m_RemainingBombs++;
+            }
+            // Not Flagged -> Flagged
+            if (m_TileString[i] != mswp::TileChar::FLAGGED && otherTileString[i] == mswp::TileChar::FLAGGED)
+            {
+                m_RemainingBombs--;
+            }
             m_TileString[i] = otherTileString[i];
             switch (m_TileString[i])
             {
@@ -188,7 +198,6 @@ void MineSweeperSolver::update(const mswp::TileString& otherTileString)
                 break;
             case mswp::TileChar::FLAGGED:
                 m_Tiles[i].bombProb = 1;
-                m_RemainingBombs--;
                 break;
             
             default:
