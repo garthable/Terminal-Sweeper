@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(GOOGLE_TEST_VERSION 1.15.2)
 
-enable_testing()
+set(gtest_force_shared_crt on)
 
 # Installs google test
 include(FetchContent)
@@ -28,7 +28,12 @@ FetchContent_Declare(
     URL https://github.com/google/googletest/archive/refs/tags/v${GOOGLE_TEST_VERSION}.zip 
     FIND_PACKAGE_ARGS ${GOOGLE_TEST_VERSION}
 )
+if(WIN32)
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+endif()
 FetchContent_MakeAvailable(googletest)
+
+enable_testing()
 
 add_subdirectory(mine_sweeper_tests)
 add_subdirectory(mine_sweeper_solver_tests)
