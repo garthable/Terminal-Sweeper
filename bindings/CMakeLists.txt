@@ -8,5 +8,8 @@ set(BENCHMARK_ENABLE_TESTING OFF)
 FetchContent_MakeAvailable(
     pybind11)
 
-pybind11_add_module(python_binding python/python_binding.cpp)
-target_link_libraries(python_binding PRIVATE pybind11::module mine_sweeper mine_sweeper_solver util)
+pybind11_add_module(mine_sweeper_binding python/mine_sweeper_binding.cpp)
+target_link_libraries(mine_sweeper_binding PRIVATE pybind11::module mine_sweeper)
+
+pybind11_add_module(mine_sweeper_solver_binding python/mine_sweeper_solver_binding.cpp)
+target_link_libraries(mine_sweeper_solver_binding PRIVATE pybind11::module mine_sweeper mine_sweeper_solver)
