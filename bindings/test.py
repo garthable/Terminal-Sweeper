@@ -1,6 +1,4 @@
 import MineSweeper as ms
-import time
-import ctypes
 
 def main():
     board = ms.MineSweeper(30, 16, 99)
