@@ -1,6 +1,6 @@
 # Terminal Sweeper
 
-Terminal Sweeper is a program that runs Mine Sweeper in your terminal. Terminal Sweeper is also capable of solving Mine Sweeper Games for you. The goal of this repository is to create an accurate, and highly optimized Mine Sweeper Solver. 
+Terminal Sweeper is a program that runs Mine Sweeper in your terminal. Terminal Sweeper is also capable of solving Mine Sweeper Games for you. The goal of this repository is to create an accurate and highly optimized Mine Sweeper Solver. 
 
 <p align="center">
   <img src="docs/imgs/normal_mode.png" alt="Game of Mine Sweeper on Terminal"/>
