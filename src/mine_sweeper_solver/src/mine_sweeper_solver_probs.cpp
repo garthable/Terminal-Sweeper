@@ -216,7 +216,7 @@ void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs)
     }
 
     mswp::BoardSize size = outSolver.size();
-    std::fill(outProbs.begin(), outProbs.end(), INFINITY);
+    std::fill(outProbs.begin(), outProbs.end(), 0);
 
 
     // TODO: Cache indicies for optimization.
@@ -234,6 +234,7 @@ void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs)
         {
             for (mswp::BoardIndex i = 0; i < size; i++)
             {
+                // Skip deep tiles
                 if (!outSolver.isNotDeepTile()[i])
                 {
                     continue;
@@ -241,24 +242,25 @@ void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs)
                 // Zero if not a bomb, solution.numberOfSolutions if bomb.
                 uint64_t solutionCount = (solution.numberOfSolutions + !combined) * solution.solution[i];
 
+                // Less performance than dividing everything by totalAmountOfSolutions 
+                // later but more numerically stable.
                 double prob = static_cast<double>(solutionCount) / totalAmountOfSolutions;
-
-                if (outProbs[i] == INFINITY && prob != 0)
-                {
-                    outProbs[i] = 0;
-                }
 
                 // Gets probability of tile being a bomb
                 outProbs[i] += prob;
+                // Get the remaining probability, will be used later for the deep tiles.
                 remainingProb -= prob;
             }
         }
     }
 
-    double deepTileProb = remainingProb / outSolver.remainingDeepTiles();
+    mswp::BoardSize remainingDeepTiles = outSolver.remainingDeepTiles();
+
+    double deepTileProb = remainingDeepTiles != 0 ? remainingProb / remainingDeepTiles : 0;
 
     for (mswp::BoardIndex i = 0; i < size; i++)
     {
+        // Set deep tiles
         if (!outSolver.isNotDeepTile()[i])
         {
             outProbs[i] = deepTileProb;
