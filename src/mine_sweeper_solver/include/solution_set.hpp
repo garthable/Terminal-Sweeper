@@ -49,6 +49,10 @@ public:
     {
         return m_Solutions[i + m_StartOffset];
     }
+    inline const Solution& operator[](size_t i) const
+    {
+        return m_Solutions[i + m_StartOffset];
+    }
     inline size_t size() const
     {
         return m_Solutions.size() - m_EndOffset;

@@ -21,6 +21,130 @@ do\
 } \
 while(0)
 
+inline int8_t getAdjAmount(const int32_t i, int32_t width, int32_t size)
+{
+    static constexpr uint8_t amounts[] = {8u, 5u, 3u};
+    
+    int32_t x = i % width;
+    int32_t y = i / width;
+
+    int8_t onXSide = x == 0u || x == width - 1u;
+    int8_t onYSide = y == 0u || y == (size/width) - 1u;
+
+    return amounts[onXSide + onYSide];
+}
+
+template<typename CONTAINER>
+inline int8_t getAdjAmount(const int32_t i, const CONTAINER& container)
+{
+    static constexpr uint8_t amounts[] = {8u, 5u, 3u};
+
+    int32_t width = container.width();
+    int32_t size = container.size();
+    
+    int32_t x = i % width;
+    int32_t y = i / width;
+
+    int8_t onXSide = x == 0u || x == width - 1u;
+    int8_t onYSide = y == 0u || y == (size/width) - 1u;
+
+    return amounts[onXSide + onYSide];
+}
+
+/**
+ * @brief Gets all adjacent indicies and poppulates an array with them. If there is an invalid index it 
+ * is poppulated with -1.
+ * 
+ * @tparam CONTAINER object that behaves as an array and has size and width functions
+ * @param i index of array to center around
+ * @param container object with width, size and internal data
+ * @param outIndicies array that is poppulated by indicies.
+ */
+template<typename CONTAINER>
+inline void getAdjIndices(const int32_t i, const CONTAINER& container, std::array<int32_t, 8>& outIndicies)
+{
+    int32_t width = container.width();
+    int32_t size = container.size();
+    static constexpr int32_t offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const int32_t offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    const int32_t x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        int32_t newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            outIndicies[j] = -1;
+            continue;
+        }
+        int32_t offset = offsetsX[j] + offsetsY[j];
+        int32_t newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            outIndicies[j] = -1;
+            continue;
+        }
+        outIndicies[j] = newI;
+    }
+}
+
+/**
+ * @brief Gets all adjacent indicies and poppulates an array with them. If there is an invalid index it 
+ * is poppulated with -1.
+ * 
+ * @param i index of array to center around
+ * @param width width of container
+ * @param size size of container
+ * @param container object with width, size and internal data
+ * @param outIndicies array that is poppulated by indicies.
+ */
+inline void getAdjIndices(const int32_t i, const int32_t width, const int32_t size, std::array<int32_t, 8>& outIndicies)
+{
+    static constexpr int32_t offsetsX[8] =
+    {
+        -1,  0, 1,
+        -1,     1,
+        -1, -0, 1
+    };
+    const int32_t offsetsY[8] =
+    {
+         width,  width,  width,
+         0,              0,
+        -width, -width, -width
+    };
+
+    const int32_t x = i % width;
+
+    for (uint8_t j = 0; j < 8; j++)
+    {
+        int32_t newX = x + offsetsX[j];
+        if (newX >= width || newX < 0)
+        {
+            outIndicies[j] = -1;
+            continue;
+        }
+        int32_t offset = offsetsX[j] + offsetsY[j];
+        int32_t newI = i + offset;
+        if (newI >= size || newI < 0)
+        {
+            outIndicies[j] = -1;
+            continue;
+        }
+        outIndicies[j] = newI;
+    }
+}
+
 /**
  * @brief Runs func on adjacent elements of index i
  * 
