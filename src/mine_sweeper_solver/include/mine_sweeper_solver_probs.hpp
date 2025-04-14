@@ -46,6 +46,8 @@ typedef std::array<double, MSWP_MAX_TILES> TileProbs;
 void sortByCombinationCount(const MineSweeperSolver& solver, group::TileGroup& outTileGroup);
 void getSolutions(group::TileGroup& outTileGroup, MineSweeperSolver& outSolver, BoardBitMap& outBombLocations, SolutionSet& outSolutionSet, const mswp::BoardIndex i = 0, const uint8_t bombsInSolution = 0);
 
+uint64_t getTotalAmountOfSolutions(const SolutionSet& solutionSet);
+
 void calculateProbs(MineSweeperSolver& outSolver, TileProbs& outProbs);
 
 } // namespace slvr end
