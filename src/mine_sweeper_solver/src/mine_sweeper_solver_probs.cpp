@@ -49,8 +49,8 @@ inline uint8_t* getHardcodedCombinations(uint8_t r)
 
 inline uint8_t getHardcodedCombinationsSize(uint8_t n, uint8_t r)
 {
-    --n;
-    --r;
+    n--;
+    r--;
     static uint8_t hardCodedSize[] = {1, 2, 1, 3, 3, 1, 4, 6, 4, 1, 5, 10, 10, 5, 1, 6, 15, 20, 15, 6, 1, 7, 21, 35, 35, 21, 7, 1, 8, 28, 56, 70, 56, 28, 8, 1};
     const bool valid = (n < 8 && r < 8);
     const uint8_t k = (n*(n+1)/2 + r)*valid;

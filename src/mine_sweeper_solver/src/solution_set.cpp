@@ -28,7 +28,7 @@ void SolutionSet::eliminateSolutions(mswp::FlagsRemaining sumOfMins, mswp::Flags
     sumOfMaxes -= m_MaxBombs;
     size_t size = m_Solutions.size();
     // Removes maxes
-    for (size_t i = size-1; i != static_cast<size_t>(-1); --i)
+    for (size_t i = size-1; i != static_cast<size_t>(-1); i--)
     {
         if (m_Solutions[i].bombCount + sumOfMins <= maxBombs)
         {
