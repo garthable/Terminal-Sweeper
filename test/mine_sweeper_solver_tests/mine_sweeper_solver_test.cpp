@@ -858,8 +858,6 @@ TEST(CalcProbs, 4)
 
     slvr::MineSweeperSolver solver(board);
 
-    LOG_INFO(solver);
-
     slvr::TileProbs tileProbs;
     slvr::calculateProbs(solver, tileProbs);
 
@@ -883,8 +881,6 @@ TEST(CalcProbs, 5)
     });
 
     slvr::MineSweeperSolver solver(board);
-
-    LOG_INFO(solver);
 
     slvr::TileProbs tileProbs;
     slvr::calculateProbs(solver, tileProbs);
@@ -913,8 +909,6 @@ TEST(CalcProbs, 6)
 
     slvr::MineSweeperSolver solver(board);
 
-    LOG_INFO(solver);
-
     slvr::TileProbs tileProbs;
     slvr::calculateProbs(solver, tileProbs);
 
@@ -942,8 +936,6 @@ TEST(CalcProbs, 7)
     });
 
     slvr::MineSweeperSolver solver(board);
-
-    LOG_INFO(solver);
 
     slvr::TileProbs tileProbs;
     slvr::calculateProbs(solver, tileProbs);
